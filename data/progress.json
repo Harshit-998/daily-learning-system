@@ -2,9 +2,12 @@
   "version": 1,
   "paused": false,
   "difficulty": "hard",
-  "focusAreas": ["system-design", "dsa"],
+  "focusAreas": [
+    "system-design",
+    "dsa"
+  ],
   "timezone": "Asia/Kolkata",
-  "lastRunDate": null,
+  "lastRunDate": "2026-08-30",
   "systemDesign": {
     "completedTopicIds": [],
     "currentIndex": 0
@@ -13,7 +16,64 @@
     "completedPatternIds": [],
     "currentPatternIndex": 0,
     "currentDifficulty": "hard",
-    "reviewQueue": []
+    "reviewQueue": [
+      {
+        "id": "latency-throughput-availability",
+        "type": "system-design",
+        "dueDate": "2026-08-31",
+        "strength": 0
+      },
+      {
+        "id": "arrays-hashing",
+        "type": "dsa",
+        "dueDate": "2026-08-31",
+        "strength": 0
+      },
+      {
+        "id": "latency-throughput-availability",
+        "type": "system-design",
+        "dueDate": "2026-09-02",
+        "strength": 0
+      },
+      {
+        "id": "arrays-hashing",
+        "type": "dsa",
+        "dueDate": "2026-09-02",
+        "strength": 0
+      },
+      {
+        "id": "latency-throughput-availability",
+        "type": "system-design",
+        "dueDate": "2026-09-06",
+        "strength": 0
+      },
+      {
+        "id": "arrays-hashing",
+        "type": "dsa",
+        "dueDate": "2026-09-06",
+        "strength": 0
+      },
+      {
+        "id": "latency-throughput-availability",
+        "type": "system-design",
+        "dueDate": "2026-09-15",
+        "strength": 0
+      },
+      {
+        "id": "arrays-hashing",
+        "type": "dsa",
+        "dueDate": "2026-09-15",
+        "strength": 0
+      }
+    ]
   },
-  "history": []
+  "history": [
+    {
+      "date": "2026-08-30",
+      "mode": "weekly-review",
+      "systemDesignTopicId": "latency-throughput-availability",
+      "dsaPatternId": "arrays-hashing",
+      "title": "Sunday Mastery: Latency, Throughput, and Availability + Arrays and Hashing"
+    }
+  ]
 }

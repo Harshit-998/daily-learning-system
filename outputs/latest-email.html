@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Latency, Throughput, and Availability + Arrays and Hashing</title>
+  <title>Sunday Mastery: Latency, Throughput, and Availability + Arrays and Hashing</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -14,20 +14,20 @@
       margin:0;
       background:
         radial-gradient(circle at 14px 14px, rgba(0,0,0,.035) 1px, transparent 1px),
-        linear-gradient(#f4f2e8, #f4f2e8);
+        linear-gradient(#fbfaf7, #fbfaf7);
       background-size:28px 28px, auto;
-      color:#1b2430;
+      color:#171717;
       font-family:'IBM Plex Sans', Inter, Segoe UI, Arial, sans-serif;
       line-height:1.62;
     }
-    body { background-image:linear-gradient(rgba(244,242,232,.9), rgba(244,242,232,.9)), repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(110,98,63,.28) 28px), repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(110,98,63,.28) 28px); background-size:auto,28px 28px,28px 28px; }
+    
     .wrap { max-width:900px; margin:0 auto; padding:22px 18px 64px; }
     .masthead {
-      background:#16324f;
+      background:#202124;
       color:#f8fafc;
       border-radius:6px;
       padding:30px 30px 24px;
-      border:1px solid rgba(127,214,198,.35);
+      border:1px solid #d8d6ce;
       position:relative;
       overflow:hidden;
       box-shadow:0 20px 54px rgba(17,24,39,.16);
@@ -40,46 +40,46 @@
     .eyebrow, code, pre, .meta, .topic-tab, .sr-cell .d, .pin { font-family:'IBM Plex Mono', SFMono-Regular, Consolas, monospace; }
     .eyebrow { display:inline-flex; align-items:center; color:#7fd6c6; border:1px solid rgba(127,214,198,.48); padding:4px 10px; border-radius:999px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; }
     h1 { font-family:'Space Grotesk', Inter, sans-serif; font-size:30px; line-height:1.13; margin:14px 0 7px; letter-spacing:0; }
-    h2 { font-family:'Space Grotesk', Inter, sans-serif; font-size:23px; line-height:1.22; margin:8px 0 12px; letter-spacing:0; border-bottom:2px solid #1b2430; padding-bottom:9px; }
-    h3 { font-family:'Space Grotesk', Inter, sans-serif; font-size:15.5px; margin:22px 0 8px; letter-spacing:0; color:#16324f; }
+    h2 { font-family:'Space Grotesk', Inter, sans-serif; font-size:23px; line-height:1.22; margin:8px 0 12px; letter-spacing:0; border-bottom:2px solid #171717; padding-bottom:9px; }
+    h3 { font-family:'Space Grotesk', Inter, sans-serif; font-size:15.5px; margin:22px 0 8px; letter-spacing:0; color:#202124; }
     p, li, td { font-size:15px; }
     ul, ol { margin:0; padding-left:20px; }
     .meta { color:#cbd5e1; font-size:12px; }
     .recall, .card, details, .mnemonic, .challenge {
-      background:#fffdf7;
-      color:#1b2430;
-      border:1px solid #cfc8b0;
+      background:#ffffff;
+      color:#171717;
+      border:1px solid #d8d6ce;
       border-radius:3px;
       padding:15px 17px;
     }
-    .recall { margin-top:18px; border-style:dashed; border-color:#d98c2b; position:relative; box-shadow:inset 0 0 0 1px rgba(255,255,255,.35); }
-    .pin { position:absolute; top:-10px; left:14px; background:#d98c2b; color:#ffffff; padding:2px 8px; border-radius:2px; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .recall { margin-top:18px; border-style:dashed; border-color:#b45309; position:relative; box-shadow:inset 0 0 0 1px rgba(255,255,255,.35); }
+    .pin { position:absolute; top:-10px; left:14px; background:#b45309; color:#ffffff; padding:2px 8px; border-radius:2px; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
     .recall h2 { border:0; padding:0; margin:2px 0 8px; font-size:16px; }
     .topic { margin-top:34px; }
-    .topic-tab { display:inline-block; background:#d98c2b; color:#ffffff; padding:4px 10px; border-radius:2px 2px 0 0; font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
-    .topic-tab.alt { background:#16324f; color:#ffffff; }
-    .lede { color:#4a5568; font-size:16px; }
+    .topic-tab { display:inline-block; background:#b45309; color:#ffffff; padding:4px 10px; border-radius:2px 2px 0 0; font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
+    .topic-tab.alt { background:#202124; color:#ffffff; }
+    .lede { color:#5f6368; font-size:16px; }
     .card { box-shadow:0 8px 22px rgba(17,24,39,.055); }
     .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
-    .challenge { border-left:4px solid #d98c2b; margin:14px 0; background:linear-gradient(90deg, rgba(47,143,131,.12), rgba(255,255,255,.72)); }
-    .mnemonic { display:flex; gap:10px; margin:16px 0; border-color:#d98c2b; }
-    .badge { background:#d98c2b; color:#ffffff; min-width:40px; height:28px; padding:4px 8px; border-radius:2px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; }
-    .diagram-frame { background:#16324f; border-radius:3px; padding:12px; overflow-x:auto; box-shadow:0 14px 34px rgba(17,24,39,.2); }
+    .challenge { border-left:4px solid #b45309; margin:14px 0; background:linear-gradient(90deg, rgba(47,143,131,.12), rgba(255,255,255,.72)); }
+    .mnemonic { display:flex; gap:10px; margin:16px 0; border-color:#b45309; }
+    .badge { background:#b45309; color:#ffffff; min-width:40px; height:28px; padding:4px 8px; border-radius:2px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; }
+    .diagram-frame { background:#202124; border-radius:3px; padding:12px; overflow-x:auto; box-shadow:0 14px 34px rgba(17,24,39,.2); }
     .diagram-frame svg { display:block; min-width:640px; max-width:100%; height:auto; }
-    .caption { color:#4a5568; font-size:13px; }
-    pre { background:#12202f; color:#e5e7eb; padding:14px 16px; border-radius:4px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
+    .caption { color:#5f6368; font-size:13px; }
+    pre { background:#1f2937; color:#e5e7eb; padding:14px 16px; border-radius:4px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
     .array-row { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }
-    .cell { min-width:44px; padding:8px 4px; text-align:center; border:1.5px solid #16324f; border-radius:3px; background:#fffdf7; font-family: IBM Plex Mono, monospace; }
-    .cell .idx { display:block; color:#4a5568; font-size:10px; }
-    .cell.hit { background:#eafff4; border-color:#d98c2b; }
+    .cell { min-width:44px; padding:8px 4px; text-align:center; border:1.5px solid #202124; border-radius:3px; background:#ffffff; font-family: IBM Plex Mono, monospace; }
+    .cell .idx { display:block; color:#5f6368; font-size:10px; }
+    .cell.hit { background:#eafff4; border-color:#b45309; }
     details { margin:8px 0; }
     summary { cursor:pointer; font-weight:700; }
-    .answer { color:#4a5568; border-top:1px dashed #cfc8b0; margin-top:8px; padding-top:8px; }
-    .sr { margin-top:36px; border:1px solid #16324f; border-radius:6px; overflow:hidden; }
-    .sr-head { background:#16324f; color:#ffffff; padding:10px 16px; font-weight:700; }
+    .answer { color:#5f6368; border-top:1px dashed #d8d6ce; margin-top:8px; padding-top:8px; }
+    .sr { margin-top:36px; border:1px solid #202124; border-radius:6px; overflow:hidden; }
+    .sr-head { background:#202124; color:#ffffff; padding:10px 16px; font-weight:700; }
     .sr-body { display:flex; flex-wrap:wrap; }
-    .sr-cell { flex:1 1 140px; padding:12px 16px; border-right:1px solid #cfc8b0; background:#fffdf7; }
-    .sr-cell .d { font-size:11px; color:#4a5568; text-transform:uppercase; letter-spacing:.06em; }
+    .sr-cell { flex:1 1 140px; padding:12px 16px; border-right:1px solid #d8d6ce; background:#ffffff; }
+    .sr-cell .d { font-size:11px; color:#5f6368; text-transform:uppercase; letter-spacing:.06em; }
     .sr-cell .date { font-weight:700; font-size:14px; }
     @media (max-width:680px) {
       .wrap { padding:14px 10px 42px; }
@@ -94,9 +94,9 @@
   <main class="wrap">
     <header class="masthead">
       <div class="blueprint-border"></div>
-      <span class="eyebrow">Daily Lesson / Java track / architecture blueprint</span>
-      <h1>Latency, Throughput, and Availability + Arrays and Hashing</h1>
-      <div class="meta">2026-08-29 / SDE-2+ prep / production reasoning</div>
+      <span class="eyebrow">Sunday Mastery / Java track / minimal editorial</span>
+      <h1>Sunday Mastery: Latency, Throughput, and Availability + Arrays and Hashing</h1>
+      <div class="meta">2026-08-30 / SDE-2+ prep / production reasoning</div>
       <section class="recall">
         <span class="pin">Pin this</span>
         <h2>60-second recall</h2>
@@ -285,7 +285,7 @@ for (String word : strs) {
     <section class="sr">
       <div class="sr-head">Review schedule</div>
       <div class="sr-body">
-        <div class="sr-cell"><div class="d">+1 day</div><div class="date">Sun, Aug 30</div></div><div class="sr-cell"><div class="d">+3 days</div><div class="date">Tue, Sep 1</div></div><div class="sr-cell"><div class="d">+7 days</div><div class="date">Sat, Sep 5</div></div><div class="sr-cell"><div class="d">+16 days</div><div class="date">Mon, Sep 14</div></div>
+        <div class="sr-cell"><div class="d">+1 day</div><div class="date">Mon, Aug 31</div></div><div class="sr-cell"><div class="d">+3 days</div><div class="date">Wed, Sep 2</div></div><div class="sr-cell"><div class="d">+7 days</div><div class="date">Sun, Sep 6</div></div><div class="sr-cell"><div class="d">+16 days</div><div class="date">Tue, Sep 15</div></div>
       </div>
     </section>
   

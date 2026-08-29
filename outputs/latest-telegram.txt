@@ -1,4 +1,4 @@
-Daily Lesson: Latency, Throughput, and Availability + Arrays and Hashing
+Sunday Mastery: Sunday Mastery: Latency, Throughput, and Availability + Arrays and Hashing
 
 System Design: Latency, Throughput, and Availability
 Core idea: Latency measures how long one request takes. Throughput measures how many requests complete per unit time. Availability measures whether the system can return correct responses over time.
