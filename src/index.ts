@@ -46,7 +46,9 @@ async function runDaily(forceDryRun = false): Promise<void> {
   }
 
   const date = formatDateInKolkata();
-  if (!dryRun && progress.lastRunDate === date) {
+  const forceNewLesson = config.forceNewLesson;
+
+  if (!dryRun && !forceNewLesson &&  progress.lastRunDate === date) {
     console.log(`Lesson already generated for ${date}. Skipping duplicate run.`);
     return;
   }
