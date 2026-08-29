@@ -24,6 +24,7 @@ export function loadConfig(): AppConfig {
     difficulty: difficultyFromEnv(process.env.DIFFICULTY),
     focusAreas: (process.env.FOCUS_AREAS || "system-design,dsa").split(",").map((item) => item.trim()).filter(Boolean),
     paused: boolFromEnv(process.env.PAUSED),
-    dryRun: boolFromEnv(process.env.DRY_RUN)
+    dryRun: boolFromEnv(process.env.DRY_RUN),
+    forceNewLesson: boolFromEnv(process.env.FORCE_NEW_LESSON)
   };
 }
