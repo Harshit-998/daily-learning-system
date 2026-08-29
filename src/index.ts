@@ -5,7 +5,7 @@ import { validateLesson } from "./generation/validate.js";
 import { renderEmailHtml } from "./render/html.js";
 import { renderTelegram } from "./render/telegram.js";
 import { sendGmail } from "./delivery/gmail.js";
-import { sendTelegram } from "./delivery/telegram.js";
+import { sendTelegramDocument } from "./delivery/telegram.js";
 import { applyLessonToProgress, readProgress, writeLesson, writeOutputPreview, writeProgress } from "./state/files.js";
 import { selectLesson } from "./state/selectLesson.js";
 import { formatDateInKolkata } from "./utils/date.js";
@@ -67,7 +67,10 @@ async function runDaily(forceDryRun = false): Promise<void> {
 
   if (!dryRun) {
     const emailResult = await retry(() => sendGmail(config, lesson.title, html), 2);
-    const telegramResult = await retry(() => sendTelegram(config, lesson.telegramSummary), 2);
+    const telegramResult = await retry(
+      () => sendTelegramDocument(config, html, `daily-learning-${date}.html`),
+      2
+    );    
     console.log(emailResult);
     console.log(telegramResult);
 
