@@ -9,6 +9,10 @@ on:
         description: "Generate without sending email or Telegram"
         required: false
         default: "false"
+      force_new_lesson:
+        description: "For manual runs, bypass same-day dedupe and advance to the next lesson"
+        required: false
+        default: "true"
 
 permissions:
   contents: write
@@ -30,6 +34,7 @@ jobs:
       FOCUS_AREAS: ${{ vars.FOCUS_AREAS || 'system-design,dsa' }}
       PAUSED: ${{ vars.PAUSED || 'false' }}
       DRY_RUN: ${{ inputs.dry_run || 'false' }}
+      FORCE_NEW_LESSON: ${{ github.event_name == 'workflow_dispatch' && inputs.force_new_lesson || 'false' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
