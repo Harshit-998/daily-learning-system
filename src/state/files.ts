@@ -14,9 +14,15 @@ export async function writeProgress(progress: Progress): Promise<void> {
   await writeJson(progressPath, progress);
 }
 
-export async function writeLesson(date: string, lesson: GeneratedLesson): Promise<string> {
+export async function writeLesson(
+  date: string,
+  lesson: GeneratedLesson,
+  suffix?: string
+): Promise<string> {
   const [year, month, day] = date.split("-");
-  const filePath = join("lessons", year, month, `${day}.json`);
+  const safeSuffix = suffix?.replace(/[^a-zA-Z0-9_-]/g, "");
+  const fileName = safeSuffix ? `${day}-${safeSuffix}.json` : `${day}.json`;
+  const filePath = join("lessons", year, month, fileName);
   await writeJson(filePath, lesson);
   return filePath;
 }
@@ -27,12 +33,12 @@ export async function writeOutputPreview(html: string, telegram: string): Promis
   await writeFile("outputs/latest-telegram.txt", telegram, "utf8");
 }
 
-export function applyLessonToProgress(progress: Progress, lesson: GeneratedLesson, historyItem: LessonHistoryItem): Progress {
+export function applyLessonToProgress( progress: Progress, lesson: GeneratedLesson, historyItem: LessonHistoryItem, forceAdvance = false ): Progress {
   const next: Progress = structuredClone(progress);
   next.lastRunDate = historyItem.date;
   next.history = [historyItem, ...next.history].slice(0, 180);
 
-  if (lesson.mode === "daily") {
+  if (lesson.mode === "daily" || forceAdvance) {
     if (!next.systemDesign.completedTopicIds.includes(lesson.systemDesign.topicId)) {
       next.systemDesign.completedTopicIds.push(lesson.systemDesign.topicId);
     }
