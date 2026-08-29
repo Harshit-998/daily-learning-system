@@ -1,0 +1,48 @@
+name: Daily Learning
+
+on:
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Generate without sending email or Telegram"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+jobs:
+  lesson:
+    runs-on: ubuntu-latest
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-1.5-flash' }}
+      GMAIL_CLIENT_ID: ${{ secrets.GMAIL_CLIENT_ID }}
+      GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
+      GMAIL_REFRESH_TOKEN: ${{ secrets.GMAIL_REFRESH_TOKEN }}
+      GMAIL_FROM_EMAIL: ${{ secrets.GMAIL_FROM_EMAIL }}
+      RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      DIFFICULTY: ${{ vars.DIFFICULTY || 'hard' }}
+      FOCUS_AREAS: ${{ vars.FOCUS_AREAS || 'system-design,dsa' }}
+      PAUSED: ${{ vars.PAUSED || 'false' }}
+      DRY_RUN: ${{ inputs.dry_run || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run daily
+      - name: Commit generated lesson and progress
+        run: |
+          git config user.name "daily-learning-bot"
+          git config user.email "daily-learning-bot@users.noreply.github.com"
+          git add data/progress.json lessons outputs
+          git diff --cached --quiet || git commit -m "chore: add daily learning lesson"
+          git push

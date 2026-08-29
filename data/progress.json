@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "paused": false,
+  "difficulty": "hard",
+  "focusAreas": ["system-design", "dsa"],
+  "timezone": "Asia/Kolkata",
+  "lastRunDate": null,
+  "systemDesign": {
+    "completedTopicIds": [],
+    "currentIndex": 0
+  },
+  "dsa": {
+    "completedPatternIds": [],
+    "currentPatternIndex": 0,
+    "currentDifficulty": "hard",
+    "reviewQueue": []
+  },
+  "history": []
+}

@@ -1,0 +1,20 @@
+import type { DsaPattern } from "../types.js";
+
+export const dsaCurriculum: DsaPattern[] = [
+  { id: "arrays-hashing", stage: "advanced-foundation", title: "Arrays and Hashing", difficulties: ["medium", "hard"], sampleProblems: ["Subarray Sum Equals K", "Longest Consecutive Sequence", "Group Anagrams with frequency keys"], reviewAfterDays: [1, 3, 7, 16] },
+  { id: "two-pointers", stage: "advanced-foundation", title: "Two Pointers", difficulties: ["medium", "hard"], sampleProblems: ["3Sum", "Trapping Rain Water", "Minimum Window-style transformations"], reviewAfterDays: [1, 3, 7, 16] },
+  { id: "sliding-window", stage: "advanced-foundation", title: "Advanced Sliding Window", difficulties: ["medium", "hard"], sampleProblems: ["Minimum Window Substring", "Permutation in String", "Longest Repeating Character Replacement"], reviewAfterDays: [1, 3, 7, 16] },
+  { id: "prefix-sums", stage: "advanced-foundation", title: "Prefix Sums and Hashing", difficulties: ["medium", "hard"], sampleProblems: ["Subarray Sum Equals K", "Continuous Subarray Sum", "Count Number of Nice Subarrays"], reviewAfterDays: [1, 4, 10, 16] },
+  { id: "stack-monotonic", stage: "linear-structures", title: "Monotonic Stack and Amortized Reasoning", difficulties: ["medium", "hard"], sampleProblems: ["Largest Rectangle in Histogram", "Sum of Subarray Minimums", "Remove K Digits"], reviewAfterDays: [1, 4, 10, 16] },
+  { id: "binary-search", stage: "search", title: "Binary Search on Answers", difficulties: ["medium", "hard"], sampleProblems: ["Split Array Largest Sum", "Minimum Number of Days to Make Bouquets", "Median of Two Sorted Arrays"], reviewAfterDays: [1, 5, 14, 16] },
+  { id: "linked-list", stage: "pointers", title: "Linked List Transformations", difficulties: ["medium", "hard"], sampleProblems: ["Reverse Nodes in k-Group", "Reorder List", "Copy List with Random Pointer"], reviewAfterDays: [1, 5, 14, 16] },
+  { id: "trees-dfs-bfs", stage: "trees", title: "Tree Transformations and Rerooting", difficulties: ["medium", "hard"], sampleProblems: ["Binary Tree Maximum Path Sum", "Serialize and Deserialize Binary Tree", "Sum of Distances in Tree"], reviewAfterDays: [1, 4, 12, 16] },
+  { id: "heaps-priority-queue", stage: "heaps", title: "Heap-Based Optimization", difficulties: ["medium", "hard"], sampleProblems: ["Find Median from Data Stream", "IPO", "Smallest Range Covering Elements from K Lists"], reviewAfterDays: [1, 5, 14, 16] },
+  { id: "backtracking", stage: "recursion", title: "Backtracking with Pruning", difficulties: ["medium", "hard"], sampleProblems: ["Word Search II", "N-Queens", "Expression Add Operators"], reviewAfterDays: [1, 5, 14, 16] },
+  { id: "graphs-traversal", stage: "graphs", title: "Graph Modeling and Traversal", difficulties: ["medium", "hard"], sampleProblems: ["Course Schedule II", "Evaluate Division", "Shortest Bridge"], reviewAfterDays: [1, 5, 14, 16] },
+  { id: "shortest-path", stage: "graphs", title: "Shortest Path Variants", difficulties: ["medium", "hard"], sampleProblems: ["Cheapest Flights Within K Stops", "Minimum Cost to Make at Least One Valid Path", "Swim in Rising Water"], reviewAfterDays: [1, 7, 16, 30] },
+  { id: "dynamic-programming-1d", stage: "dynamic-programming", title: "1D DP State Design and Compression", difficulties: ["medium", "hard"], sampleProblems: ["Decode Ways", "Word Break", "Minimum Cost to Cut a Stick"], reviewAfterDays: [1, 5, 14, 16] },
+  { id: "dynamic-programming-2d", stage: "dynamic-programming", title: "2D DP and State Transitions", difficulties: ["medium", "hard"], sampleProblems: ["Edit Distance", "Burst Balloons", "Regular Expression Matching"], reviewAfterDays: [1, 7, 16, 30] },
+  { id: "greedy", stage: "optimization", title: "Greedy Choice and Exchange Arguments", difficulties: ["medium", "hard"], sampleProblems: ["Gas Station", "Candy", "Minimum Number of Refueling Stops"], reviewAfterDays: [1, 7, 16, 30] },
+  { id: "tries", stage: "specialized-structures", title: "Tries and Prefix-State Search", difficulties: ["medium", "hard"], sampleProblems: ["Word Search II", "Palindrome Pairs", "Stream of Characters"], reviewAfterDays: [1, 7, 16, 30] }
+];
