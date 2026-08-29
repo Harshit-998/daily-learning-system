@@ -65,8 +65,12 @@ async function runDaily(forceDryRun = false): Promise<void> {
 
   const html = renderEmailHtml(lesson);
   await writeOutputPreview(html, lesson.telegramSummary);
-  const lessonPath = await writeLesson(date, lesson);
+  const lessonSuffix = forceNewLesson
+    ? `run-${process.env.GITHUB_RUN_NUMBER || Date.now().toString()}`
+    : undefined;
 
+  const lessonPath = await writeLesson(date, lesson, lessonSuffix);
+  
   if (!dryRun) {
     const emailResult = await retry(() => sendGmail(config, lesson.title, html), 2);
     const telegramResult = await retry(
@@ -82,7 +86,7 @@ async function runDaily(forceDryRun = false): Promise<void> {
       systemDesignTopicId: lesson.systemDesign.topicId,
       dsaPatternId: lesson.dsa.patternId,
       title: lesson.title
-    });
+    }, forceNewLesson);
     await writeProgress(nextProgress);
   } else {
     console.log("Dry run complete. Delivery and progress mutation skipped.");
