@@ -10,15 +10,17 @@
   "lastRunDate": "2026-08-30",
   "systemDesign": {
     "completedTopicIds": [
-      "latency-throughput-availability"
+      "latency-throughput-availability",
+      "client-server-apis"
     ],
-    "currentIndex": 1
+    "currentIndex": 2
   },
   "dsa": {
     "completedPatternIds": [
-      "arrays-hashing"
+      "arrays-hashing",
+      "two-pointers"
     ],
-    "currentPatternIndex": 1,
+    "currentPatternIndex": 2,
     "currentDifficulty": "hard",
     "reviewQueue": [
       {
@@ -34,6 +36,18 @@
         "strength": 0
       },
       {
+        "id": "client-server-apis",
+        "type": "system-design",
+        "dueDate": "2026-08-31",
+        "strength": 0
+      },
+      {
+        "id": "two-pointers",
+        "type": "dsa",
+        "dueDate": "2026-08-31",
+        "strength": 0
+      },
+      {
         "id": "latency-throughput-availability",
         "type": "system-design",
         "dueDate": "2026-09-02",
@@ -46,6 +60,18 @@
         "strength": 0
       },
       {
+        "id": "client-server-apis",
+        "type": "system-design",
+        "dueDate": "2026-09-02",
+        "strength": 0
+      },
+      {
+        "id": "two-pointers",
+        "type": "dsa",
+        "dueDate": "2026-09-02",
+        "strength": 0
+      },
+      {
         "id": "latency-throughput-availability",
         "type": "system-design",
         "dueDate": "2026-09-06",
@@ -53,6 +79,18 @@
       },
       {
         "id": "arrays-hashing",
+        "type": "dsa",
+        "dueDate": "2026-09-06",
+        "strength": 0
+      },
+      {
+        "id": "client-server-apis",
+        "type": "system-design",
+        "dueDate": "2026-09-06",
+        "strength": 0
+      },
+      {
+        "id": "two-pointers",
         "type": "dsa",
         "dueDate": "2026-09-06",
         "strength": 0
@@ -65,6 +103,18 @@
       },
       {
         "id": "arrays-hashing",
+        "type": "dsa",
+        "dueDate": "2026-09-15",
+        "strength": 0
+      },
+      {
+        "id": "client-server-apis",
+        "type": "system-design",
+        "dueDate": "2026-09-15",
+        "strength": 0
+      },
+      {
+        "id": "two-pointers",
         "type": "dsa",
         "dueDate": "2026-09-15",
         "strength": 0
@@ -72,6 +122,13 @@
     ]
   },
   "history": [
+    {
+      "date": "2026-08-30",
+      "mode": "weekly-review",
+      "systemDesignTopicId": "client-server-apis",
+      "dsaPatternId": "two-pointers",
+      "title": "Sunday Mastery: Client-Server Architecture and APIs + Two Pointers"
+    },
     {
       "date": "2026-08-30",
       "mode": "weekly-review",
