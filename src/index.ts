@@ -69,7 +69,7 @@ async function runDaily(forceDryRun = false): Promise<void> {
     ? `run-${process.env.GITHUB_RUN_NUMBER || Date.now().toString()}`
     : undefined;
 
-  const lessonPath = await writeLesson(date, lesson, lessonSuffix);
+const lessonPath = await writeLesson(date, lesson, lessonSuffix);
   
   if (!dryRun) {
     const emailResult = await retry(() => sendGmail(config, lesson.title, html), 2);
