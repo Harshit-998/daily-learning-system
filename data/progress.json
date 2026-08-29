@@ -9,12 +9,16 @@
   "timezone": "Asia/Kolkata",
   "lastRunDate": "2026-08-30",
   "systemDesign": {
-    "completedTopicIds": [],
-    "currentIndex": 0
+    "completedTopicIds": [
+      "latency-throughput-availability"
+    ],
+    "currentIndex": 1
   },
   "dsa": {
-    "completedPatternIds": [],
-    "currentPatternIndex": 0,
+    "completedPatternIds": [
+      "arrays-hashing"
+    ],
+    "currentPatternIndex": 1,
     "currentDifficulty": "hard",
     "reviewQueue": [
       {
@@ -68,6 +72,13 @@
     ]
   },
   "history": [
+    {
+      "date": "2026-08-30",
+      "mode": "weekly-review",
+      "systemDesignTopicId": "latency-throughput-availability",
+      "dsaPatternId": "arrays-hashing",
+      "title": "Sunday Mastery: Latency, Throughput, and Availability + Arrays and Hashing"
+    },
     {
       "date": "2026-08-30",
       "mode": "weekly-review",
