@@ -156,6 +156,8 @@ export interface AppConfig {
   telegramChatId?: string;
   difficulty: Difficulty;
   focusAreas: string[];
+  focusAreas: string[];
   paused: boolean;
   dryRun: boolean;
+  forceNewLesson: boolean;
 }
