@@ -9,6 +9,7 @@ export function fallbackLesson(selection: LessonSelection): GeneratedLesson {
     title: weekly ? `Sunday Mastery: ${topic.title} + ${pattern.title}` : `${topic.title} + ${pattern.title}`,
     date: selection.date,
     mode: selection.mode,
+    designSeed: Number(process.env.GITHUB_RUN_NUMBER || "0"),
     recall: [
       "Latency is how long one request takes; throughput is how many requests finish per unit time; availability is whether the system responds correctly at all.",
       "Little's Law connects them: L = lambda x W, so in-flight work equals arrival rate times latency.",
@@ -40,6 +41,96 @@ export function fallbackLesson(selection: LessonSelection): GeneratedLesson {
         label: "lambda W",
         text: "If work takes longer, more requests wait in flight. First compute rate as volume divided by time, then use L = lambda x W to size queues, pools, and instance counts."
       }
+    },
+    mockInterview: {
+      systemName: "BookMyShow",
+      interviewerPrompt: "Design BookMyShow for movie discovery, seat selection, temporary seat locking, payment, and ticket confirmation.",
+      scope: "Focus on movie browsing, theatre/show search, seat map rendering, seat hold, booking confirmation, payment callbacks, and ticket retrieval. Keep recommendations, ads, and loyalty programs out of scope for the first design.",
+      functionalRequirements: [
+        "Users can search movies, cities, theatres, showtimes, and available seats.",
+        "Users can select seats and hold them temporarily while completing payment.",
+        "Users can complete payment and receive a confirmed ticket with a booking ID.",
+        "The system prevents two users from successfully booking the same seat.",
+        "Admins can create theatres, screens, shows, seat layouts, prices, and inventory."
+      ],
+      nonFunctionalRequirements: [
+        "Seat availability reads should feel fast, targeting low hundreds of milliseconds for cached show metadata and under one second for seat map fetch.",
+        "Booking confirmation requires strong consistency for seat ownership.",
+        "The system should tolerate flash-sale spikes for popular shows without corrupting inventory.",
+        "Payment processing must be idempotent because callbacks and client retries can duplicate requests.",
+        "Audit logs and booking state transitions must be durable.",
+        "The system needs observability around lock contention, payment callback lag, booking failures, and inventory mismatch."
+      ],
+      capacityEstimation: [
+        "Assume 10M monthly active users, 1M daily active users, and 5x traffic spikes during blockbuster releases.",
+        "If 20% of DAU browse show pages, average browse QPS is modest, but peak city/movie pages may become hot keys.",
+        "If 100K users attempt booking during a 10-minute release window, booking attempts average about 167 QPS and may spike much higher for a single show.",
+        "Seat inventory is small per show but high contention; the scaling problem is not storage size, it is correctness under concurrent writes.",
+        "Cache movie/theatre/show metadata aggressively, but keep seat lock and booking state in a strongly controlled write path."
+      ],
+      coreEntitiesAndDataModel: [
+        "Movie(id, title, language, duration, metadata)",
+        "Theatre(id, cityId, name, location), Screen(id, theatreId, layoutId), Seat(id, screenId, row, number, type)",
+        "Show(id, movieId, screenId, startTime, status), ShowSeat(showId, seatId, status, lockId, lockedUntil, bookingId, version)",
+        "Booking(id, userId, showId, seats, status, amount, idempotencyKey, createdAt)",
+        "Payment(id, bookingId, providerRef, status, callbackPayloadHash)",
+        "Index by city/movie/date for discovery, by showId for seat map, and by idempotencyKey for safe retries."
+      ],
+      apiDesign: [
+        "GET /cities/{cityId}/movies?date=YYYY-MM-DD returns movies and cached show summaries.",
+        "GET /shows/{showId}/seats returns seat map with available, locked, and booked states.",
+        "POST /shows/{showId}/holds with seatIds and idempotencyKey creates a short-lived hold if all seats are available.",
+        "POST /bookings/{bookingId}/payment-intent starts payment for a valid hold.",
+        "POST /payments/callback consumes provider callback idempotently and confirms or releases seats."
+      ],
+      highLevelArchitecture: "Use API Gateway for auth/rate limiting, discovery service for cached browsing, inventory service for seat state, booking service for booking lifecycle, payment service for provider interaction, Redis or a database-backed lock path for short seat holds, a relational database for booking truth, and queues for payment callbacks, notifications, and reconciliation jobs.",
+      architectureDiagram: bookMyShowSvg(),
+      deepDives: [
+        {
+          title: "Seat locking and confirmation",
+          discussion: "The hardest part is preventing double booking while keeping the UI responsive. A safe approach is to store ShowSeat rows with status, lockId, lockedUntil, bookingId, and version. A hold request performs a conditional update where all requested seats are AVAILABLE or expired. Confirmation moves HELD seats to BOOKED only if the hold belongs to the same user/booking and has not expired.",
+          challenges: [
+            "Do not rely only on client-side timers; expiration must be enforced server-side.",
+            "Use idempotency keys so retrying a hold or payment confirmation does not create duplicate bookings.",
+            "Run reconciliation to release expired holds and detect payment success after client disconnects."
+          ]
+        },
+        {
+          title: "Hot show traffic",
+          discussion: "A blockbuster show can turn one showId into a hot partition. Cache read-only show metadata separately from mutable seat state, throttle hold attempts, use queueing or waiting rooms for extreme launches, and shard lock traffic by showId plus seat block only if contention requires it.",
+          challenges: [
+            "Caching seat availability too aggressively can show stale seats as available.",
+            "Sharding by city is not enough when one show dominates traffic.",
+            "Backpressure is better than accepting requests that will timeout and retry."
+          ]
+        }
+      ],
+      failureScenarios: [
+        "Payment succeeds but callback arrives late; booking should remain pending until reconciliation confirms or expires it.",
+        "User refreshes during payment; idempotency key should return the existing booking state.",
+        "Redis/lock store fails; degrade booking for affected shows rather than risking double booking.",
+        "Queue backlog delays notifications; tickets should still be visible from booking status.",
+        "Database primary fails during confirmation; use transactional guarantees and clear retry semantics."
+      ],
+      tradeOffs: [
+        "Strong consistency is mandatory for final seat booking, even if discovery and seat map reads are eventually refreshed.",
+        "Redis locks are fast but need careful persistence/reconciliation; database conditional updates are simpler but may hit contention sooner.",
+        "Short hold TTLs reduce inventory blockage but increase user frustration during slow payments.",
+        "A waiting room protects the system during spikes but adds product friction."
+      ],
+      followUpQuestions: [
+        "What happens if two users select the same seat at the same time?",
+        "Why did you choose this storage model for ShowSeat?",
+        "What breaks first at 10x traffic?",
+        "How do you handle expired holds?",
+        "How do you make payment callbacks idempotent?",
+        "What would change if this became multi-region?",
+        "Which data can be cached and which cannot?",
+        "How do you detect inventory mismatch?",
+        "What metrics would you monitor during a blockbuster launch?",
+        "How would you recover if payment succeeds but booking confirmation fails?"
+      ],
+      fiveMinuteAnswer: "I would split BookMyShow into discovery, inventory, booking, payment, and notification services. Discovery reads movie, theatre, and show metadata from cache because it is read-heavy and can tolerate slight staleness. Seat booking goes through an inventory service backed by strongly consistent conditional updates on ShowSeat rows. A user creates a short hold with an idempotency key; if every requested seat is available or expired, the system marks those seats held with a lock ID and TTL. Payment then proceeds against that booking. Provider callbacks are handled idempotently: success confirms only seats held by that booking, failure or timeout releases them. For scale, I would cache metadata, protect hot shows with rate limits or waiting rooms, monitor lock contention and payment lag, and run reconciliation for expired holds and callback mismatches. The main trade-off is that browsing can be eventually consistent, but final seat ownership must be strongly consistent."
     },
     dsa: {
       patternId: pattern.id,
@@ -149,7 +240,7 @@ class Solution {
       passed: true,
       notes: ["Local fallback lesson contains every required section, retention mechanics, rendered SVG, and DSA variant walkthroughs."]
     },
-    telegramSummary: `${weekly ? "Sunday mastery" : "Daily lesson"}: ${topic.title} + ${pattern.title}\n\nSystem Design: Little's Law is L = lambda x W. If latency rises at the same arrival rate, in-flight requests rise too.\n\nDSA: ${pattern.title} = invent the key that preserves useful history. Prefix sum counts, boundary sets, and frequency signatures are three high-density variants.\n\nRecall: explain the read-cache vs write-queue split, then trace prefix sum counts once.`
+    telegramSummary: `${weekly ? "Sunday mastery" : "Daily lesson"}: ${topic.title} + ${pattern.title}\n\nSystem Design: Little's Law is L = lambda x W. If latency rises at the same arrival rate, in-flight requests rise too.\n\nMock interview: BookMyShow. Focus on seat holds, idempotent payment callbacks, hot-show contention, and strong consistency for final booking.\n\nDSA: ${pattern.title} = invent the key that preserves useful history. Prefix sum counts, boundary sets, and frequency signatures are three high-density variants.`
   };
 }
 
@@ -173,5 +264,32 @@ function latencyThroughputSvg(): string {
   </g>
   <text x="640" y="150" fill="#7fd6c6" font-family="monospace" font-size="10">fast read path: latency-bound</text>
   <text x="500" y="245" fill="#f4d9ad" font-family="monospace" font-size="10">durable write path: throughput-bound</text>
+</svg>`;
+}
+
+function bookMyShowSvg(): string {
+  return `<svg viewBox="0 0 920 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BookMyShow architecture diagram">
+  <defs><marker id="bmsArrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7fd6c6"/></marker></defs>
+  <text x="20" y="26" fill="#7fd6c6" font-family="monospace" font-size="11">BOOKMYSHOW: DISCOVERY VS STRONG-CONSISTENCY BOOKING PATH</text>
+  <g font-family="monospace" font-size="12" fill="#eaf6f2">
+    <rect x="20" y="62" width="120" height="46" rx="4" fill="none" stroke="#7fd6c6"/><text x="80" y="90" text-anchor="middle">Client</text>
+    <rect x="185" y="62" width="130" height="46" rx="4" fill="none" stroke="#7fd6c6"/><text x="250" y="82" text-anchor="middle">API Gateway</text><text x="250" y="97" text-anchor="middle" font-size="10" fill="#b9d8cf">auth, limits</text>
+    <rect x="365" y="28" width="145" height="46" rx="4" fill="none" stroke="#7fd6c6" stroke-dasharray="3 2"/><text x="437" y="48" text-anchor="middle">Discovery</text><text x="437" y="63" text-anchor="middle" font-size="10" fill="#b9d8cf">cacheable reads</text>
+    <rect x="570" y="28" width="135" height="46" rx="4" fill="none" stroke="#7fd6c6" stroke-dasharray="3 2"/><text x="637" y="48" text-anchor="middle">Metadata DB</text><text x="637" y="63" text-anchor="middle" font-size="10" fill="#b9d8cf">movies/shows</text>
+    <rect x="365" y="122" width="145" height="46" rx="4" fill="none" stroke="#f4d9ad"/><text x="437" y="142" text-anchor="middle" fill="#f4d9ad">Inventory</text><text x="437" y="157" text-anchor="middle" font-size="10" fill="#f4d9ad">seat holds</text>
+    <rect x="570" y="122" width="135" height="46" rx="4" fill="none" stroke="#f4d9ad"/><text x="637" y="142" text-anchor="middle" fill="#f4d9ad">ShowSeat DB</text><text x="637" y="157" text-anchor="middle" font-size="10" fill="#f4d9ad">conditional write</text>
+    <rect x="365" y="214" width="145" height="46" rx="4" fill="none" stroke="#f4d9ad"/><text x="437" y="234" text-anchor="middle" fill="#f4d9ad">Booking</text><text x="437" y="249" text-anchor="middle" font-size="10" fill="#f4d9ad">state machine</text>
+    <rect x="570" y="214" width="135" height="46" rx="4" fill="none" stroke="#f4d9ad"/><text x="637" y="234" text-anchor="middle" fill="#f4d9ad">Payment</text><text x="637" y="249" text-anchor="middle" font-size="10" fill="#f4d9ad">idempotent</text>
+    <rect x="760" y="214" width="125" height="46" rx="4" fill="none" stroke="#f4d9ad"/><text x="822" y="234" text-anchor="middle" fill="#f4d9ad">Provider</text><text x="822" y="249" text-anchor="middle" font-size="10" fill="#f4d9ad">callbacks</text>
+    <rect x="365" y="300" width="340" height="38" rx="4" fill="none" stroke="#7fd6c6" stroke-dasharray="2 3"/><text x="535" y="323" text-anchor="middle">reconciliation, alerts, inventory mismatch checks</text>
+  </g>
+  <g stroke="#7fd6c6" stroke-width="1.5" marker-end="url(#bmsArrow)" fill="none">
+    <line x1="140" y1="85" x2="183" y2="85"/><line x1="315" y1="85" x2="365" y2="51"/><line x1="510" y1="51" x2="568" y2="51"/>
+  </g>
+  <g stroke="#f4d9ad" stroke-width="1.5" marker-end="url(#bmsArrow)" fill="none">
+    <line x1="315" y1="95" x2="365" y2="145"/><line x1="510" y1="145" x2="568" y2="145"/><line x1="437" y1="168" x2="437" y2="212"/><line x1="510" y1="237" x2="568" y2="237"/><line x1="705" y1="237" x2="758" y2="237"/><line x1="637" y1="260" x2="637" y2="298"/>
+  </g>
+  <text x="590" y="96" fill="#7fd6c6" font-family="monospace" font-size="10">eventual consistency OK</text>
+  <text x="590" y="190" fill="#f4d9ad" font-family="monospace" font-size="10">strong consistency required</text>
 </svg>`;
 }

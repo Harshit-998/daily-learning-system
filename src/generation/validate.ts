@@ -23,6 +23,15 @@ const dsaRequired = [
   "complexities"
 ] as const;
 
+const mockInterviewRequired = [
+  "systemName",
+  "interviewerPrompt",
+  "scope",
+  "highLevelArchitecture",
+  "architectureDiagram",
+  "fiveMinuteAnswer"
+] as const;
+
 export function validateLesson(lesson: GeneratedLesson): string[] {
   const notes: string[] = [];
   if (!lesson.title) notes.push("Missing title.");
@@ -38,6 +47,10 @@ export function validateLesson(lesson: GeneratedLesson): string[] {
     if (!lesson.dsa?.[key]?.trim()) notes.push(`Missing DSA section: ${key}.`);
   }
 
+  for (const key of mockInterviewRequired) {
+    if (!lesson.mockInterview?.[key]?.trim()) notes.push(`Missing mock interview section: ${key}.`);
+  }
+
   checkArray(notes, lesson.systemDesign?.tradeOffs, "systemDesign.tradeOffs", 2);
   checkArray(notes, lesson.systemDesign?.whenToUse, "systemDesign.whenToUse", 2);
   checkArray(notes, lesson.systemDesign?.whenNotToUse, "systemDesign.whenNotToUse", 2);
@@ -47,6 +60,16 @@ export function validateLesson(lesson: GeneratedLesson): string[] {
   checkArray(notes, lesson.systemDesign?.interviewQuestions, "systemDesign.interviewQuestions", 3);
   checkArray(notes, lesson.systemDesign?.thinkLikeEngineerQuestions, "systemDesign.thinkLikeEngineerQuestions", 1, 3);
   if (lesson.systemDesign?.diagram?.includes("flowchart")) notes.push("Diagram should be rendered SVG or HTML, not Mermaid.");
+  checkArray(notes, lesson.mockInterview?.functionalRequirements, "mockInterview.functionalRequirements", 3);
+  checkArray(notes, lesson.mockInterview?.nonFunctionalRequirements, "mockInterview.nonFunctionalRequirements", 5);
+  checkArray(notes, lesson.mockInterview?.capacityEstimation, "mockInterview.capacityEstimation", 4);
+  checkArray(notes, lesson.mockInterview?.coreEntitiesAndDataModel, "mockInterview.coreEntitiesAndDataModel", 4);
+  checkArray(notes, lesson.mockInterview?.apiDesign, "mockInterview.apiDesign", 3);
+  checkArray(notes, lesson.mockInterview?.deepDives, "mockInterview.deepDives", 1);
+  checkArray(notes, lesson.mockInterview?.failureScenarios, "mockInterview.failureScenarios", 4);
+  checkArray(notes, lesson.mockInterview?.tradeOffs, "mockInterview.tradeOffs", 4);
+  checkArray(notes, lesson.mockInterview?.followUpQuestions, "mockInterview.followUpQuestions", 8, 12);
+  if (lesson.mockInterview?.architectureDiagram?.includes("flowchart")) notes.push("Mock interview diagram should be rendered SVG or HTML, not Mermaid.");
   checkArray(notes, lesson.dsa?.examples, "dsa.examples", 1);
   checkArray(notes, lesson.dsa?.constraints, "dsa.constraints", 2);
   checkArray(notes, lesson.dsa?.whatToNotice, "dsa.whatToNotice", 2);

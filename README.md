@@ -5,7 +5,7 @@ This V1 sends one daily System Design + DSA lesson at 8:00 AM Asia/Kolkata using
 - Gemini API free tier for lesson generation
 - GitHub Actions for scheduling
 - Gmail API for the full responsive HTML email
-- Telegram Bot API for a concise phone summary
+- Telegram Bot API for the full HTML lesson as a file attachment
 - JSON files in the repository for progress and lesson history
 - No paid services and no always-on server
 
@@ -27,16 +27,18 @@ The default calibration is not beginner-level. It assumes intermediate System De
 
 Every normal daily lesson includes all requested System Design sections, including trade-offs, failure scenarios, production usage, interview questions, previous-concept connections, and Think Like an Engineer questions. Lessons should sometimes ask you to decide first, then reveal the reasoning.
 
+Each lesson also includes a separate full System Design mock interview problem of the day, such as BookMyShow, WhatsApp, Google Drive, Dropbox, YouTube, Instagram, Uber, or a payment system. This mock interview section covers requirements, non-functional goals, capacity estimation, data model, APIs, architecture, deep dives, failure scenarios, trade-offs, follow-up questions, and a rehearsable five-minute answer.
+
 Every DSA lesson includes problem statement, examples, constraints, intuition, brute force, optimal approach, Java solution, complexity, variants, exactly what changes across variants, and a transfer-learning section explaining which other problem families the technique unlocks.
 
-The email renderer rotates professional layouts by date, including blueprint, editorial, terminal, dashboard, and technical magazine themes. The goal is a fresh premium engineering newsletter feel without sacrificing readability.
+The email renderer rotates professional themes and layout families by date plus run/progress seed. It combines blueprint, editorial, terminal, dashboard, and technical magazine themes with field-note, briefing, split-rail, lab-sheet, and case-file layouts. This prevents repeated manual runs on the same day from using the exact same visual treatment.
 
 On Sundays, the workflow switches to mastery/revision mode instead of a normal new lesson.
 
 ## Setup
 
-1. Create a GitHub repository under `maxcady9`. Suggested name: `daily-learning-system`.
-2. Push this project to `https://github.com/maxcady9/daily-learning-system`.
+1. Create a GitHub repository under `Harshit-998`. Suggested name: `daily-learning-system`.
+2. Push this project to `https://github.com/Harshit-998/daily-learning-system`.
 3. In GitHub, open **Settings → Secrets and variables → Actions**.
 4. Add these repository secrets:
 
@@ -61,6 +63,8 @@ On Sundays, the workflow switches to mastery/revision mode instead of a normal n
 | `PAUSED` | `false` | Set to `true` to pause delivery |
 
 6. The included workflow runs every day at `02:30 UTC`, which is `08:00 Asia/Kolkata`.
+
+Manual workflow runs include `force_new_lesson`, which defaults to `true`. That means clicking **Run workflow** can generate and send the next fresh study lesson even if today's scheduled lesson already ran. Scheduled 8:00 AM runs still keep same-day duplicate protection.
 
 ## Gmail OAuth Notes
 
@@ -118,7 +122,7 @@ system-design,dsa,distributed-systems,dynamic-programming
 - `data/progress.json`: current curriculum position, preferences, review queue, and recent history
 - `lessons/YYYY/MM/DD.json`: generated lesson metadata and complete structured lesson
 - `outputs/latest-email.html`: latest rendered HTML preview
-- `outputs/latest-telegram.txt`: latest phone summary preview
+- `outputs/latest-telegram.txt`: latest concise summary preview retained for debugging; Telegram delivery sends the HTML file attachment
 
 ## Reliability Behavior
 

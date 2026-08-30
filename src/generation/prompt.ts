@@ -31,6 +31,13 @@ Due review items: ${reviewList}
 Recently completed System Design topics: ${priorTopics}
 Recently completed DSA patterns: ${priorPatterns}
 
+The final HTML must contain three main learning blocks:
+1. The focused System Design topic lesson.
+2. A separate full System Design mock interview problem of the day.
+3. The DSA pattern/problem lesson.
+
+The mock interview does not need to connect to the focused topic. Choose one realistic system such as BookMyShow, WhatsApp, Google Drive, Dropbox, YouTube, Instagram, Uber, food delivery, Netflix, Google Photos, notification system, payment system, URL shortener, ride sharing, distributed file storage, live streaming, search autocomplete, chat system, news feed, calendar, or collaborative document editor.
+
 If mode is weekly-review, make the lesson a Sunday mastery/revision session. Review prior ideas, connect them, include mistakes to revisit, and avoid introducing a normal new topic unless needed for synthesis.
 
 Required JSON shape:
@@ -38,6 +45,7 @@ Required JSON shape:
   "title": "string",
   "date": "${selection.date}",
   "mode": "${selection.mode}",
+  "designSeed": 0,
   "recall": ["exactly 3 bullets for 60-second recall"],
   "systemDesign": {
     "topicId": "${selection.systemDesignTopic.id}",
@@ -62,6 +70,25 @@ Required JSON shape:
     "previousConceptConnections": "string",
     "thinkLikeEngineerQuestions": ["1 to 3 strings"],
     "mnemonic": { "label": "short memory hook", "text": "string" }
+  },
+  "mockInterview": {
+    "systemName": "string",
+    "interviewerPrompt": "Example: Design BookMyShow",
+    "scope": "Clarify exactly what is in scope and out of scope",
+    "functionalRequirements": ["string"],
+    "nonFunctionalRequirements": ["scale, latency, availability, consistency, durability, throughput, security, cost, observability, disaster recovery"],
+    "capacityEstimation": ["DAU/MAU assumptions, QPS, storage, bandwidth, peak multiplier, hotspot analysis"],
+    "coreEntitiesAndDataModel": ["tables/collections, fields, indexes, partition keys, relationships, strong vs eventual consistency"],
+    "apiDesign": ["key APIs with request/response examples, idempotency, pagination/filtering where relevant"],
+    "highLevelArchitecture": "components, request flow, storage, cache, queues/events, search/indexing, CDN/media if relevant",
+    "architectureDiagram": "Inline SVG string. Do not return Mermaid.",
+    "deepDives": [
+      { "title": "hard part", "discussion": "deep technical discussion", "challenges": ["string"] }
+    ],
+    "failureScenarios": ["string"],
+    "tradeOffs": ["string"],
+    "followUpQuestions": ["8 to 12 realistic interviewer follow-ups"],
+    "fiveMinuteAnswer": "A crisp spoken answer the learner can rehearse in an interview"
   },
   "dsa": {
     "patternId": "${selection.dsaPattern.id}",
@@ -111,5 +138,6 @@ Quality bar:
 - Diagrams must render as inline SVG in email-friendly HTML. Do not use Mermaid code blocks.
 - DSA variants must explain what changes, not only list names.
 - The email renderer rotates visual themes, so focus on structured content and do not hard-code CSS.
+- The mock interview section must be complete enough to rehearse like a real mid-level/senior interview, from requirements to a five-minute spoken answer.
 `.trim();
 }

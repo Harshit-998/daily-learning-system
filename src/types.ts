@@ -68,6 +68,7 @@ export interface GeneratedLesson {
   title: string;
   date: string;
   mode: LessonMode;
+  designSeed?: number;
   recall: string[];
   systemDesign: {
     topicId: string;
@@ -95,6 +96,27 @@ export interface GeneratedLesson {
       label: string;
       text: string;
     };
+  };
+  mockInterview: {
+    systemName: string;
+    interviewerPrompt: string;
+    scope: string;
+    functionalRequirements: string[];
+    nonFunctionalRequirements: string[];
+    capacityEstimation: string[];
+    coreEntitiesAndDataModel: string[];
+    apiDesign: string[];
+    highLevelArchitecture: string;
+    architectureDiagram: string;
+    deepDives: Array<{
+      title: string;
+      discussion: string;
+      challenges: string[];
+    }>;
+    failureScenarios: string[];
+    tradeOffs: string[];
+    followUpQuestions: string[];
+    fiveMinuteAnswer: string;
   };
   dsa: {
     patternId: string;

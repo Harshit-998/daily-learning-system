@@ -2,11 +2,19 @@ import type { GeneratedLesson } from "../types.js";
 import { addDays } from "../utils/date.js";
 
 type ThemeName = "blueprint" | "editorial" | "terminal" | "dashboard" | "magazine";
+type LayoutName = "field-note" | "briefing" | "split-rail" | "lab-sheet" | "case-file";
+
+interface EmailDesign {
+  theme: ThemeName;
+  layout: LayoutName;
+}
 
 export function renderEmailHtml(lesson: GeneratedLesson): string {
   const sd = lesson.systemDesign;
+  const mock = lesson.mockInterview;
   const dsa = lesson.dsa;
-  const theme = pickTheme(lesson.date);
+  const design = pickDesign(lesson.date, lesson.designSeed);
+  const theme = design.theme;
 
   return `<!doctype html>
 <html lang="en">
@@ -17,13 +25,13 @@ export function renderEmailHtml(lesson: GeneratedLesson): string {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>${themeCss(theme)}</style>
+  <style>${themeCss(design)}</style>
 </head>
-<body>
+<body class="layout-${design.layout}">
   <main class="wrap">
     <header class="masthead">
       <div class="blueprint-border"></div>
-      <span class="eyebrow">${lesson.mode === "weekly-review" ? "Sunday Mastery" : "Daily Lesson"} / Java track / ${themeLabel(theme)}</span>
+      <span class="eyebrow">${lesson.mode === "weekly-review" ? "Sunday Mastery" : "Daily Lesson"} / Java track / ${themeLabel(design)}</span>
       <h1>${escapeHtml(lesson.title)}</h1>
       <div class="meta">${escapeHtml(lesson.date)} / SDE-2+ prep / production reasoning</div>
       <section class="recall">
@@ -62,7 +70,31 @@ export function renderEmailHtml(lesson: GeneratedLesson): string {
     </section>
 
     <section class="topic">
-      <span class="topic-tab alt">02 / DSA Pattern</span>
+      <span class="topic-tab alt">02 / Mock Interview</span>
+      <h2>Design ${escapeHtml(mock.systemName)}</h2>
+      <p class="lede">${escapeHtml(mock.interviewerPrompt)}</p>
+      ${paragraph("Scope clarification", mock.scope)}
+      <div class="grid">
+        ${card("Functional requirements", list(mock.functionalRequirements))}
+        ${card("Non-functional requirements", list(mock.nonFunctionalRequirements))}
+      </div>
+      ${card("Capacity estimation", list(mock.capacityEstimation))}
+      ${card("Core entities and data model", list(mock.coreEntitiesAndDataModel))}
+      ${card("API design", list(mock.apiDesign))}
+      ${paragraph("High-level architecture", mock.highLevelArchitecture)}
+      <h3>Mock interview architecture diagram</h3>
+      <div class="diagram-frame">${renderDiagram(mock.architectureDiagram)}</div>
+      ${renderDeepDives(mock.deepDives)}
+      <div class="grid">
+        ${card("Failure scenarios", list(mock.failureScenarios))}
+        ${card("Trade-offs", list(mock.tradeOffs))}
+      </div>
+      ${card("Follow-up interview questions", list(mock.followUpQuestions))}
+      ${card("Explain this design in 5 minutes", `<p>${escapeHtml(mock.fiveMinuteAnswer)}</p>`)}
+    </section>
+
+    <section class="topic">
+      <span class="topic-tab">03 / DSA Pattern</span>
       <h2>${escapeHtml(dsa.pattern)}</h2>
       <p class="lede">${escapeHtml(dsa.problemStatement)}</p>
       ${dsa.invariant ? challengeBox("Invariant", [dsa.invariant]) : ""}
@@ -91,7 +123,7 @@ export function renderEmailHtml(lesson: GeneratedLesson): string {
     </section>
 
     <section class="topic quiz">
-      <span class="topic-tab">03 / Self-test</span>
+      <span class="topic-tab alt">04 / Self-test</span>
       <h2>Close-the-tab test</h2>
       <p class="lede">Answer first, then expand. The goal is active recall, not rereading.</p>
       ${lesson.selfTest.map((item, index) => `<details><summary>${index + 1}. ${escapeHtml(item.question)}</summary><div class="answer">${escapeHtml(item.answer)}</div></details>`).join("")}
@@ -103,23 +135,39 @@ export function renderEmailHtml(lesson: GeneratedLesson): string {
 </html>`;
 }
 
-function pickTheme(date: string): ThemeName {
+function pickDesign(date: string, seed = 0): EmailDesign {
   const day = Number(date.slice(-2));
   const themes: ThemeName[] = ["editorial", "terminal", "dashboard", "magazine", "blueprint"];
-  return themes[day % themes.length];
+  const layouts: LayoutName[] = ["field-note", "briefing", "split-rail", "lab-sheet", "case-file"];
+  const runNumber = Number(process.env.GITHUB_RUN_NUMBER || "0");
+  const themeIndex = (day + seed + runNumber) % themes.length;
+  const layoutIndex = (day * 2 + seed + runNumber) % layouts.length;
+  return {
+    theme: themes[themeIndex],
+    layout: layouts[layoutIndex]
+  };
 }
 
-function themeLabel(theme: ThemeName): string {
-  return {
+function themeLabel(design: EmailDesign): string {
+  const themeName = {
     blueprint: "architecture blueprint",
     editorial: "minimal editorial",
     terminal: "developer terminal",
     dashboard: "engineering dashboard",
     magazine: "technical magazine"
-  }[theme];
+  }[design.theme];
+  const layoutName = {
+    "field-note": "field note",
+    briefing: "executive briefing",
+    "split-rail": "split rail",
+    "lab-sheet": "lab sheet",
+    "case-file": "case file"
+  }[design.layout];
+  return `${themeName} / ${layoutName}`;
 }
 
-function themeCss(theme: ThemeName): string {
+function themeCss(design: EmailDesign): string {
+  const { theme, layout } = design;
   const palettes: Record<ThemeName, { body: string; ink: string; soft: string; card: string; border: string; accent: string; dark: string; code: string }> = {
     blueprint: { body: "#f4f2e8", ink: "#1b2430", soft: "#4a5568", card: "#fffdf7", border: "#cfc8b0", accent: "#d98c2b", dark: "#16324f", code: "#12202f" },
     editorial: { body: "#fbfaf7", ink: "#171717", soft: "#5f6368", card: "#ffffff", border: "#d8d6ce", accent: "#b45309", dark: "#202124", code: "#1f2937" },
@@ -128,6 +176,7 @@ function themeCss(theme: ThemeName): string {
     magazine: { body: "#f7efe2", ink: "#251c14", soft: "#695f52", card: "#fffaf1", border: "#d6b98d", accent: "#7c2d12", dark: "#283044", code: "#1b2430" }
   };
   const p = palettes[theme];
+  const layoutCss = layoutStyles(layout, p, theme);
 
   return `
     * { box-sizing:border-box; }
@@ -203,6 +252,7 @@ function themeCss(theme: ThemeName): string {
     .sr-cell { flex:1 1 140px; padding:12px 16px; border-right:1px solid ${p.border}; background:${p.card}; }
     .sr-cell .d { font-size:11px; color:${p.soft}; text-transform:uppercase; letter-spacing:.06em; }
     .sr-cell .date { font-weight:700; font-size:14px; }
+    ${layoutCss}
     @media (max-width:680px) {
       .wrap { padding:14px 10px 42px; }
       .masthead { padding:20px; }
@@ -210,6 +260,58 @@ function themeCss(theme: ThemeName): string {
       .grid { grid-template-columns:1fr; }
       .sr-cell { flex:1 1 45%; }
     }
+  `;
+}
+
+function layoutStyles(layout: LayoutName, p: { body: string; ink: string; soft: string; card: string; border: string; accent: string; dark: string; code: string }, theme: ThemeName): string {
+  if (layout === "briefing") {
+    return `
+      .masthead { border-radius:0; border-left:8px solid ${p.accent}; }
+      .topic { background:${p.card}; border:1px solid ${p.border}; border-radius:3px; padding:22px; box-shadow:0 16px 36px rgba(17,24,39,.08); }
+      .topic-tab { margin-left:-22px; border-radius:0 2px 2px 0; }
+      h2 { border-bottom:1px solid ${p.border}; }
+      .card, .challenge, .mnemonic, details { box-shadow:none; border-left:3px solid ${p.accent}; }
+    `;
+  }
+  if (layout === "split-rail") {
+    return `
+      .wrap { max-width:980px; }
+      .topic { display:grid; grid-template-columns:170px minmax(0,1fr); column-gap:24px; align-items:start; border-top:2px solid ${p.dark}; padding-top:20px; }
+      .topic-tab { grid-column:1; position:sticky; top:12px; border-radius:3px; text-align:center; }
+      .topic > h2, .topic > .lede, .topic > div, .topic > h3, .topic > p, .topic > pre, .topic > details, .topic > ol, .topic > ul { grid-column:2; }
+      .grid { grid-column:2; }
+      .card { border-radius:8px 2px 8px 2px; }
+      @media (max-width:760px) {
+        .topic { display:block; }
+        .topic-tab { position:static; }
+      }
+    `;
+  }
+  if (layout === "lab-sheet") {
+    return `
+      body { background-image:linear-gradient(${p.body}, ${p.body}), repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(0,0,0,.08) 32px); }
+      .masthead { border-radius:12px 12px 3px 3px; }
+      .topic { border:1px solid ${p.border}; border-radius:8px; padding:20px; background:rgba(255,255,255,.38); }
+      .topic-tab { border-radius:999px; margin-bottom:8px; }
+      h2 { border-bottom:0; background:${theme === "terminal" ? p.card : "rgba(255,255,255,.64)"}; padding:8px 10px; border-left:5px solid ${p.accent}; }
+      .card, details { border-radius:8px; }
+      .diagram-frame, pre { border-radius:8px; }
+    `;
+  }
+  if (layout === "case-file") {
+    return `
+      .masthead { transform:rotate(-.25deg); }
+      .topic { background:${p.card}; border:1px solid ${p.border}; border-radius:2px; padding:20px; position:relative; }
+      .topic::before { content:""; position:absolute; left:14px; right:14px; top:-5px; height:10px; background:${p.accent}; opacity:.22; transform:rotate(.4deg); }
+      .topic-tab { border-radius:2px; letter-spacing:.12em; }
+      .card, .challenge, .mnemonic, details { border-radius:2px; box-shadow:3px 3px 0 rgba(17,24,39,.08); }
+      h2 { text-transform:uppercase; font-size:21px; }
+    `;
+  }
+  return `
+    .masthead { border-radius:6px; }
+    .topic { margin-top:34px; }
+    .topic-tab { border-radius:2px 2px 0 0; }
   `;
 }
 
@@ -265,6 +367,19 @@ function renderVariants(variants: GeneratedLesson["dsa"]["variantWalkthroughs"])
         <p>${escapeHtml(variant.whatChanges)}</p>
         <pre><code>${escapeHtml(variant.code)}</code></pre>
         <p><strong>Complexity:</strong> ${escapeHtml(variant.complexity)}</p>
+      </div>
+    `).join("")}
+  `;
+}
+
+function renderDeepDives(deepDives: GeneratedLesson["mockInterview"]["deepDives"]): string {
+  return `
+    <h3>Deep dives</h3>
+    ${deepDives.map((deepDive) => `
+      <div class="card">
+        <h3>${escapeHtml(deepDive.title)}</h3>
+        <p>${escapeHtml(deepDive.discussion)}</p>
+        ${list(deepDive.challenges)}
       </div>
     `).join("")}
   `;

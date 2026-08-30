@@ -47,8 +47,7 @@ async function runDaily(forceDryRun = false): Promise<void> {
 
   const date = formatDateInKolkata();
   const forceNewLesson = config.forceNewLesson;
-
-  if (!dryRun && !forceNewLesson &&  progress.lastRunDate === date) {
+  if (!dryRun && !forceNewLesson && progress.lastRunDate === date) {
     console.log(`Lesson already generated for ${date}. Skipping duplicate run.`);
     return;
   }
@@ -56,6 +55,7 @@ async function runDaily(forceDryRun = false): Promise<void> {
   const selection = selectLesson({ ...progress, difficulty: config.difficulty, focusAreas: config.focusAreas }, config, date);
   const prompt = buildLessonPrompt(selection, progress);
   const lesson = await generateLessonWithReview(selection, prompt, config);
+  lesson.designSeed = Number(process.env.GITHUB_RUN_NUMBER || progress.history.length || "0");
   lesson.telegramSummary = renderTelegram(lesson);
 
   const validationNotes = validateLesson(lesson);
@@ -65,18 +65,12 @@ async function runDaily(forceDryRun = false): Promise<void> {
 
   const html = renderEmailHtml(lesson);
   await writeOutputPreview(html, lesson.telegramSummary);
-  const lessonSuffix = forceNewLesson
-    ? `run-${process.env.GITHUB_RUN_NUMBER || Date.now().toString()}`
-    : undefined;
+  const lessonSuffix = forceNewLesson ? `run-${process.env.GITHUB_RUN_NUMBER || Date.now().toString()}` : undefined;
+  const lessonPath = await writeLesson(date, lesson, lessonSuffix);
 
-const lessonPath = await writeLesson(date, lesson, lessonSuffix);
-  
   if (!dryRun) {
     const emailResult = await retry(() => sendGmail(config, lesson.title, html), 2);
-    const telegramResult = await retry(
-      () => sendTelegramDocument(config, html, `daily-learning-${date}.html`),
-      2
-    );    
+    const telegramResult = await retry(() => sendTelegramDocument(config, html, `daily-learning-${date}.html`), 2);
     console.log(emailResult);
     console.log(telegramResult);
 
