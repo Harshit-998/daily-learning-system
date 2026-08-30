@@ -1,11 +1,11 @@
-Sunday Mastery: Sunday Mastery: Client-Server Architecture and APIs + Two Pointers
+Sunday Mastery: Sunday Mastery: Load Balancing + Advanced Sliding Window
 
-System Design: Client-Server Architecture and APIs
+System Design: Load Balancing
 Core idea: Latency measures how long one request takes. Throughput measures how many requests complete per unit time. Availability measures whether the system can return correct responses over time.
 Trade-off: Caching can reduce read latency but introduces staleness and invalidation complexity.
 Engineer question: What breaks first if traffic becomes 10x?
 
-DSA: Two Pointers
+DSA: Advanced Sliding Window
 Notice: The input order usually matters less than membership, frequency, or a canonical representation.
 Approach: The trick is not HashMap syntax; it is inventing the key that makes old work reusable. Prefix sums turn subarray sums into complement lookups. Sets turn consecutive ranges into boundary starts. Frequency vectors turn anagrams into deterministic buckets.
 Complexity: Subarray Sum Equals K is O(n) time and O(n) space. Longest Consecutive is amortized O(n) time and O(n) space because each range is expanded from only its start. Count-key anagrams are O(n * k) time and O(n * k) space.

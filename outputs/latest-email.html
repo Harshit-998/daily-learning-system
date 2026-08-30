@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sunday Mastery: Client-Server Architecture and APIs + Two Pointers</title>
+  <title>Sunday Mastery: Load Balancing + Advanced Sliding Window</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -95,7 +95,7 @@
     <header class="masthead">
       <div class="blueprint-border"></div>
       <span class="eyebrow">Sunday Mastery / Java track / minimal editorial</span>
-      <h1>Sunday Mastery: Client-Server Architecture and APIs + Two Pointers</h1>
+      <h1>Sunday Mastery: Load Balancing + Advanced Sliding Window</h1>
       <div class="meta">2026-08-30 / SDE-2+ prep / production reasoning</div>
       <section class="recall">
         <span class="pin">Pin this</span>
@@ -106,7 +106,7 @@
 
     <section class="topic">
       <span class="topic-tab">01 / System Design</span>
-      <h2>Client-Server Architecture and APIs</h2>
+      <h2>Load Balancing</h2>
       <p class="lede">Latency measures how long one request takes. Throughput measures how many requests complete per unit time. Availability measures whether the system can return correct responses over time.</p>
       <div class="challenge"><h3>Think first</h3><ul><li>What breaks first if traffic becomes 10x?</li><li>Which requests are users staring at, and which can finish later?</li><li>How would you detect rising latency before users report an outage?</li></ul></div>
       <h3>Why it exists</h3><p>These three metrics exist because a system can fail users in different ways: it can be slow, unable to process enough work, or down. Strong designs keep those dimensions separate before choosing caches, queues, replicas, or failover.</p>
@@ -148,12 +148,12 @@
       </div>
       <h3>Production usage</h3><p>Production teams set service-level objectives around latency percentiles and availability, capacity-test throughput, and alert on both user-visible symptoms and leading indicators like queue depth, connection pool exhaustion, and retry spikes.</p>
       <div class="card"><h3>Interview questions</h3><ul><li>Walk through what happens if p99 latency triples under load.</li><li>How would you size a connection pool given expected RPS and average latency?</li><li>What metrics prove your queue is keeping up rather than hiding a backlog?</li><li>Which would you sacrifice first in payments versus a social feed: latency, throughput, or availability?</li></ul></div>
-      <h3>Connections to previous concepts</h3><p>This builds on latency-throughput-availability.</p>
+      <h3>Connections to previous concepts</h3><p>This builds on client-server-apis.</p>
     </section>
 
     <section class="topic">
       <span class="topic-tab alt">02 / DSA Pattern</span>
-      <h2>Two Pointers</h2>
+      <h2>Advanced Sliding Window</h2>
       <p class="lede">Given a sequence, identify whether a hard-looking condition can be turned into a stable hash key: a prefix sum, a boundary value, a frequency signature, or a canonical representation.</p>
       <div class="challenge"><h3>Invariant</h3><ul><li>Invent the key that collapses many previous candidates into one lookup, then prove that key preserves exactly the information the answer needs.</li></ul></div>
       <div class="card"><h3>Examples</h3><ul><li>Subarray Sum Equals K: nums = [1,2,3], k = 3; Output: 2 because [1,2] and [3] both work.</li><li>Longest Consecutive Sequence: nums = [100,4,200,1,3,2]; Output: 4 for [1,2,3,4].</li><li>Group Anagrams with count keys: words with the same 26-count signature belong together without sorting each string.</li></ul></div>
