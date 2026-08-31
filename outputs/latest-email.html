@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sunday Mastery: Caching + Prefix Sums and Hashing</title>
+  <title>Rate Limiting + Monotonic Stack and Amortized Reasoning</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -14,20 +14,20 @@
       margin:0;
       background:
         radial-gradient(circle at 14px 14px, rgba(0,0,0,.035) 1px, transparent 1px),
-        linear-gradient(#fbfaf7, #fbfaf7);
+        linear-gradient(#f7efe2, #f7efe2);
       background-size:28px 28px, auto;
-      color:#171717;
+      color:#251c14;
       font-family:'IBM Plex Sans', Inter, Segoe UI, Arial, sans-serif;
       line-height:1.62;
     }
     
     .wrap { max-width:900px; margin:0 auto; padding:22px 18px 64px; }
     .masthead {
-      background:#202124;
+      background:#283044;
       color:#f8fafc;
       border-radius:6px;
       padding:30px 30px 24px;
-      border:1px solid #d8d6ce;
+      border:1px solid #d6b98d;
       position:relative;
       overflow:hidden;
       box-shadow:0 20px 54px rgba(17,24,39,.16);
@@ -40,52 +40,55 @@
     .eyebrow, code, pre, .meta, .topic-tab, .sr-cell .d, .pin { font-family:'IBM Plex Mono', SFMono-Regular, Consolas, monospace; }
     .eyebrow { display:inline-flex; align-items:center; color:#7fd6c6; border:1px solid rgba(127,214,198,.48); padding:4px 10px; border-radius:999px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; }
     h1 { font-family:'Space Grotesk', Inter, sans-serif; font-size:30px; line-height:1.13; margin:14px 0 7px; letter-spacing:0; }
-    h2 { font-family:'Space Grotesk', Inter, sans-serif; font-size:23px; line-height:1.22; margin:8px 0 12px; letter-spacing:0; border-bottom:2px solid #171717; padding-bottom:9px; }
-    h3 { font-family:'Space Grotesk', Inter, sans-serif; font-size:15.5px; margin:22px 0 8px; letter-spacing:0; color:#202124; }
+    h2 { font-family:'Space Grotesk', Inter, sans-serif; font-size:23px; line-height:1.22; margin:8px 0 12px; letter-spacing:0; border-bottom:2px solid #251c14; padding-bottom:9px; }
+    h3 { font-family:'Space Grotesk', Inter, sans-serif; font-size:15.5px; margin:22px 0 8px; letter-spacing:0; color:#283044; }
     p, li, td { font-size:15px; }
     ul, ol { margin:0; padding-left:20px; }
     .meta { color:#cbd5e1; font-size:12px; }
     .recall, .card, details, .mnemonic, .challenge {
-      background:#ffffff;
-      color:#171717;
-      border:1px solid #d8d6ce;
+      background:#fffaf1;
+      color:#251c14;
+      border:1px solid #d6b98d;
       border-radius:3px;
       padding:15px 17px;
     }
-    .recall { margin-top:18px; border-style:dashed; border-color:#b45309; position:relative; box-shadow:inset 0 0 0 1px rgba(255,255,255,.35); }
-    .pin { position:absolute; top:-10px; left:14px; background:#b45309; color:#ffffff; padding:2px 8px; border-radius:2px; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+    .recall { margin-top:18px; border-style:dashed; border-color:#7c2d12; position:relative; box-shadow:inset 0 0 0 1px rgba(255,255,255,.35); }
+    .pin { position:absolute; top:-10px; left:14px; background:#7c2d12; color:#ffffff; padding:2px 8px; border-radius:2px; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
     .recall h2 { border:0; padding:0; margin:2px 0 8px; font-size:16px; }
     .topic { margin-top:34px; }
-    .topic-tab { display:inline-block; background:#b45309; color:#ffffff; padding:4px 10px; border-radius:2px 2px 0 0; font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
-    .topic-tab.alt { background:#202124; color:#ffffff; }
-    .lede { color:#5f6368; font-size:16px; }
+    .topic-tab { display:inline-block; background:#7c2d12; color:#ffffff; padding:4px 10px; border-radius:2px 2px 0 0; font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
+    .topic-tab.alt { background:#283044; color:#ffffff; }
+    .lede { color:#695f52; font-size:16px; }
     .card { box-shadow:0 8px 22px rgba(17,24,39,.055); }
     .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
-    .challenge { border-left:4px solid #b45309; margin:14px 0; background:linear-gradient(90deg, rgba(47,143,131,.12), rgba(255,255,255,.72)); }
-    .mnemonic { display:flex; gap:10px; margin:16px 0; border-color:#b45309; }
-    .badge { background:#b45309; color:#ffffff; min-width:40px; height:28px; padding:4px 8px; border-radius:2px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; }
-    .diagram-frame { background:#202124; border-radius:3px; padding:12px; overflow-x:auto; box-shadow:0 14px 34px rgba(17,24,39,.2); }
+    .challenge { border-left:4px solid #7c2d12; margin:14px 0; background:linear-gradient(90deg, rgba(47,143,131,.12), rgba(255,255,255,.72)); }
+    .mnemonic { display:flex; gap:10px; margin:16px 0; border-color:#7c2d12; }
+    .badge { background:#7c2d12; color:#ffffff; min-width:40px; height:28px; padding:4px 8px; border-radius:2px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; }
+    .diagram-frame { background:#283044; border-radius:3px; padding:12px; overflow-x:auto; box-shadow:0 14px 34px rgba(17,24,39,.2); }
     .diagram-frame svg { display:block; min-width:640px; max-width:100%; height:auto; }
-    .caption { color:#5f6368; font-size:13px; }
-    pre { background:#1f2937; color:#e5e7eb; padding:14px 16px; border-radius:4px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
+    .caption { color:#695f52; font-size:13px; }
+    pre { background:#1b2430; color:#e5e7eb; padding:14px 16px; border-radius:4px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
     .array-row { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }
-    .cell { min-width:44px; padding:8px 4px; text-align:center; border:1.5px solid #202124; border-radius:3px; background:#ffffff; font-family: IBM Plex Mono, monospace; }
-    .cell .idx { display:block; color:#5f6368; font-size:10px; }
-    .cell.hit { background:#eafff4; border-color:#b45309; }
+    .cell { min-width:44px; padding:8px 4px; text-align:center; border:1.5px solid #283044; border-radius:3px; background:#fffaf1; font-family: IBM Plex Mono, monospace; }
+    .cell .idx { display:block; color:#695f52; font-size:10px; }
+    .cell.hit { background:#eafff4; border-color:#7c2d12; }
     details { margin:8px 0; }
     summary { cursor:pointer; font-weight:700; }
-    .answer { color:#5f6368; border-top:1px dashed #d8d6ce; margin-top:8px; padding-top:8px; }
-    .sr { margin-top:36px; border:1px solid #202124; border-radius:6px; overflow:hidden; }
-    .sr-head { background:#202124; color:#ffffff; padding:10px 16px; font-weight:700; }
+    .answer { color:#695f52; border-top:1px dashed #d6b98d; margin-top:8px; padding-top:8px; }
+    .sr { margin-top:36px; border:1px solid #283044; border-radius:6px; overflow:hidden; }
+    .sr-head { background:#283044; color:#ffffff; padding:10px 16px; font-weight:700; }
     .sr-body { display:flex; flex-wrap:wrap; }
-    .sr-cell { flex:1 1 140px; padding:12px 16px; border-right:1px solid #d8d6ce; background:#ffffff; }
-    .sr-cell .d { font-size:11px; color:#5f6368; text-transform:uppercase; letter-spacing:.06em; }
+    .sr-cell { flex:1 1 140px; padding:12px 16px; border-right:1px solid #d6b98d; background:#fffaf1; }
+    .sr-cell .d { font-size:11px; color:#695f52; text-transform:uppercase; letter-spacing:.06em; }
     .sr-cell .date { font-weight:700; font-size:14px; }
     
-    .masthead { border-radius:6px; }
-    .topic { margin-top:34px; }
-    .topic-tab { border-radius:2px 2px 0 0; }
-  
+      .masthead { transform:rotate(-.25deg); }
+      .topic { background:#fffaf1; border:1px solid #d6b98d; border-radius:2px; padding:20px; position:relative; }
+      .topic::before { content:""; position:absolute; left:14px; right:14px; top:-5px; height:10px; background:#7c2d12; opacity:.22; transform:rotate(.4deg); }
+      .topic-tab { border-radius:2px; letter-spacing:.12em; }
+      .card, .challenge, .mnemonic, details { border-radius:2px; box-shadow:3px 3px 0 rgba(17,24,39,.08); }
+      h2 { text-transform:uppercase; font-size:21px; }
+    
     @media (max-width:680px) {
       .wrap { padding:14px 10px 42px; }
       .masthead { padding:20px; }
@@ -95,13 +98,13 @@
     }
   </style>
 </head>
-<body class="layout-field-note">
+<body class="layout-case-file">
   <main class="wrap">
     <header class="masthead">
       <div class="blueprint-border"></div>
-      <span class="eyebrow">Sunday Mastery / Java track / minimal editorial / field note</span>
-      <h1>Sunday Mastery: Caching + Prefix Sums and Hashing</h1>
-      <div class="meta">2026-08-30 / SDE-2+ prep / production reasoning</div>
+      <span class="eyebrow">Daily Lesson / Java track / technical magazine / case file</span>
+      <h1>Rate Limiting + Monotonic Stack and Amortized Reasoning</h1>
+      <div class="meta">2026-08-31 / SDE-2+ prep / production reasoning</div>
       <section class="recall">
         <span class="pin">Pin this</span>
         <h2>60-second recall</h2>
@@ -111,7 +114,7 @@
 
     <section class="topic">
       <span class="topic-tab">01 / System Design</span>
-      <h2>Caching</h2>
+      <h2>Rate Limiting</h2>
       <p class="lede">Latency measures how long one request takes. Throughput measures how many requests complete per unit time. Availability measures whether the system can return correct responses over time.</p>
       <div class="challenge"><h3>Think first</h3><ul><li>What breaks first if traffic becomes 10x?</li><li>Which requests are users staring at, and which can finish later?</li><li>How would you detect rising latency before users report an outage?</li></ul></div>
       <h3>Why it exists</h3><p>These three metrics exist because a system can fail users in different ways: it can be slow, unable to process enough work, or down. Strong designs keep those dimensions separate before choosing caches, queues, replicas, or failover.</p>
@@ -153,7 +156,7 @@
       </div>
       <h3>Production usage</h3><p>Production teams set service-level objectives around latency percentiles and availability, capacity-test throughput, and alert on both user-visible symptoms and leading indicators like queue depth, connection pool exhaustion, and retry spikes.</p>
       <div class="card"><h3>Interview questions</h3><ul><li>Walk through what happens if p99 latency triples under load.</li><li>How would you size a connection pool given expected RPS and average latency?</li><li>What metrics prove your queue is keeping up rather than hiding a backlog?</li><li>Which would you sacrifice first in payments versus a social feed: latency, throughput, or availability?</li></ul></div>
-      <h3>Connections to previous concepts</h3><p>This builds on latency-throughput-availability.</p>
+      <h3>Connections to previous concepts</h3><p>This builds on load-balancing.</p>
     </section>
 
     <section class="topic">
@@ -220,7 +223,7 @@
 
     <section class="topic">
       <span class="topic-tab">03 / DSA Pattern</span>
-      <h2>Prefix Sums and Hashing</h2>
+      <h2>Monotonic Stack and Amortized Reasoning</h2>
       <p class="lede">Given a sequence, identify whether a hard-looking condition can be turned into a stable hash key: a prefix sum, a boundary value, a frequency signature, or a canonical representation.</p>
       <div class="challenge"><h3>Invariant</h3><ul><li>Invent the key that collapses many previous candidates into one lookup, then prove that key preserves exactly the information the answer needs.</li></ul></div>
       <div class="card"><h3>Examples</h3><ul><li>Subarray Sum Equals K: nums = [1,2,3], k = 3; Output: 2 because [1,2] and [3] both work.</li><li>Longest Consecutive Sequence: nums = [100,4,200,1,3,2]; Output: 4 for [1,2,3,4].</li><li>Group Anagrams with count keys: words with the same 26-count signature belong together without sorting each string.</li></ul></div>
@@ -352,7 +355,7 @@ for (String word : strs) {
     <section class="sr">
       <div class="sr-head">Review schedule</div>
       <div class="sr-body">
-        <div class="sr-cell"><div class="d">+1 day</div><div class="date">Mon, Aug 31</div></div><div class="sr-cell"><div class="d">+3 days</div><div class="date">Wed, Sep 2</div></div><div class="sr-cell"><div class="d">+7 days</div><div class="date">Sun, Sep 6</div></div><div class="sr-cell"><div class="d">+16 days</div><div class="date">Tue, Sep 15</div></div>
+        <div class="sr-cell"><div class="d">+1 day</div><div class="date">Tue, Sep 1</div></div><div class="sr-cell"><div class="d">+3 days</div><div class="date">Thu, Sep 3</div></div><div class="sr-cell"><div class="d">+7 days</div><div class="date">Mon, Sep 7</div></div><div class="sr-cell"><div class="d">+16 days</div><div class="date">Wed, Sep 16</div></div>
       </div>
     </section>
   

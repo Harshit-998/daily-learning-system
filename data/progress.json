@@ -7,24 +7,26 @@
     "dsa"
   ],
   "timezone": "Asia/Kolkata",
-  "lastRunDate": "2026-08-30",
+  "lastRunDate": "2026-08-31",
   "systemDesign": {
     "completedTopicIds": [
       "latency-throughput-availability",
       "client-server-apis",
       "load-balancing",
-      "caching"
+      "caching",
+      "rate-limiting"
     ],
-    "currentIndex": 4
+    "currentIndex": 5
   },
   "dsa": {
     "completedPatternIds": [
       "arrays-hashing",
       "two-pointers",
       "sliding-window",
-      "prefix-sums"
+      "prefix-sums",
+      "stack-monotonic"
     ],
-    "currentPatternIndex": 4,
+    "currentPatternIndex": 5,
     "currentDifficulty": "hard",
     "reviewQueue": [
       {
@@ -76,6 +78,18 @@
         "strength": 0
       },
       {
+        "id": "rate-limiting",
+        "type": "system-design",
+        "dueDate": "2026-09-01",
+        "strength": 0
+      },
+      {
+        "id": "stack-monotonic",
+        "type": "dsa",
+        "dueDate": "2026-09-01",
+        "strength": 0
+      },
+      {
         "id": "latency-throughput-availability",
         "type": "system-design",
         "dueDate": "2026-09-02",
@@ -124,6 +138,18 @@
         "strength": 0
       },
       {
+        "id": "rate-limiting",
+        "type": "system-design",
+        "dueDate": "2026-09-03",
+        "strength": 0
+      },
+      {
+        "id": "stack-monotonic",
+        "type": "dsa",
+        "dueDate": "2026-09-03",
+        "strength": 0
+      },
+      {
         "id": "latency-throughput-availability",
         "type": "system-design",
         "dueDate": "2026-09-06",
@@ -172,6 +198,18 @@
         "strength": 0
       },
       {
+        "id": "rate-limiting",
+        "type": "system-design",
+        "dueDate": "2026-09-07",
+        "strength": 0
+      },
+      {
+        "id": "stack-monotonic",
+        "type": "dsa",
+        "dueDate": "2026-09-07",
+        "strength": 0
+      },
+      {
         "id": "latency-throughput-availability",
         "type": "system-design",
         "dueDate": "2026-09-15",
@@ -217,11 +255,30 @@
         "id": "prefix-sums",
         "type": "dsa",
         "dueDate": "2026-09-15",
+        "strength": 0
+      },
+      {
+        "id": "rate-limiting",
+        "type": "system-design",
+        "dueDate": "2026-09-16",
+        "strength": 0
+      },
+      {
+        "id": "stack-monotonic",
+        "type": "dsa",
+        "dueDate": "2026-09-16",
         "strength": 0
       }
     ]
   },
   "history": [
+    {
+      "date": "2026-08-31",
+      "mode": "daily",
+      "systemDesignTopicId": "rate-limiting",
+      "dsaPatternId": "stack-monotonic",
+      "title": "Rate Limiting + Monotonic Stack and Amortized Reasoning"
+    },
     {
       "date": "2026-08-30",
       "mode": "weekly-review",
