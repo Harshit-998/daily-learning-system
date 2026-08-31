@@ -1,12 +1,12 @@
-Daily Lesson: API Gateway + Binary Search on Answers
+Daily Lesson: Database Indexing + Linked List Transformations
 
-System Design: API Gateway
-Core idea: API Gateway is the design tool used when a front door for routing, auth, limits, and cross-cutting api concerns. In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.
-Trade-off: API Gateway can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.
+System Design: Database Indexing
+Core idea: Database Indexing is the design tool used when making reads fast by maintaining searchable data structures. In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.
+Trade-off: Database Indexing can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.
 Engineer question: What is the source of truth?
 
-Mock Interview: Design BookMyShow
-Focus: What happens if two users select the same seat at the same time?
+Mock Interview: Design Metrics and Logging Platform
+Focus: What is the source of truth?
 
 Node.js: Node.js Streams and Backpressure
 Use it for: Use stream.pipeline() or stream/promises.pipeline() so errors and cleanup propagate through the chain.
@@ -16,9 +16,9 @@ JS Interview: Closures, this-binding, and hidden state
 Question: What does a closure actually retain?
 Answer: A closure retains references to variables in its lexical environment, not a frozen copy of their values. That is why mutations after function creation can still be observed.
 
-DSA: Binary Search on Answers
-Notice: Binary Search on Answers usually has a repeated decision that can be made locally once the right state is maintained.
-Approach: For Binary Search on Answers, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?
+DSA: Linked List Transformations
+Notice: Linked List Transformations usually has a repeated decision that can be made locally once the right state is maintained.
+Approach: For Linked List Transformations, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?
 Complexity: The optimized target is usually O(n), O(n log n), or O(states * transitions), depending on the pattern. Space is whatever state is required to preserve the invariant.
 
 Today's action: explain the concept aloud, trace the Java solution once, then solve one variant.

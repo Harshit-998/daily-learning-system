@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>API Gateway + Binary Search on Answers</title>
+  <title>Database Indexing + Linked List Transformations</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
     html { -webkit-text-size-adjust:100%; }
     body {
       margin:0;
-      background:#efe5d2;
-      color:#251c14;
+      background:#eef0f4;
+      color:#171717;
       font-family:'IBM Plex Sans', Arial, sans-serif;
       line-height:1.62;
     }
@@ -21,49 +21,53 @@
     h1, h2, h3 { letter-spacing:0; }
     h1 { margin:10px 0; font:700 34px/1.08 'Space Grotesk', Arial, sans-serif; }
     h2 { margin:8px 0 12px; font:700 24px/1.2 'Space Grotesk', Arial, sans-serif; }
-    h3 { margin:22px 0 8px; font:700 15px/1.25 'Space Grotesk', Arial, sans-serif; color:#92400e; }
+    h3 { margin:22px 0 8px; font:700 15px/1.25 'Space Grotesk', Arial, sans-serif; color:#4f46e5; }
     p, li { font-size:15px; }
     ul, ol { margin:0; padding-left:20px; }
     code, pre, .label, .kicker, .metric strong, .caption { font-family:'IBM Plex Mono', Consolas, monospace; }
-    .hero, .block, .recall, .panel, details, .review { background:#fff9ed; border:1px solid #c9aa77; }
-    .hero { padding:30px; margin-bottom:22px; color:#251c14; }
-    .hero p, .lede, .caption, .answer { color:#6c5c49; }
-    .kicker, .label { color:#92400e; text-transform:uppercase; font-size:11px; font-weight:700; letter-spacing:.08em; }
+    .hero, .block, .recall, .panel, details, .review { background:#ffffff; border:1px solid #d5d7de; }
+    .hero { padding:30px; margin-bottom:22px; color:#171717; }
+    .hero p, .lede, .caption, .answer { color:#666666; }
+    .kicker, .label { color:#4f46e5; text-transform:uppercase; font-size:11px; font-weight:700; letter-spacing:.08em; }
     .block, .recall { margin:22px 0; padding:24px; }
     .panel { padding:15px; margin:12px 0; }
     .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:14px 0; }
     .two-col, .exec-grid, .war-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
-    .challenge, .mnemonic { border:1px solid #92400e; background:#92400e18; padding:14px 16px; margin:14px 0; }
+    .challenge, .mnemonic { border:1px solid #4f46e5; background:#4f46e518; padding:14px 16px; margin:14px 0; }
     .mnemonic { display:flex; gap:10px; align-items:flex-start; }
-    .badge { display:inline-flex; min-width:42px; justify-content:center; padding:4px 8px; background:#92400e; color:#ffffff; font-weight:700; }
-    .diagram-frame { background:#1f2937; border:1px solid #c9aa77; padding:14px; margin:10px 0; overflow-x:auto; }
+    .badge { display:inline-flex; min-width:42px; justify-content:center; padding:4px 8px; background:#4f46e5; color:#ffffff; font-weight:700; }
+    .diagram-frame { background:#111827; border:1px solid #d5d7de; padding:14px; margin:10px 0; overflow-x:auto; }
     .diagram-frame svg { display:block; min-width:640px; max-width:100%; height:auto; }
-    pre { background:#1f2937; color:#f8fafc; padding:15px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
+    .html-diagram { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; min-width:560px; }
+    .diagram-node { background:#ffffff; color:#171717; border:1px solid #d5d7de; padding:12px; min-height:74px; }
+    .diagram-node span { display:block; color:#4f46e5; font-family:'IBM Plex Mono', Consolas, monospace; font-size:11px; font-weight:700; margin-bottom:6px; }
+    .diagram-node b { display:block; font-size:13px; line-height:1.35; }
+    pre { background:#111827; color:#f8fafc; padding:15px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
     details { padding:13px 15px; margin:9px 0; }
     summary { cursor:pointer; font-weight:700; }
-    .answer { margin-top:8px; padding-top:8px; border-top:1px dashed #c9aa77; }
+    .answer { margin-top:8px; padding-top:8px; border-top:1px dashed #d5d7de; }
     .array-row { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }
-    .cell { min-width:44px; padding:8px 4px; text-align:center; border:1px solid #c9aa77; background:#fff9ed; font-family:'IBM Plex Mono', monospace; }
-    .cell .idx { display:block; color:#6c5c49; font-size:10px; }
-    .cell.hit { border-color:#92400e; background:#92400e18; }
+    .cell { min-width:44px; padding:8px 4px; text-align:center; border:1px solid #d5d7de; background:#ffffff; font-family:'IBM Plex Mono', monospace; }
+    .cell .idx { display:block; color:#666666; font-size:10px; }
+    .cell.hit { border-color:#4f46e5; background:#4f46e518; }
     .review { margin-top:28px; overflow:hidden; }
-    .review-head { padding:12px 16px; background:#251c14; color:#ffffff; font-weight:700; }
+    .review-head { padding:12px 16px; background:#171717; color:#ffffff; font-weight:700; }
     .review-body { display:grid; grid-template-columns:repeat(4,1fr); }
-    .review-cell { padding:14px 16px; border-right:1px solid #c9aa77; }
-    .review-cell span { display:block; color:#6c5c49; font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; }
+    .review-cell { padding:14px 16px; border-right:1px solid #d5d7de; }
+    .review-cell span { display:block; color:#666666; font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; }
     .metric-row { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:18px 0; }
-    .metric { background:#fff9ed; border:1px solid #c9aa77; padding:16px; }
-    .metric strong { display:block; color:#92400e; font-size:12px; }
+    .metric { background:#ffffff; border:1px solid #d5d7de; padding:16px; }
+    .metric strong { display:block; color:#4f46e5; font-size:12px; }
     .metric span { font-weight:700; }
     
-      body { background:repeating-linear-gradient(0deg,#efe5d2,#efe5d2 31px,#e2d8c4 32px); }
-      .hero { transform:rotate(-.2deg); border-radius:2px; box-shadow:8px 8px 0 rgba(60,45,30,.12); }
-      .case-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:18px 0; }
-      .case-strip div { background:#fff9ed; border:1px solid #c9aa77; padding:12px; box-shadow:4px 4px 0 rgba(60,45,30,.09); }
-      .case-strip b, .case-strip span { display:block; }
-      .block, .recall, .panel, details { border-radius:2px; box-shadow:5px 5px 0 rgba(60,45,30,.08); }
-      .label { background:#92400e; color:#ffffff; padding:3px 8px; display:inline-block; }
-      @media (max-width:720px) { .case-strip { grid-template-columns:1fr; } }
+      body { background:#eef0f4; }
+      main { max-width:820px; }
+      .hero, .block, .recall, .self-test, .review { background:#ffffff; border:0; box-shadow:0 12px 40px rgba(15,23,42,.11); }
+      .hero { padding:44px 48px; }
+      .block { padding:38px 48px; }
+      h1 { font-family:'Libre Baskerville', Georgia, serif; font-size:32px; }
+      h2 { border-bottom:1px solid #d5d7de; padding-bottom:10px; }
+      .panel { background:#f8fafc; }
     
     @media (max-width:720px) {
       main { padding:12px 10px 42px; }
@@ -73,120 +77,135 @@
     }
   </style>
 </head>
-<body class="casefile">
+<body class="whitepaper">
   <main>
     <header class="hero">
-    <div class="kicker">Interview Case File / casefile / 2026-08-31</div>
-    <h1>API Gateway + Binary Search on Answers</h1>
-    <p>Evidence, constraints, trade-offs</p>
+    <div class="kicker">Technical Whitepaper / whitepaper / 2026-08-31</div>
+    <h1>Database Indexing + Linked List Transformations</h1>
+    <p>A structured study brief</p>
   </header>
-    <section class="case-strip">
-      <div><b>Topic</b><span>API Gateway</span></div>
-      <div><b>System</b><span>BookMyShow</span></div>
-      <div><b>Pattern</b><span>Binary Search on Answers</span></div>
-    </section>
-    <section class="block case-card">
-    <div class="label">02 / Real Mock Interview</div>
-    <h2>Design BookMyShow</h2>
-    <p class="lede">Design BookMyShow for movie discovery, seat selection, temporary seat locking, payment, and ticket confirmation.</p>
-    <h3>Scope clarification</h3><p>Focus on movie browsing, theatre/show search, seat map rendering, seat hold, booking confirmation, payment callbacks, and ticket retrieval. Keep recommendations, ads, and loyalty programs out of scope for the first design.</p>
-    <div class="two-col">
-      <div class="panel"><h3>Functional requirements</h3><ul><li>Users can search movies, cities, theatres, showtimes, and available seats.</li><li>Users can select seats and hold them temporarily while completing payment.</li><li>Users can complete payment and receive a confirmed ticket with a booking ID.</li><li>The system prevents two users from successfully booking the same seat.</li><li>Admins can create theatres, screens, shows, seat layouts, prices, and inventory.</li></ul></div>
-      <div class="panel"><h3>Non-functional requirements</h3><ul><li>Seat availability reads should feel fast, targeting low hundreds of milliseconds for cached show metadata and under one second for seat map fetch.</li><li>Booking confirmation requires strong consistency for seat ownership.</li><li>The system should tolerate flash-sale spikes for popular shows without corrupting inventory.</li><li>Payment processing must be idempotent because callbacks and client retries can duplicate requests.</li><li>Audit logs and booking state transitions must be durable.</li><li>The system needs observability around lock contention, payment callback lag, booking failures, and inventory mismatch.</li></ul></div>
-    </div>
-    <div class="grid">
-      <div class="panel"><h3>Capacity estimation</h3><ul><li>Assume 10M monthly active users, 1M daily active users, and 5x traffic spikes during blockbuster releases.</li><li>If 20% of DAU browse show pages, average browse QPS is modest, but peak city/movie pages may become hot keys.</li><li>If 100K users attempt booking during a 10-minute release window, booking attempts average about 167 QPS and may spike much higher for a single show.</li><li>Seat inventory is small per show but high contention; the scaling problem is not storage size, it is correctness under concurrent writes.</li><li>Cache movie/theatre/show metadata aggressively, but keep seat lock and booking state in a strongly controlled write path.</li></ul></div>
-      <div class="panel"><h3>Core entities and data model</h3><ul><li>Movie(id, title, language, duration, metadata)</li><li>Theatre(id, cityId, name, location), Screen(id, theatreId, layoutId), Seat(id, screenId, row, number, type)</li><li>Show(id, movieId, screenId, startTime, status), ShowSeat(showId, seatId, status, lockId, lockedUntil, bookingId, version)</li><li>Booking(id, userId, showId, seats, status, amount, idempotencyKey, createdAt)</li><li>Payment(id, bookingId, providerRef, status, callbackPayloadHash)</li><li>Index by city/movie/date for discovery, by showId for seat map, and by idempotencyKey for safe retries.</li></ul></div>
-      <div class="panel"><h3>API design</h3><ul><li>GET /cities/{cityId}/movies?date=YYYY-MM-DD returns movies and cached show summaries.</li><li>GET /shows/{showId}/seats returns seat map with available, locked, and booked states.</li><li>POST /shows/{showId}/holds with seatIds and idempotencyKey creates a short-lived hold if all seats are available.</li><li>POST /bookings/{bookingId}/payment-intent starts payment for a valid hold.</li><li>POST /payments/callback consumes provider callback idempotently and confirms or releases seats.</li></ul></div>
-    </div>
-    <h3>High-level architecture</h3><p>Use API Gateway for auth/rate limiting, discovery service for cached browsing, inventory service for seat state, booking service for booking lifecycle, payment service for provider interaction, Redis or a database-backed lock path for short seat holds, a relational database for booking truth, and queues for payment callbacks, notifications, and reconciliation jobs.</p>
-    <h3>Mock architecture diagram</h3>
-    <div class="diagram-frame"><svg viewBox="0 0 920 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BookMyShow architecture diagram">
-  <defs><marker id="bmsArrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7fd6c6"/></marker></defs>
-  <text x="20" y="26" fill="#7fd6c6" font-family="monospace" font-size="11">BOOKMYSHOW: DISCOVERY VS STRONG-CONSISTENCY BOOKING PATH</text>
-  <g font-family="monospace" font-size="12" fill="#eaf6f2">
-    <rect x="20" y="62" width="120" height="46" rx="4" fill="none" stroke="#7fd6c6"/><text x="80" y="90" text-anchor="middle">Client</text>
-    <rect x="185" y="62" width="130" height="46" rx="4" fill="none" stroke="#7fd6c6"/><text x="250" y="82" text-anchor="middle">API Gateway</text><text x="250" y="97" text-anchor="middle" font-size="10" fill="#b9d8cf">auth, limits</text>
-    <rect x="365" y="28" width="145" height="46" rx="4" fill="none" stroke="#7fd6c6" stroke-dasharray="3 2"/><text x="437" y="48" text-anchor="middle">Discovery</text><text x="437" y="63" text-anchor="middle" font-size="10" fill="#b9d8cf">cacheable reads</text>
-    <rect x="570" y="28" width="135" height="46" rx="4" fill="none" stroke="#7fd6c6" stroke-dasharray="3 2"/><text x="637" y="48" text-anchor="middle">Metadata DB</text><text x="637" y="63" text-anchor="middle" font-size="10" fill="#b9d8cf">movies/shows</text>
-    <rect x="365" y="122" width="145" height="46" rx="4" fill="none" stroke="#f4d9ad"/><text x="437" y="142" text-anchor="middle" fill="#f4d9ad">Inventory</text><text x="437" y="157" text-anchor="middle" font-size="10" fill="#f4d9ad">seat holds</text>
-    <rect x="570" y="122" width="135" height="46" rx="4" fill="none" stroke="#f4d9ad"/><text x="637" y="142" text-anchor="middle" fill="#f4d9ad">ShowSeat DB</text><text x="637" y="157" text-anchor="middle" font-size="10" fill="#f4d9ad">conditional write</text>
-    <rect x="365" y="214" width="145" height="46" rx="4" fill="none" stroke="#f4d9ad"/><text x="437" y="234" text-anchor="middle" fill="#f4d9ad">Booking</text><text x="437" y="249" text-anchor="middle" font-size="10" fill="#f4d9ad">state machine</text>
-    <rect x="570" y="214" width="135" height="46" rx="4" fill="none" stroke="#f4d9ad"/><text x="637" y="234" text-anchor="middle" fill="#f4d9ad">Payment</text><text x="637" y="249" text-anchor="middle" font-size="10" fill="#f4d9ad">idempotent</text>
-    <rect x="760" y="214" width="125" height="46" rx="4" fill="none" stroke="#f4d9ad"/><text x="822" y="234" text-anchor="middle" fill="#f4d9ad">Provider</text><text x="822" y="249" text-anchor="middle" font-size="10" fill="#f4d9ad">callbacks</text>
-    <rect x="365" y="300" width="340" height="38" rx="4" fill="none" stroke="#7fd6c6" stroke-dasharray="2 3"/><text x="535" y="323" text-anchor="middle">reconciliation, alerts, inventory mismatch checks</text>
-  </g>
-  <g stroke="#7fd6c6" stroke-width="1.5" marker-end="url(#bmsArrow)" fill="none">
-    <line x1="140" y1="85" x2="183" y2="85"/><line x1="315" y1="85" x2="365" y2="51"/><line x1="510" y1="51" x2="568" y2="51"/>
-  </g>
-  <g stroke="#f4d9ad" stroke-width="1.5" marker-end="url(#bmsArrow)" fill="none">
-    <line x1="315" y1="95" x2="365" y2="145"/><line x1="510" y1="145" x2="568" y2="145"/><line x1="437" y1="168" x2="437" y2="212"/><line x1="510" y1="237" x2="568" y2="237"/><line x1="705" y1="237" x2="758" y2="237"/><line x1="637" y1="260" x2="637" y2="298"/>
-  </g>
-  <text x="590" y="96" fill="#7fd6c6" font-family="monospace" font-size="10">eventual consistency OK</text>
-  <text x="590" y="190" fill="#f4d9ad" font-family="monospace" font-size="10">strong consistency required</text>
-</svg></div>
-    <h3>Deep dives</h3>
-    <div class="panel">
-      <h3>Seat locking and confirmation</h3>
-      <p>The hardest part is preventing double booking while keeping the UI responsive. A safe approach is to store ShowSeat rows with status, lockId, lockedUntil, bookingId, and version. A hold request performs a conditional update where all requested seats are AVAILABLE or expired. Confirmation moves HELD seats to BOOKED only if the hold belongs to the same user/booking and has not expired.</p>
-      <ul><li>Do not rely only on client-side timers; expiration must be enforced server-side.</li><li>Use idempotency keys so retrying a hold or payment confirmation does not create duplicate bookings.</li><li>Run reconciliation to release expired holds and detect payment success after client disconnects.</li></ul>
-    </div><div class="panel">
-      <h3>Hot show traffic</h3>
-      <p>A blockbuster show can turn one showId into a hot partition. Cache read-only show metadata separately from mutable seat state, throttle hold attempts, use queueing or waiting rooms for extreme launches, and shard lock traffic by showId plus seat block only if contention requires it.</p>
-      <ul><li>Caching seat availability too aggressively can show stale seats as available.</li><li>Sharding by city is not enough when one show dominates traffic.</li><li>Backpressure is better than accepting requests that will timeout and retry.</li></ul>
-    </div>
-    <div class="two-col">
-      <div class="panel"><h3>Failure scenarios</h3><ul><li>Payment succeeds but callback arrives late; booking should remain pending until reconciliation confirms or expires it.</li><li>User refreshes during payment; idempotency key should return the existing booking state.</li><li>Redis/lock store fails; degrade booking for affected shows rather than risking double booking.</li><li>Queue backlog delays notifications; tickets should still be visible from booking status.</li><li>Database primary fails during confirmation; use transactional guarantees and clear retry semantics.</li></ul></div>
-      <div class="panel"><h3>Trade-offs</h3><ul><li>Strong consistency is mandatory for final seat booking, even if discovery and seat map reads are eventually refreshed.</li><li>Redis locks are fast but need careful persistence/reconciliation; database conditional updates are simpler but may hit contention sooner.</li><li>Short hold TTLs reduce inventory blockage but increase user frustration during slow payments.</li><li>A waiting room protects the system during spikes but adds product friction.</li></ul></div>
-    </div>
-    <div class="panel"><h3>Follow-up questions</h3><ul><li>What happens if two users select the same seat at the same time?</li><li>Why did you choose this storage model for ShowSeat?</li><li>What breaks first at 10x traffic?</li><li>How do you handle expired holds?</li><li>How do you make payment callbacks idempotent?</li><li>What would change if this became multi-region?</li><li>Which data can be cached and which cannot?</li><li>How do you detect inventory mismatch?</li><li>What metrics would you monitor during a blockbuster launch?</li><li>How would you recover if payment succeeds but booking confirmation fails?</li></ul></div>
-    <div class="panel"><h3>Five-minute answer</h3><p>I would split BookMyShow into discovery, inventory, booking, payment, and notification services. Discovery reads movie, theatre, and show metadata from cache because it is read-heavy and can tolerate slight staleness. Seat booking goes through an inventory service backed by strongly consistent conditional updates on ShowSeat rows. A user creates a short hold with an idempotency key; if every requested seat is available or expired, the system marks those seats held with a lock ID and TTL. Payment then proceeds against that booking. Provider callbacks are handled idempotently: success confirms only seats held by that booking, failure or timeout releases them. For scale, I would cache metadata, protect hot shows with rate limits or waiting rooms, monitor lock contention and payment lag, and run reconciliation for expired holds and callback mismatches. The main trade-off is that browsing can be eventually consistent, but final seat ownership must be strongly consistent.</p></div>
-  </section>
-    <section class="block case-card">
+    <section class="block paper-section">
     <div class="label">01 / System Design Topic</div>
-    <h2>API Gateway</h2>
-    <p class="lede">API Gateway is the design tool used when a front door for routing, auth, limits, and cross-cutting api concerns. In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.</p>
+    <h2>Database Indexing</h2>
+    <p class="lede">Database Indexing is the design tool used when making reads fast by maintaining searchable data structures. In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.</p>
     <div class="challenge"><h3>Think Like an Engineer</h3><ul><li>What is the source of truth?</li><li>What can become stale without hurting correctness?</li><li>What metric tells you this design is failing before users complain?</li></ul></div>
-    <h3>Why it exists</h3><p>It exists because real systems like Uber hit limits that a single straightforward service cannot handle cleanly: traffic spikes, uneven access patterns, slow dependencies, partial failures, and different consistency needs across reads and writes.</p>
-    <h3>Analogy</h3><p>Think of API Gateway as an airport operations decision. Some passengers need a fast security lane, some luggage can move asynchronously, and some control systems must never accept conflicting state. Good design separates those flows instead of treating all work the same.</p>
-    <h3>Technical depth</h3><p>For API Gateway, start from the user-facing operation, then identify the hot path, source of truth, derived data, coordination boundary, and failure recovery path. A senior answer should discuss p95/p99 latency, write amplification, stale reads, retries, idempotency, data ownership, observability, and how the design changes when one dependency becomes slow or unavailable.</p>
+    <h3>Why it exists</h3><p>It exists because real systems like Amazon hit limits that a single straightforward service cannot handle cleanly: traffic spikes, uneven access patterns, slow dependencies, partial failures, and different consistency needs across reads and writes.</p>
+    <h3>Analogy</h3><p>Think of Database Indexing as an airport operations decision. Some passengers need a fast security lane, some luggage can move asynchronously, and some control systems must never accept conflicting state. Good design separates those flows instead of treating all work the same.</p>
+    <h3>Technical depth</h3><p>For Database Indexing, start from the user-facing operation, then identify the hot path, source of truth, derived data, coordination boundary, and failure recovery path. A senior answer should discuss p95/p99 latency, write amplification, stale reads, retries, idempotency, data ownership, observability, and how the design changes when one dependency becomes slow or unavailable.</p>
     <div class="mnemonic"><span class="badge">F.L.O.W.</span><div>Flow, Limit, Ownership, Watchpoints. Explain where the request flows, what limit you are solving, who owns the truth, and what you will watch in production.</div></div>
     <h3>Architecture diagram</h3>
-    <div class="diagram-frame"><svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Topic-aware system design architecture">
-  <defs><marker id="arrow-topic" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7fd6c6"/></marker></defs>
-  <rect width="900" height="320" rx="10" fill="#10253b"/>
-  <text x="24" y="32" fill="#7fd6c6" font-family="monospace" font-size="13">API Gateway in Uber</text>
-  <g font-family="monospace" font-size="12" fill="#eaf6f2">
-    <rect x="35" y="82" width="125" height="52" rx="5" fill="none" stroke="#7fd6c6"/><text x="98" y="112" text-anchor="middle">Client</text>
-    <rect x="220" y="82" width="145" height="52" rx="5" fill="none" stroke="#7fd6c6"/><text x="292" y="104" text-anchor="middle">API Layer</text><text x="292" y="120" text-anchor="middle" font-size="10">auth, limits</text>
-    <rect x="425" y="82" width="155" height="52" rx="5" fill="none" stroke="#f4d9ad"/><text x="503" y="104" text-anchor="middle">API Gateway</text><text x="503" y="120" text-anchor="middle" font-size="10">decision point</text>
-    <rect x="645" y="42" width="170" height="52" rx="5" fill="none" stroke="#7fd6c6"/><text x="730" y="64" text-anchor="middle">Derived Path</text><text x="730" y="80" text-anchor="middle" font-size="10">cache/index/queue</text>
-    <rect x="645" y="142" width="170" height="52" rx="5" fill="none" stroke="#7fd6c6"/><text x="730" y="164" text-anchor="middle">Source of Truth</text><text x="730" y="180" text-anchor="middle" font-size="10">durable state</text>
-    <rect x="220" y="232" width="360" height="46" rx="5" fill="none" stroke="#7fd6c6" stroke-dasharray="4 3"/><text x="400" y="260" text-anchor="middle">Observability: p99, errors, lag, saturation, correctness drift</text>
-  </g>
-  <g stroke="#7fd6c6" stroke-width="2" fill="none" marker-end="url(#arrow-topic)">
-    <path d="M160 108 H220"/><path d="M365 108 H425"/><path d="M580 100 C610 82 620 70 645 68"/><path d="M580 116 C610 138 620 166 645 168"/><path d="M502 134 V232"/>
-  </g>
-</svg></div>
-    <p class="caption">A generic production flow for applying API Gateway: isolate the user-facing path, protect the source of truth, and observe the async or derived-data path separately.</p>
+    <div class="diagram-frame"><div class="html-diagram">
+    <div class="diagram-node">
+      <span>01</span>
+      <b>Database Indexing in Amazon</b>
+    </div><div class="diagram-node">
+      <span>02</span>
+      <b>Client</b>
+    </div><div class="diagram-node">
+      <span>03</span>
+      <b>API Layer</b>
+    </div><div class="diagram-node">
+      <span>04</span>
+      <b>auth, limits</b>
+    </div><div class="diagram-node">
+      <span>05</span>
+      <b>Database Indexing</b>
+    </div><div class="diagram-node">
+      <span>06</span>
+      <b>decision point</b>
+    </div><div class="diagram-node">
+      <span>07</span>
+      <b>Derived Path</b>
+    </div><div class="diagram-node">
+      <span>08</span>
+      <b>cache/index/queue</b>
+    </div><div class="diagram-node">
+      <span>09</span>
+      <b>Source of Truth</b>
+    </div>
+  </div></div>
+    <p class="caption">A generic production flow for applying Database Indexing: isolate the user-facing path, protect the source of truth, and observe the async or derived-data path separately.</p>
     <div class="two-col">
-      <div class="panel"><h3>Real-world example</h3><p>Uber can use API Gateway to keep the product responsive while protecting the parts of the system that require correctness. The exact placement depends on whether the operation is read-heavy, write-heavy, hot-key prone, or failure-sensitive.</p></div>
-      <div class="panel"><h3>Practical design example</h3><p>In a notification or booking-style service, apply API Gateway by naming the synchronous API path, deciding which state is authoritative, placing any cache/queue/index/replica only where its consistency trade-off is acceptable, and adding metrics around saturation and correctness drift.</p></div>
+      <div class="panel"><h3>Real-world example</h3><p>Amazon can use Database Indexing to keep the product responsive while protecting the parts of the system that require correctness. The exact placement depends on whether the operation is read-heavy, write-heavy, hot-key prone, or failure-sensitive.</p></div>
+      <div class="panel"><h3>Practical design example</h3><p>In a notification or booking-style service, apply Database Indexing by naming the synchronous API path, deciding which state is authoritative, placing any cache/queue/index/replica only where its consistency trade-off is acceptable, and adding metrics around saturation and correctness drift.</p></div>
     </div>
     <h3>How components interact</h3><p>Client traffic enters through the API layer, which authenticates, rate limits, and routes requests. The application service reads or writes authoritative storage, optionally consults derived infrastructure such as cache, index, queue, or replica, and emits events/metrics so operators can see lag, error rate, retries, and tail latency.</p>
     <div class="grid">
-      <div class="panel"><h3>Trade-offs</h3><ul><li>API Gateway can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.</li><li>Adding a new infrastructure layer creates ownership questions: who writes it, who invalidates it, who repairs it, and what happens when it lies?</li><li>The simplest correct design is often better until the bottleneck is proven by capacity estimates or production metrics.</li></ul></div>
+      <div class="panel"><h3>Trade-offs</h3><ul><li>Database Indexing can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.</li><li>Adding a new infrastructure layer creates ownership questions: who writes it, who invalidates it, who repairs it, and what happens when it lies?</li><li>The simplest correct design is often better until the bottleneck is proven by capacity estimates or production metrics.</li></ul></div>
       <div class="panel"><h3>When to use it</h3><ul><li>Use it when the bottleneck or correctness problem is clear enough to justify the extra moving part.</li><li>Use it when the system has measurable pressure: hot keys, high fanout, slow downstreams, growing data, or strict availability needs.</li><li>Use it when the operational team can observe and repair the failure modes it introduces.</li></ul></div>
       <div class="panel"><h3>When not to use it</h3><ul><li>Do not use it only because the keyword sounds impressive in an interview.</li><li>Do not use it before identifying the source of truth and acceptable staleness.</li><li>Do not use it when the product is small enough that the added coordination cost dominates the benefit.</li></ul></div>
       <div class="panel"><h3>Common mistakes</h3><ul><li>Explaining the component definition but not where it sits in the request flow.</li><li>Ignoring stale data, duplicate retries, partial failure, and backpressure.</li><li>Skipping metrics, alerts, replay/reconciliation, and operational ownership.</li></ul></div>
       <div class="panel"><h3>Scaling considerations</h3><ul><li>Estimate QPS, peak multiplier, data size, read/write ratio, fanout, and hot-key distribution before choosing the final architecture.</li><li>Track saturation signals such as queue depth, cache hit rate, p99 latency, lock contention, DB CPU, and retry rate.</li><li>Decide how the design changes across regions: local reads, global writes, conflict resolution, and disaster recovery.</li></ul></div>
       <div class="panel"><h3>Failure scenarios</h3><ul><li>A downstream slows down and causes retries, which increases load and worsens tail latency.</li><li>A derived store becomes stale or unavailable and the service either serves wrong data or overloads the primary store.</li><li>A hot partition receives most traffic and defeats the average-case scaling plan.</li><li>A deploy changes write semantics but old workers or consumers still process messages using the previous contract.</li></ul></div>
     </div>
-    <h3>Production usage</h3><p>Teams use API Gateway with explicit SLOs, dashboards, load tests, runbooks, and rollback plans. The production version includes ownership and repair paths, not only the happy-path architecture.</p>
-    <div class="panel"><h3>Interview questions</h3><ul><li>Where would you place API Gateway in the Uber request flow?</li><li>Which part of your design is strongly consistent and which part can be eventually consistent?</li><li>What breaks first at 10x traffic?</li><li>How would you detect this component causing user-visible errors?</li></ul></div>
-    <h3>Previous-concept connections</h3><p>This builds on rate-limiting and should be explained in terms of how those earlier ideas interact.</p>
+    <h3>Production usage</h3><p>Teams use Database Indexing with explicit SLOs, dashboards, load tests, runbooks, and rollback plans. The production version includes ownership and repair paths, not only the happy-path architecture.</p>
+    <div class="panel"><h3>Interview questions</h3><ul><li>Where would you place Database Indexing in the Amazon request flow?</li><li>Which part of your design is strongly consistent and which part can be eventually consistent?</li><li>What breaks first at 10x traffic?</li><li>How would you detect this component causing user-visible errors?</li></ul></div>
+    <h3>Previous-concept connections</h3><p>This builds on client-server-apis and should be explained in terms of how those earlier ideas interact.</p>
   </section>
-    <section class="block case-card">
+    <section class="block paper-section">
+    <div class="label">02 / Real Mock Interview</div>
+    <h2>Design Metrics and Logging Platform</h2>
+    <p class="lede">Design Metrics and Logging Platform for a realistic high-traffic production workload.</p>
+    <h3>Scope clarification</h3><p>Focus on the core user journey, write path, read path, data ownership, consistency choices, and operational failure handling for Metrics and Logging Platform. Keep low-value extras out of scope until the core design is correct.</p>
+    <div class="two-col">
+      <div class="panel"><h3>Functional requirements</h3><ul><li>Users can perform the primary product action with clear success/failure state.</li><li>Users can read current state quickly without overloading the source of truth.</li><li>The system records durable state transitions and exposes history where needed.</li><li>Admins or internal systems can monitor, retry, reconcile, and correct failed work.</li><li>The product supports idempotent retries from clients and background workers.</li></ul></div>
+      <div class="panel"><h3>Non-functional requirements</h3><ul><li>Low p95/p99 latency for the primary read path.</li><li>Strong consistency for final user-visible commitments.</li><li>High availability for browsing and graceful degradation for non-critical features.</li><li>Backpressure during traffic spikes instead of unlimited retries.</li><li>Durable auditability for important state changes.</li><li>Security controls around authentication, authorization, abuse, and sensitive data.</li><li>Observability across API latency, queue lag, error rate, saturation, and correctness drift.</li></ul></div>
+    </div>
+    <div class="grid">
+      <div class="panel"><h3>Capacity estimation</h3><ul><li>Start with DAU/MAU, peak multiplier, read/write ratio, payload size, and retention period.</li><li>Estimate average QPS as daily operations divided by active seconds, then multiply for peak traffic.</li><li>Identify hot entities because average QPS hides concentrated load.</li><li>Estimate storage separately for primary records, derived indexes, logs, and media/blob data if present.</li><li>Use the estimates to choose cache strategy, partition keys, worker count, and queue capacity.</li></ul></div>
+      <div class="panel"><h3>Core entities and data model</h3><ul><li>User(id, profile, auth metadata, status)</li><li>PrimaryResource(id, ownerId, state, version, createdAt, updatedAt)</li><li>Operation(id, userId, resourceId, idempotencyKey, status, attemptCount, timestamps)</li><li>Event(id, resourceId, type, payload, createdAt) for async propagation and replay.</li><li>Indexes should match the top access patterns; partition keys should avoid hot partitions.</li></ul></div>
+      <div class="panel"><h3>API design</h3><ul><li>GET /resources?cursor=... returns paginated, cached read results.</li><li>POST /resources/{id}/operations with an idempotency key starts a state transition.</li><li>GET /operations/{operationId} returns pending, succeeded, failed, or retryable state.</li><li>POST /internal/reconcile scans stuck operations and repairs derived state.</li></ul></div>
+    </div>
+    <h3>High-level architecture</h3><p>For Metrics and Logging Platform, use an API gateway, a product service for request validation, a strongly consistent primary database for final state, a cache or read model for high-volume reads, a queue/event log for asynchronous side effects, workers for fanout/retries, and an observability layer for tracing state transitions.</p>
+    <h3>Mock architecture diagram</h3>
+    <div class="diagram-frame"><div class="html-diagram">
+    <div class="diagram-node">
+      <span>01</span>
+      <b>Design Metrics and Logging Platform in Metrics and Logging Platform</b>
+    </div><div class="diagram-node">
+      <span>02</span>
+      <b>Client</b>
+    </div><div class="diagram-node">
+      <span>03</span>
+      <b>API Layer</b>
+    </div><div class="diagram-node">
+      <span>04</span>
+      <b>auth, limits</b>
+    </div><div class="diagram-node">
+      <span>05</span>
+      <b>Design Metrics and</b>
+    </div><div class="diagram-node">
+      <span>06</span>
+      <b>decision point</b>
+    </div><div class="diagram-node">
+      <span>07</span>
+      <b>Derived Path</b>
+    </div><div class="diagram-node">
+      <span>08</span>
+      <b>cache/index/queue</b>
+    </div><div class="diagram-node">
+      <span>09</span>
+      <b>Source of Truth</b>
+    </div>
+  </div></div>
+    <h3>Deep dives</h3>
+    <div class="panel">
+      <h3>Correctness boundary</h3>
+      <p>The key interview decision is deciding which transition must be strongly consistent and which derived views can lag. Final commitments should update the source of truth atomically or through a clearly recoverable workflow.</p>
+      <ul><li>Do not let cache or search index become the authority.</li><li>Make client retries safe with idempotency keys.</li><li>Run reconciliation for operations stuck between pending and committed.</li></ul>
+    </div><div class="panel">
+      <h3>Traffic spike handling</h3>
+      <p>The system should shed load or queue non-critical work before the primary database collapses. Hot-key protection matters more than average capacity when one resource becomes popular.</p>
+      <ul><li>Use rate limits and admission control around expensive writes.</li><li>Track queue lag and saturation as first-class product risks.</li><li>Keep read degradation separate from write correctness.</li></ul>
+    </div>
+    <div class="two-col">
+      <div class="panel"><h3>Failure scenarios</h3><ul><li>A client retries after timeout and the operation is submitted twice.</li><li>A worker succeeds but crashes before updating derived status.</li><li>The cache is cold or unavailable and read traffic stampedes the database.</li><li>A hot partition receives a disproportionate amount of write traffic.</li><li>A downstream provider is slow, causing retry storms and queue buildup.</li></ul></div>
+      <div class="panel"><h3>Trade-offs</h3><ul><li>Strong consistency protects user trust but limits write scalability.</li><li>Caching improves reads but introduces staleness and invalidation work.</li><li>Queues smooth spikes but add delayed completion and replay complexity.</li><li>Partitioning improves capacity but makes cross-partition queries harder.</li></ul></div>
+    </div>
+    <div class="panel"><h3>Follow-up questions</h3><ul><li>What is the source of truth?</li><li>Which APIs need idempotency keys?</li><li>What can be eventually consistent?</li><li>What happens at 10x peak traffic?</li><li>How do you choose partition keys?</li><li>How do you prevent cache stampede?</li><li>How do you retry failed async work?</li><li>What metrics would you page on?</li><li>How would this change in multi-region?</li><li>How do you recover after a partial write failure?</li></ul></div>
+    <div class="panel"><h3>Five-minute answer</h3><p>I would design Metrics and Logging Platform around the primary user journey first, then split reads, writes, and async side effects. The API layer handles auth and rate limits. The product service validates requests and writes final state to a strongly consistent primary store. High-volume reads come from cache or read models that can be rebuilt from the source of truth. Expensive side effects go through a queue with idempotent workers and dead-letter handling. For scale, I would estimate peak QPS, identify hot entities, partition by the dominant access pattern, and add backpressure before the database saturates. For reliability, I would trace every state transition, monitor p99 latency and queue lag, and run reconciliation for stuck operations.</p></div>
+  </section>
+    <section class="block paper-section">
     <div class="label">03 / Node.js Runtime Concept</div>
     <h2>Node.js Streams and Backpressure</h2>
     <h3>Why it matters</h3><p>Streams let a Node service process large payloads without loading everything into memory, but the real production skill is respecting backpressure so a fast producer does not overwhelm a slow consumer.</p>
@@ -213,7 +232,7 @@ export async function saveCompressedUpload(request, filePath) {
 }</code></pre>
     <div class="panel"><h3>Node.js interview questions</h3><ul><li>What does backpressure mean in a Node.js stream pipeline?</li><li>Why is pipeline() safer than readable.pipe(writable) in production code?</li><li>How would you debug a Node API whose memory grows during large uploads?</li></ul></div>
   </section>
-    <section class="block case-card">
+    <section class="block paper-section">
     <div class="label">04 / JavaScript Interview Drill</div>
     <h2>Closures, this-binding, and hidden state</h2>
     <div class="panel">
@@ -249,22 +268,22 @@ fn(); // undefined in strict mode</code></pre>
       
     </div>
   </section>
-    <section class="block case-card">
+    <section class="block paper-section">
     <div class="label">05 / DSA Pattern in Java</div>
-    <h2>Binary Search on Answers</h2>
-    <p class="lede">Study Split Array Largest Sum as the representative problem for Binary Search on Answers. The goal is to learn the reusable invariant, not memorize one implementation.</p>
-    <div class="challenge"><h3>Invariant</h3><ul><li>At every step, the maintained state contains exactly the information needed to answer future decisions for Binary Search on Answers; anything not in the state is either irrelevant or already folded into the answer.</li></ul></div>
-    <div class="panel"><h3>Examples</h3><ul><li>Representative problem: Split Array Largest Sum.</li><li>Related variants: Split Array Largest Sum, Minimum Number of Days to Make Bouquets, Median of Two Sorted Arrays.</li><li>For each variant, identify what state must be carried forward and what condition makes a decision final.</li></ul></div>
+    <h2>Linked List Transformations</h2>
+    <p class="lede">Study Reverse Nodes in k-Group as the representative problem for Linked List Transformations. The goal is to learn the reusable invariant, not memorize one implementation.</p>
+    <div class="challenge"><h3>Invariant</h3><ul><li>At every step, the maintained state contains exactly the information needed to answer future decisions for Linked List Transformations; anything not in the state is either irrelevant or already folded into the answer.</li></ul></div>
+    <div class="panel"><h3>Examples</h3><ul><li>Representative problem: Reverse Nodes in k-Group.</li><li>Related variants: Reverse Nodes in k-Group, Reorder List, Copy List with Random Pointer.</li><li>For each variant, identify what state must be carried forward and what condition makes a decision final.</li></ul></div>
     <div class="two-col">
       <div class="panel"><h3>Constraints</h3><ul><li>Assume interview-size constraints where O(n^2) usually times out unless n is small.</li><li>Handle duplicates, empty input, boundary values, and adversarial ordering.</li><li>Prefer a proof-oriented invariant over a code-first explanation.</li></ul></div>
-      <div class="panel"><h3>What to notice</h3><ul><li>Binary Search on Answers usually has a repeated decision that can be made locally once the right state is maintained.</li><li>The hard part is choosing the state representation and proving when it is safe to update the answer.</li><li>Variants often change the stored state, not the entire strategy.</li></ul></div>
+      <div class="panel"><h3>What to notice</h3><ul><li>Linked List Transformations usually has a repeated decision that can be made locally once the right state is maintained.</li><li>The hard part is choosing the state representation and proving when it is safe to update the answer.</li><li>Variants often change the stored state, not the entire strategy.</li></ul></div>
     </div>
     <h3>Brute force</h3><p>Generate every candidate state or subproblem and check it directly. This is useful to discover the invariant, but it repeats work that the optimized pattern should reuse.</p>
     <h3>Why it is insufficient</h3><p>The brute-force version usually revisits overlapping choices. In interviews, the expected jump is to compress repeated work into a maintained structure, monotonic condition, recurrence, or boundary invariant.</p>
-    <h3>Core intuition</h3><p>For Binary Search on Answers, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?</p>
-    <h3>Optimal approach</h3><p>Solve Split Array Largest Sum by naming the invariant first, then implementing the smallest state that preserves that invariant. Walk through one non-trivial example and explain why each update is safe.</p>
+    <h3>Core intuition</h3><p>For Linked List Transformations, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?</p>
+    <h3>Optimal approach</h3><p>Solve Reverse Nodes in k-Group by naming the invariant first, then implementing the smallest state that preserves that invariant. Walk through one non-trivial example and explain why each update is safe.</p>
     <div class="panel"><h3>Step-by-step</h3><ol><li>Write the brute-force condition in plain English.</li><li>Underline the repeated work.</li><li>Define the invariant that would let one pass or one recurrence replace repeated scanning.</li><li>Choose the data structure that stores exactly that invariant.</li><li>Trace the update order carefully and test the edge case that breaks naive solutions.</li></ol></div>
-    <h3>Trace template for Split Array Largest Sum</h3>
+    <h3>Trace template for Reverse Nodes in k-Group</h3>
     <div class="array-row">
       <div class="cell hit"><span class="idx">i=0</span>base</div><div class="cell"><span class="idx">i=1</span>state</div><div class="cell hit"><span class="idx">i=2</span>answer</div>
     </div>
@@ -296,34 +315,34 @@ class Solution {
     <div class="mnemonic"><span class="badge">I.S.P.</span><div>Invariant, State, Proof. If those three are clear, the code is usually straightforward.</div></div>
     <h3>Variant walkthroughs</h3>
     <div class="panel">
-      <h3>Split Array Largest Sum</h3>
-      <p>For Split Array Largest Sum, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Binary Search on Answers, but the state payload changes.</p>
+      <h3>Reverse Nodes in k-Group</h3>
+      <p>For Reverse Nodes in k-Group, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Linked List Transformations, but the state payload changes.</p>
       <pre><code>/* Write the invariant first, then implement the state transition for this variant. */</code></pre>
       <p><strong>Complexity:</strong> Depends on the chosen state, but should beat the brute-force baseline.</p>
     </div><div class="panel">
-      <h3>Minimum Number of Days to Make Bouquets</h3>
-      <p>For Minimum Number of Days to Make Bouquets, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Binary Search on Answers, but the state payload changes.</p>
+      <h3>Reorder List</h3>
+      <p>For Reorder List, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Linked List Transformations, but the state payload changes.</p>
       <pre><code>/* Write the invariant first, then implement the state transition for this variant. */</code></pre>
       <p><strong>Complexity:</strong> Depends on the chosen state, but should beat the brute-force baseline.</p>
     </div><div class="panel">
-      <h3>Median of Two Sorted Arrays</h3>
-      <p>For Median of Two Sorted Arrays, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Binary Search on Answers, but the state payload changes.</p>
+      <h3>Copy List with Random Pointer</h3>
+      <p>For Copy List with Random Pointer, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Linked List Transformations, but the state payload changes.</p>
       <pre><code>/* Write the invariant first, then implement the state transition for this variant. */</code></pre>
       <p><strong>Complexity:</strong> Depends on the chosen state, but should beat the brute-force baseline.</p>
     </div>
     <div class="panel"><h3>Exactly what changes across variants</h3><ul><li>The invariant may stay the same while the stored value changes from existence to count, index, min/max, or parent pointer.</li><li>The traversal order may change when the problem moves from array order to sorted order, graph order, or dependency order.</li><li>The proof changes when duplicates, negative values, cycles, or online updates are introduced.</li></ul></div>
-    <h3>Transfer learning</h3><p>After Split Array Largest Sum, transfer the idea by asking what remains invariant across Split Array Largest Sum, Minimum Number of Days to Make Bouquets, Median of Two Sorted Arrays. The surface story changes, but the reusable move is compressing repeated decisions into a state you can defend.</p>
+    <h3>Transfer learning</h3><p>After Reverse Nodes in k-Group, transfer the idea by asking what remains invariant across Reverse Nodes in k-Group, Reorder List, Copy List with Random Pointer. The surface story changes, but the reusable move is compressing repeated decisions into a state you can defend.</p>
   </section>
     <section class="recall">
-    <div class="label">Evidence to Remember</div>
+    <div class="label">Abstract Recall</div>
     <h2>60-second recall</h2>
-    <ul><li>API Gateway is not just a component name; it is a decision about where correctness, latency, cost, and operational complexity should sit.</li><li>For Uber, the interview answer should explain request flow, bottlenecks, failure behavior, and what becomes stale or strongly consistent.</li><li>Binary Search on Answers becomes easier when you name the invariant before choosing the data structure.</li></ul>
+    <ul><li>Database Indexing is not just a component name; it is a decision about where correctness, latency, cost, and operational complexity should sit.</li><li>For Amazon, the interview answer should explain request flow, bottlenecks, failure behavior, and what becomes stale or strongly consistent.</li><li>Linked List Transformations becomes easier when you name the invariant before choosing the data structure.</li></ul>
   </section>
     <section class="block self-test">
     <div class="label">06 / Self Test</div>
     <h2>Close-the-tab test</h2>
     <p class="lede">Answer first, then expand. This is for active recall, not rereading.</p>
-    <details><summary>1. What problem does API Gateway solve in production?</summary><div class="answer">A front door for routing, auth, limits, and cross-cutting API concerns.</div></details><details><summary>2. What is the source of truth in today&#039;s system design?</summary><div class="answer">The durable store or authority that final writes must agree with; derived caches, queues, and indexes must be repairable from it.</div></details><details><summary>3. What is the invariant behind Binary Search on Answers?</summary><div class="answer">Maintain exactly the state future decisions need; discard or fold in everything else.</div></details><details><summary>4. What makes a JavaScript interview answer strong?</summary><div class="answer">It explains the runtime or language rule, shows a small example, and names the production consequence.</div></details>
+    <details><summary>1. What problem does Database Indexing solve in production?</summary><div class="answer">Making reads fast by maintaining searchable data structures.</div></details><details><summary>2. What is the source of truth in today&#039;s system design?</summary><div class="answer">The durable store or authority that final writes must agree with; derived caches, queues, and indexes must be repairable from it.</div></details><details><summary>3. What is the invariant behind Linked List Transformations?</summary><div class="answer">Maintain exactly the state future decisions need; discard or fold in everything else.</div></details><details><summary>4. What makes a JavaScript interview answer strong?</summary><div class="answer">It explains the runtime or language rule, shows a small example, and names the production consequence.</div></details>
   </section>
     <section class="review">
     <div class="review-head">Review schedule</div>
