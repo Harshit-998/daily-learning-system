@@ -459,6 +459,8 @@ function freshFallbackOverrides(selection: LessonSelection): Partial<GeneratedLe
   const example = topic.exampleSystems[0] || "a high-scale product";
   const problem = pattern.sampleProblems[0] || pattern.title;
   const weekly = selection.mode === "weekly-review";
+  const node = nodeFallback(selection);
+  const js = javascriptInterviewFallback(selection);
   return {
     title: weekly ? `Sunday Mastery: ${topic.title} + ${pattern.title}` : `${topic.title} + ${pattern.title}`,
     recall: [
@@ -527,6 +529,9 @@ function freshFallbackOverrides(selection: LessonSelection): Partial<GeneratedLe
         text: "Flow, Limit, Ownership, Watchpoints. Explain where the request flows, what limit you are solving, who owns the truth, and what you will watch in production."
       }
     },
+    mockInterview: mockFallback(selection.mockSystem),
+    nodejs: node,
+    javascriptInterview: js,
     dsa: {
       patternId: pattern.id,
       pattern: pattern.title,
@@ -626,7 +631,99 @@ class Solution {
       { question: `What is the invariant behind ${pattern.title}?`, answer: `Maintain exactly the state future decisions need; discard or fold in everything else.` },
       { question: "What makes a JavaScript interview answer strong?", answer: "It explains the runtime or language rule, shows a small example, and names the production consequence." }
     ],
-    telegramSummary: `${weekly ? "Sunday mastery" : "Daily lesson"}: ${topic.title} + ${pattern.title}\n\nSystem Design: fresh topic-aware fallback for ${topic.title}, using ${example} as the anchor system.\n\nMock interview: BookMyShow seat holds, idempotent payments, hot-show contention.\n\nNode.js: ${nodeFallback(selection).concept}.\n\nJS Interview: ${javascriptInterviewFallback(selection).theme}.\n\nDSA: ${pattern.title}; focus on invariant, state, and proof.`
+    telegramSummary: `${weekly ? "Sunday mastery" : "Daily lesson"}: ${topic.title} + ${pattern.title}\n\nSystem Design: fresh topic-aware fallback for ${topic.title}, using ${example} as the anchor system.\n\nMock interview: ${selection.mockSystem} with requirements, scale, data model, APIs, architecture, failures, and follow-ups.\n\nNode.js: ${node.concept}.\n\nJS Interview: ${js.theme}.\n\nDSA: ${pattern.title}; focus on invariant, state, and proof.`
+  };
+}
+
+function mockFallback(systemName: string): GeneratedLesson["mockInterview"] {
+  return {
+    systemName,
+    interviewerPrompt: `Design ${systemName} for a realistic high-traffic production workload.`,
+    scope: `Focus on the core user journey, write path, read path, data ownership, consistency choices, and operational failure handling for ${systemName}. Keep low-value extras out of scope until the core design is correct.`,
+    functionalRequirements: [
+      "Users can perform the primary product action with clear success/failure state.",
+      "Users can read current state quickly without overloading the source of truth.",
+      "The system records durable state transitions and exposes history where needed.",
+      "Admins or internal systems can monitor, retry, reconcile, and correct failed work.",
+      "The product supports idempotent retries from clients and background workers."
+    ],
+    nonFunctionalRequirements: [
+      "Low p95/p99 latency for the primary read path.",
+      "Strong consistency for final user-visible commitments.",
+      "High availability for browsing and graceful degradation for non-critical features.",
+      "Backpressure during traffic spikes instead of unlimited retries.",
+      "Durable auditability for important state changes.",
+      "Security controls around authentication, authorization, abuse, and sensitive data.",
+      "Observability across API latency, queue lag, error rate, saturation, and correctness drift."
+    ],
+    capacityEstimation: [
+      "Start with DAU/MAU, peak multiplier, read/write ratio, payload size, and retention period.",
+      "Estimate average QPS as daily operations divided by active seconds, then multiply for peak traffic.",
+      "Identify hot entities because average QPS hides concentrated load.",
+      "Estimate storage separately for primary records, derived indexes, logs, and media/blob data if present.",
+      "Use the estimates to choose cache strategy, partition keys, worker count, and queue capacity."
+    ],
+    coreEntitiesAndDataModel: [
+      "User(id, profile, auth metadata, status)",
+      "PrimaryResource(id, ownerId, state, version, createdAt, updatedAt)",
+      "Operation(id, userId, resourceId, idempotencyKey, status, attemptCount, timestamps)",
+      "Event(id, resourceId, type, payload, createdAt) for async propagation and replay.",
+      "Indexes should match the top access patterns; partition keys should avoid hot partitions."
+    ],
+    apiDesign: [
+      "GET /resources?cursor=... returns paginated, cached read results.",
+      "POST /resources/{id}/operations with an idempotency key starts a state transition.",
+      "GET /operations/{operationId} returns pending, succeeded, failed, or retryable state.",
+      "POST /internal/reconcile scans stuck operations and repairs derived state."
+    ],
+    highLevelArchitecture: `For ${systemName}, use an API gateway, a product service for request validation, a strongly consistent primary database for final state, a cache or read model for high-volume reads, a queue/event log for asynchronous side effects, workers for fanout/retries, and an observability layer for tracing state transitions.`,
+    architectureDiagram: topicAwareSvg(`Design ${systemName}`, systemName),
+    deepDives: [
+      {
+        title: "Correctness boundary",
+        discussion: "The key interview decision is deciding which transition must be strongly consistent and which derived views can lag. Final commitments should update the source of truth atomically or through a clearly recoverable workflow.",
+        challenges: [
+          "Do not let cache or search index become the authority.",
+          "Make client retries safe with idempotency keys.",
+          "Run reconciliation for operations stuck between pending and committed."
+        ]
+      },
+      {
+        title: "Traffic spike handling",
+        discussion: "The system should shed load or queue non-critical work before the primary database collapses. Hot-key protection matters more than average capacity when one resource becomes popular.",
+        challenges: [
+          "Use rate limits and admission control around expensive writes.",
+          "Track queue lag and saturation as first-class product risks.",
+          "Keep read degradation separate from write correctness."
+        ]
+      }
+    ],
+    failureScenarios: [
+      "A client retries after timeout and the operation is submitted twice.",
+      "A worker succeeds but crashes before updating derived status.",
+      "The cache is cold or unavailable and read traffic stampedes the database.",
+      "A hot partition receives a disproportionate amount of write traffic.",
+      "A downstream provider is slow, causing retry storms and queue buildup."
+    ],
+    tradeOffs: [
+      "Strong consistency protects user trust but limits write scalability.",
+      "Caching improves reads but introduces staleness and invalidation work.",
+      "Queues smooth spikes but add delayed completion and replay complexity.",
+      "Partitioning improves capacity but makes cross-partition queries harder."
+    ],
+    followUpQuestions: [
+      "What is the source of truth?",
+      "Which APIs need idempotency keys?",
+      "What can be eventually consistent?",
+      "What happens at 10x peak traffic?",
+      "How do you choose partition keys?",
+      "How do you prevent cache stampede?",
+      "How do you retry failed async work?",
+      "What metrics would you page on?",
+      "How would this change in multi-region?",
+      "How do you recover after a partial write failure?"
+    ],
+    fiveMinuteAnswer: `I would design ${systemName} around the primary user journey first, then split reads, writes, and async side effects. The API layer handles auth and rate limits. The product service validates requests and writes final state to a strongly consistent primary store. High-volume reads come from cache or read models that can be rebuilt from the source of truth. Expensive side effects go through a queue with idempotent workers and dead-letter handling. For scale, I would estimate peak QPS, identify hot entities, partition by the dominant access pattern, and add backpressure before the database saturates. For reliability, I would trace every state transition, monitor p99 latency and queue lag, and run reconciliation for stuck operations.`
   };
 }
 

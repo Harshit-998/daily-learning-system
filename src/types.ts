@@ -59,6 +59,7 @@ export interface LessonSelection {
   date: string;
   mode: LessonMode;
   systemDesignTopic: SystemDesignTopic;
+  mockSystem: string;
   dsaPattern: DsaPattern;
   reviewItems: ReviewItem[];
   difficulty: Difficulty;

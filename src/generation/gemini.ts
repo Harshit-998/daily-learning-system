@@ -22,6 +22,15 @@ export async function generateLessonWithReview(selection: LessonSelection, promp
       const lesson = await callGemini(prompt, config);
       const reviewed = withQualityReview(lesson, [`Gemini generation succeeded on attempt ${attempt}.`]);
       const validationNotes = validateLesson(reviewed);
+      if (reviewed.mockInterview.systemName.toLowerCase() !== selection.mockSystem.toLowerCase()) {
+        validationNotes.push(`Gemini used ${reviewed.mockInterview.systemName} instead of required mock system ${selection.mockSystem}.`);
+      }
+      if (reviewed.systemDesign.topicId !== selection.systemDesignTopic.id) {
+        validationNotes.push(`Gemini used unexpected System Design topic ${reviewed.systemDesign.topicId}.`);
+      }
+      if (reviewed.dsa.patternId !== selection.dsaPattern.id) {
+        validationNotes.push(`Gemini used unexpected DSA pattern ${reviewed.dsa.patternId}.`);
+      }
       if (validationNotes.length > 0) {
         throw new Error(`Gemini lesson failed validation: ${validationNotes.join(" ")}`);
       }

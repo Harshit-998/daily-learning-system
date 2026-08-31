@@ -71,12 +71,9 @@ function renderBlueprint(lesson: GeneratedLesson, design: DesignName): string {
 function renderExecutive(lesson: GeneratedLesson, design: DesignName): string {
   return `<main>
     ${hero(lesson, design, "Engineering Brief", "Decision memo for production interviews")}
-    <section class="exec-grid">
-      ${recallBlock(lesson, "Board Summary")}
-      ${panel("Today's Interview System", `<h2>Design ${escapeHtml(lesson.mockInterview.systemName)}</h2><p>${escapeHtml(lesson.mockInterview.interviewerPrompt)}</p>`)}
-    </section>
-    ${mockInterviewBlock(lesson, "memo")}
+    ${recallBlock(lesson, "Board Summary")}
     ${systemDesignBlock(lesson, "memo")}
+    ${mockInterviewBlock(lesson, "memo")}
     ${nodejsBlock(lesson, "memo")}
     ${javascriptInterviewBlock(lesson, "memo")}
     ${dsaBlock(lesson, "memo")}
@@ -96,12 +93,12 @@ $ difficulty hard
 
 ${escapeHtml(lesson.title)}</code></pre>
     </section>
+    ${recallBlock(lesson, "Fast Recall")}
     ${systemDesignBlock(lesson, "console-section")}
+    ${mockInterviewBlock(lesson, "console-section")}
     ${nodejsBlock(lesson, "console-section")}
     ${javascriptInterviewBlock(lesson, "console-section")}
     ${dsaBlock(lesson, "console-section")}
-    ${mockInterviewBlock(lesson, "console-section")}
-    ${recallBlock(lesson, "Fast Recall")}
     ${selfTestBlock(lesson)}
     ${reviewSchedule(lesson.date)}
   </main>`;
@@ -151,12 +148,12 @@ function renderCaseFile(lesson: GeneratedLesson, design: DesignName): string {
       <div><b>System</b><span>${escapeHtml(lesson.mockInterview.systemName)}</span></div>
       <div><b>Pattern</b><span>${escapeHtml(lesson.dsa.pattern)}</span></div>
     </section>
-    ${mockInterviewBlock(lesson, "case-card")}
+    ${recallBlock(lesson, "Evidence to Remember")}
     ${systemDesignBlock(lesson, "case-card")}
+    ${mockInterviewBlock(lesson, "case-card")}
     ${nodejsBlock(lesson, "case-card")}
     ${javascriptInterviewBlock(lesson, "case-card")}
     ${dsaBlock(lesson, "case-card")}
-    ${recallBlock(lesson, "Evidence to Remember")}
     ${selfTestBlock(lesson)}
     ${reviewSchedule(lesson.date)}
   </main>`;
@@ -167,10 +164,10 @@ function renderLab(lesson: GeneratedLesson, design: DesignName): string {
     ${hero(lesson, design, "Engineering Lab", "Hypothesis, experiment, proof")}
     ${recallBlock(lesson, "Pre-lab Recall")}
     ${systemDesignBlock(lesson, "lab-block")}
+    ${mockInterviewBlock(lesson, "lab-block")}
     ${nodejsBlock(lesson, "lab-block")}
     ${javascriptInterviewBlock(lesson, "lab-block")}
     ${dsaBlock(lesson, "lab-block")}
-    ${mockInterviewBlock(lesson, "lab-block")}
     ${selfTestBlock(lesson)}
     ${reviewSchedule(lesson.date)}
   </main>`;
@@ -193,12 +190,9 @@ function renderWhitepaper(lesson: GeneratedLesson, design: DesignName): string {
 function renderWarRoom(lesson: GeneratedLesson, design: DesignName): string {
   return `<main>
     ${hero(lesson, design, "Architecture War Room", "Requirements, risks, fallback paths")}
-    <section class="war-grid">
-      ${recallBlock(lesson, "Standup Recall")}
-      ${panel("Today's Risk Lens", list(lesson.systemDesign.failureScenarios.slice(0, 3)))}
-    </section>
-    ${mockInterviewBlock(lesson, "war-panel")}
+    ${recallBlock(lesson, "Standup Recall")}
     ${systemDesignBlock(lesson, "war-panel")}
+    ${mockInterviewBlock(lesson, "war-panel")}
     ${nodejsBlock(lesson, "war-panel")}
     ${javascriptInterviewBlock(lesson, "war-panel")}
     ${dsaBlock(lesson, "war-panel")}
@@ -410,6 +404,10 @@ function cssFor(design: DesignName): string {
     .badge { display:inline-flex; min-width:42px; justify-content:center; padding:4px 8px; background:${p.accent}; color:${p.inverse}; font-weight:700; }
     .diagram-frame { background:${p.code}; border:1px solid ${p.line}; padding:14px; margin:10px 0; overflow-x:auto; }
     .diagram-frame svg { display:block; min-width:640px; max-width:100%; height:auto; }
+    .html-diagram { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; min-width:560px; }
+    .diagram-node { background:${p.panel}; color:${p.ink}; border:1px solid ${p.line}; padding:12px; min-height:74px; }
+    .diagram-node span { display:block; color:${p.accent}; font-family:'IBM Plex Mono', Consolas, monospace; font-size:11px; font-weight:700; margin-bottom:6px; }
+    .diagram-node b { display:block; font-size:13px; line-height:1.35; }
     pre { background:${p.code}; color:#f8fafc; padding:15px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
     details { padding:13px 15px; margin:9px 0; }
     summary { cursor:pointer; font-weight:700; }
@@ -579,8 +577,35 @@ function mnemonic(label?: string, text?: string): string {
 
 function renderDiagram(diagram: string): string {
   const trimmed = diagram.trim();
-  if (trimmed.startsWith("<svg") && trimmed.endsWith("</svg>")) return trimmed;
+  if (trimmed.startsWith("<svg")) return renderEmailSafeDiagram(extractSvgText(trimmed));
   return `<pre><code>${escapeHtml(diagram)}</code></pre>`;
+}
+
+function renderEmailSafeDiagram(labels: string[]): string {
+  const cleanLabels = labels.filter(Boolean).slice(0, 9);
+  if (cleanLabels.length === 0) return "";
+  return `<div class="html-diagram">
+    ${cleanLabels.map((label, index) => `<div class="diagram-node">
+      <span>${String(index + 1).padStart(2, "0")}</span>
+      <b>${escapeHtml(label)}</b>
+    </div>`).join("")}
+  </div>`;
+}
+
+function extractSvgText(svg: string): string[] {
+  const matches = [...svg.matchAll(/<text\b[^>]*>([\s\S]*?)<\/text>/gi)];
+  return matches
+    .map((match) => stripTags(match[1])
+      .replace(/\s+/g, " ")
+      .replaceAll("&amp;", "&")
+      .replaceAll("&lt;", "<")
+      .replaceAll("&gt;", ">")
+      .trim())
+    .filter((text) => text.length > 0 && text.length < 90);
+}
+
+function stripTags(value: string): string {
+  return value.replace(/<[^>]+>/g, "");
 }
 
 function renderTrace(trace: GeneratedLesson["dsa"]["trace"]): string {

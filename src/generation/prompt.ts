@@ -35,6 +35,7 @@ Difficulty: ${selection.difficulty}
 System Design topic: ${selection.systemDesignTopic.title}
 System Design summary: ${selection.systemDesignTopic.summary}
 Use one or more example systems: ${selection.systemDesignTopic.exampleSystems.join(", ")}
+Mock interview system of the day: ${selection.mockSystem}
 DSA pattern: ${selection.dsaPattern.title}
 Candidate DSA problems: ${selection.dsaPattern.sampleProblems.join(", ")}
 Due review items: ${reviewList}
@@ -51,12 +52,13 @@ The final HTML must contain five main learning blocks:
 5. The DSA pattern/problem lesson.
 
 Freshness rules:
-- Do NOT reuse the same explanations, same examples, same analogies, same DSA problem body, same mock interview system, or same Node.js/JS content from recent lessons.
+- Do NOT reuse the same explanations, same examples, same analogies, same DSA problem body, same Node.js/JS content, or same mock interview details from recent lessons.
 - The selected System Design topic and DSA pattern are the anchors, but the actual examples, diagrams, practice framing, mock system, Node.js concept, and JS interview questions must be fresh.
+- The mock interview MUST use this exact system: ${selection.mockSystem}. Do not choose BookMyShow unless the system above is BookMyShow.
 - If the topic sounds familiar, teach a deeper angle: bottlenecks, failure cases, production debugging, migration, multi-region, backpressure, cost, or observability.
 - Avoid using Latency/Throughput/Little's Law or Arrays/Hashing examples unless those are explicitly today's selected curriculum items.
 
-The mock interview does not need to connect to the focused topic. Choose one realistic system such as BookMyShow, WhatsApp, Google Drive, Dropbox, YouTube, Instagram, Uber, food delivery, Netflix, Google Photos, notification system, payment system, URL shortener, ride sharing, distributed file storage, live streaming, search autocomplete, chat system, news feed, calendar, or collaborative document editor.
+The mock interview does not need to connect to the focused topic, but it must use the selected mock interview system of the day.
 
 If mode is weekly-review, make the lesson a Sunday mastery/revision session. Review prior ideas, connect them, include mistakes to revisit, and avoid introducing a normal new topic unless needed for synthesis.
 
@@ -92,8 +94,8 @@ Required JSON shape:
     "mnemonic": { "label": "short memory hook", "text": "string" }
   },
   "mockInterview": {
-    "systemName": "string",
-    "interviewerPrompt": "Example: Design BookMyShow",
+    "systemName": "${selection.mockSystem}",
+    "interviewerPrompt": "Example: Design ${selection.mockSystem}",
     "scope": "Clarify exactly what is in scope and out of scope",
     "functionalRequirements": ["string"],
     "nonFunctionalRequirements": ["scale, latency, availability, consistency, durability, throughput, security, cost, observability, disaster recovery"],
