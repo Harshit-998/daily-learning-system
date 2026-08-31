@@ -14,9 +14,10 @@
       "client-server-apis",
       "load-balancing",
       "caching",
-      "rate-limiting"
+      "rate-limiting",
+      "api-gateway"
     ],
-    "currentIndex": 5
+    "currentIndex": 6
   },
   "dsa": {
     "completedPatternIds": [
@@ -24,9 +25,10 @@
       "two-pointers",
       "sliding-window",
       "prefix-sums",
-      "stack-monotonic"
+      "stack-monotonic",
+      "binary-search"
     ],
-    "currentPatternIndex": 5,
+    "currentPatternIndex": 6,
     "currentDifficulty": "hard",
     "reviewQueue": [
       {
@@ -90,6 +92,18 @@
         "strength": 0
       },
       {
+        "id": "api-gateway",
+        "type": "system-design",
+        "dueDate": "2026-09-01",
+        "strength": 0
+      },
+      {
+        "id": "binary-search",
+        "type": "dsa",
+        "dueDate": "2026-09-01",
+        "strength": 0
+      },
+      {
         "id": "latency-throughput-availability",
         "type": "system-design",
         "dueDate": "2026-09-02",
@@ -145,6 +159,18 @@
       },
       {
         "id": "stack-monotonic",
+        "type": "dsa",
+        "dueDate": "2026-09-03",
+        "strength": 0
+      },
+      {
+        "id": "api-gateway",
+        "type": "system-design",
+        "dueDate": "2026-09-03",
+        "strength": 0
+      },
+      {
+        "id": "binary-search",
         "type": "dsa",
         "dueDate": "2026-09-03",
         "strength": 0
@@ -205,6 +231,18 @@
       },
       {
         "id": "stack-monotonic",
+        "type": "dsa",
+        "dueDate": "2026-09-07",
+        "strength": 0
+      },
+      {
+        "id": "api-gateway",
+        "type": "system-design",
+        "dueDate": "2026-09-07",
+        "strength": 0
+      },
+      {
+        "id": "binary-search",
         "type": "dsa",
         "dueDate": "2026-09-07",
         "strength": 0
@@ -265,6 +303,18 @@
       },
       {
         "id": "stack-monotonic",
+        "type": "dsa",
+        "dueDate": "2026-09-16",
+        "strength": 0
+      },
+      {
+        "id": "api-gateway",
+        "type": "system-design",
+        "dueDate": "2026-09-16",
+        "strength": 0
+      },
+      {
+        "id": "binary-search",
         "type": "dsa",
         "dueDate": "2026-09-16",
         "strength": 0
@@ -272,6 +322,13 @@
     ]
   },
   "history": [
+    {
+      "date": "2026-08-31",
+      "mode": "daily",
+      "systemDesignTopicId": "api-gateway",
+      "dsaPatternId": "binary-search",
+      "title": "API Gateway + Binary Search on Answers"
+    },
     {
       "date": "2026-08-31",
       "mode": "daily",

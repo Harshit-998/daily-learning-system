@@ -1,13 +1,24 @@
-Daily Lesson: Rate Limiting + Monotonic Stack and Amortized Reasoning
+Daily Lesson: API Gateway + Binary Search on Answers
 
-System Design: Rate Limiting
-Core idea: Latency measures how long one request takes. Throughput measures how many requests complete per unit time. Availability measures whether the system can return correct responses over time.
-Trade-off: Caching can reduce read latency but introduces staleness and invalidation complexity.
-Engineer question: What breaks first if traffic becomes 10x?
+System Design: API Gateway
+Core idea: API Gateway is the design tool used when a front door for routing, auth, limits, and cross-cutting api concerns. In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.
+Trade-off: API Gateway can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.
+Engineer question: What is the source of truth?
 
-DSA: Monotonic Stack and Amortized Reasoning
-Notice: The input order usually matters less than membership, frequency, or a canonical representation.
-Approach: The trick is not HashMap syntax; it is inventing the key that makes old work reusable. Prefix sums turn subarray sums into complement lookups. Sets turn consecutive ranges into boundary starts. Frequency vectors turn anagrams into deterministic buckets.
-Complexity: Subarray Sum Equals K is O(n) time and O(n) space. Longest Consecutive is amortized O(n) time and O(n) space because each range is expanded from only its start. Count-key anagrams are O(n * k) time and O(n * k) space.
+Mock Interview: Design BookMyShow
+Focus: What happens if two users select the same seat at the same time?
+
+Node.js: Node.js Streams and Backpressure
+Use it for: Use stream.pipeline() or stream/promises.pipeline() so errors and cleanup propagate through the chain.
+Watch: Ignoring backpressure can create memory growth that looks like a leak under load.
+
+JS Interview: Closures, this-binding, and hidden state
+Question: What does a closure actually retain?
+Answer: A closure retains references to variables in its lexical environment, not a frozen copy of their values. That is why mutations after function creation can still be observed.
+
+DSA: Binary Search on Answers
+Notice: Binary Search on Answers usually has a repeated decision that can be made locally once the right state is maintained.
+Approach: For Binary Search on Answers, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?
+Complexity: The optimized target is usually O(n), O(n log n), or O(states * transitions), depending on the pattern. Space is whatever state is required to preserve the invariant.
 
 Today's action: explain the concept aloud, trace the Java solution once, then solve one variant.

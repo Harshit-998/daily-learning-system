@@ -3,177 +3,105 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Rate Limiting + Monotonic Stack and Amortized Reasoning</title>
+  <title>API Gateway + Binary Search on Answers</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing:border-box; }
     html { -webkit-text-size-adjust:100%; }
     body {
       margin:0;
-      background:
-        radial-gradient(circle at 14px 14px, rgba(0,0,0,.035) 1px, transparent 1px),
-        linear-gradient(#f7efe2, #f7efe2);
-      background-size:28px 28px, auto;
+      background:#efe5d2;
       color:#251c14;
-      font-family:'IBM Plex Sans', Inter, Segoe UI, Arial, sans-serif;
+      font-family:'IBM Plex Sans', Arial, sans-serif;
       line-height:1.62;
     }
-    
-    .wrap { max-width:900px; margin:0 auto; padding:22px 18px 64px; }
-    .masthead {
-      background:#283044;
-      color:#f8fafc;
-      border-radius:6px;
-      padding:30px 30px 24px;
-      border:1px solid #d6b98d;
-      position:relative;
-      overflow:hidden;
-      box-shadow:0 20px 54px rgba(17,24,39,.16);
-      background-image:
-        linear-gradient(135deg, rgba(255,255,255,.08), transparent 36%),
-        repeating-linear-gradient(0deg, rgba(127,214,198,.08) 0 1px, transparent 1px 22px),
-        repeating-linear-gradient(90deg, rgba(127,214,198,.08) 0 1px, transparent 1px 22px);
-    }
-    .blueprint-border { position:absolute; inset:9px; border:1px solid rgba(127,214,198,.32); border-radius:3px; pointer-events:none; }
-    .eyebrow, code, pre, .meta, .topic-tab, .sr-cell .d, .pin { font-family:'IBM Plex Mono', SFMono-Regular, Consolas, monospace; }
-    .eyebrow { display:inline-flex; align-items:center; color:#7fd6c6; border:1px solid rgba(127,214,198,.48); padding:4px 10px; border-radius:999px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; }
-    h1 { font-family:'Space Grotesk', Inter, sans-serif; font-size:30px; line-height:1.13; margin:14px 0 7px; letter-spacing:0; }
-    h2 { font-family:'Space Grotesk', Inter, sans-serif; font-size:23px; line-height:1.22; margin:8px 0 12px; letter-spacing:0; border-bottom:2px solid #251c14; padding-bottom:9px; }
-    h3 { font-family:'Space Grotesk', Inter, sans-serif; font-size:15.5px; margin:22px 0 8px; letter-spacing:0; color:#283044; }
-    p, li, td { font-size:15px; }
+    main { max-width:960px; margin:0 auto; padding:24px 16px 64px; }
+    h1, h2, h3 { letter-spacing:0; }
+    h1 { margin:10px 0; font:700 34px/1.08 'Space Grotesk', Arial, sans-serif; }
+    h2 { margin:8px 0 12px; font:700 24px/1.2 'Space Grotesk', Arial, sans-serif; }
+    h3 { margin:22px 0 8px; font:700 15px/1.25 'Space Grotesk', Arial, sans-serif; color:#92400e; }
+    p, li { font-size:15px; }
     ul, ol { margin:0; padding-left:20px; }
-    .meta { color:#cbd5e1; font-size:12px; }
-    .recall, .card, details, .mnemonic, .challenge {
-      background:#fffaf1;
-      color:#251c14;
-      border:1px solid #d6b98d;
-      border-radius:3px;
-      padding:15px 17px;
-    }
-    .recall { margin-top:18px; border-style:dashed; border-color:#7c2d12; position:relative; box-shadow:inset 0 0 0 1px rgba(255,255,255,.35); }
-    .pin { position:absolute; top:-10px; left:14px; background:#7c2d12; color:#ffffff; padding:2px 8px; border-radius:2px; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
-    .recall h2 { border:0; padding:0; margin:2px 0 8px; font-size:16px; }
-    .topic { margin-top:34px; }
-    .topic-tab { display:inline-block; background:#7c2d12; color:#ffffff; padding:4px 10px; border-radius:2px 2px 0 0; font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
-    .topic-tab.alt { background:#283044; color:#ffffff; }
-    .lede { color:#695f52; font-size:16px; }
-    .card { box-shadow:0 8px 22px rgba(17,24,39,.055); }
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
-    .challenge { border-left:4px solid #7c2d12; margin:14px 0; background:linear-gradient(90deg, rgba(47,143,131,.12), rgba(255,255,255,.72)); }
-    .mnemonic { display:flex; gap:10px; margin:16px 0; border-color:#7c2d12; }
-    .badge { background:#7c2d12; color:#ffffff; min-width:40px; height:28px; padding:4px 8px; border-radius:2px; display:inline-flex; align-items:center; justify-content:center; font-weight:700; }
-    .diagram-frame { background:#283044; border-radius:3px; padding:12px; overflow-x:auto; box-shadow:0 14px 34px rgba(17,24,39,.2); }
+    code, pre, .label, .kicker, .metric strong, .caption { font-family:'IBM Plex Mono', Consolas, monospace; }
+    .hero, .block, .recall, .panel, details, .review { background:#fff9ed; border:1px solid #c9aa77; }
+    .hero { padding:30px; margin-bottom:22px; color:#251c14; }
+    .hero p, .lede, .caption, .answer { color:#6c5c49; }
+    .kicker, .label { color:#92400e; text-transform:uppercase; font-size:11px; font-weight:700; letter-spacing:.08em; }
+    .block, .recall { margin:22px 0; padding:24px; }
+    .panel { padding:15px; margin:12px 0; }
+    .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:14px 0; }
+    .two-col, .exec-grid, .war-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
+    .challenge, .mnemonic { border:1px solid #92400e; background:#92400e18; padding:14px 16px; margin:14px 0; }
+    .mnemonic { display:flex; gap:10px; align-items:flex-start; }
+    .badge { display:inline-flex; min-width:42px; justify-content:center; padding:4px 8px; background:#92400e; color:#ffffff; font-weight:700; }
+    .diagram-frame { background:#1f2937; border:1px solid #c9aa77; padding:14px; margin:10px 0; overflow-x:auto; }
     .diagram-frame svg { display:block; min-width:640px; max-width:100%; height:auto; }
-    .caption { color:#695f52; font-size:13px; }
-    pre { background:#1b2430; color:#e5e7eb; padding:14px 16px; border-radius:4px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
-    .array-row { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }
-    .cell { min-width:44px; padding:8px 4px; text-align:center; border:1.5px solid #283044; border-radius:3px; background:#fffaf1; font-family: IBM Plex Mono, monospace; }
-    .cell .idx { display:block; color:#695f52; font-size:10px; }
-    .cell.hit { background:#eafff4; border-color:#7c2d12; }
-    details { margin:8px 0; }
+    pre { background:#1f2937; color:#f8fafc; padding:15px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
+    details { padding:13px 15px; margin:9px 0; }
     summary { cursor:pointer; font-weight:700; }
-    .answer { color:#695f52; border-top:1px dashed #d6b98d; margin-top:8px; padding-top:8px; }
-    .sr { margin-top:36px; border:1px solid #283044; border-radius:6px; overflow:hidden; }
-    .sr-head { background:#283044; color:#ffffff; padding:10px 16px; font-weight:700; }
-    .sr-body { display:flex; flex-wrap:wrap; }
-    .sr-cell { flex:1 1 140px; padding:12px 16px; border-right:1px solid #d6b98d; background:#fffaf1; }
-    .sr-cell .d { font-size:11px; color:#695f52; text-transform:uppercase; letter-spacing:.06em; }
-    .sr-cell .date { font-weight:700; font-size:14px; }
+    .answer { margin-top:8px; padding-top:8px; border-top:1px dashed #c9aa77; }
+    .array-row { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }
+    .cell { min-width:44px; padding:8px 4px; text-align:center; border:1px solid #c9aa77; background:#fff9ed; font-family:'IBM Plex Mono', monospace; }
+    .cell .idx { display:block; color:#6c5c49; font-size:10px; }
+    .cell.hit { border-color:#92400e; background:#92400e18; }
+    .review { margin-top:28px; overflow:hidden; }
+    .review-head { padding:12px 16px; background:#251c14; color:#ffffff; font-weight:700; }
+    .review-body { display:grid; grid-template-columns:repeat(4,1fr); }
+    .review-cell { padding:14px 16px; border-right:1px solid #c9aa77; }
+    .review-cell span { display:block; color:#6c5c49; font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; }
+    .metric-row { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:18px 0; }
+    .metric { background:#fff9ed; border:1px solid #c9aa77; padding:16px; }
+    .metric strong { display:block; color:#92400e; font-size:12px; }
+    .metric span { font-weight:700; }
     
-      .masthead { transform:rotate(-.25deg); }
-      .topic { background:#fffaf1; border:1px solid #d6b98d; border-radius:2px; padding:20px; position:relative; }
-      .topic::before { content:""; position:absolute; left:14px; right:14px; top:-5px; height:10px; background:#7c2d12; opacity:.22; transform:rotate(.4deg); }
-      .topic-tab { border-radius:2px; letter-spacing:.12em; }
-      .card, .challenge, .mnemonic, details { border-radius:2px; box-shadow:3px 3px 0 rgba(17,24,39,.08); }
-      h2 { text-transform:uppercase; font-size:21px; }
+      body { background:repeating-linear-gradient(0deg,#efe5d2,#efe5d2 31px,#e2d8c4 32px); }
+      .hero { transform:rotate(-.2deg); border-radius:2px; box-shadow:8px 8px 0 rgba(60,45,30,.12); }
+      .case-strip { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:18px 0; }
+      .case-strip div { background:#fff9ed; border:1px solid #c9aa77; padding:12px; box-shadow:4px 4px 0 rgba(60,45,30,.09); }
+      .case-strip b, .case-strip span { display:block; }
+      .block, .recall, .panel, details { border-radius:2px; box-shadow:5px 5px 0 rgba(60,45,30,.08); }
+      .label { background:#92400e; color:#ffffff; padding:3px 8px; display:inline-block; }
+      @media (max-width:720px) { .case-strip { grid-template-columns:1fr; } }
     
-    @media (max-width:680px) {
-      .wrap { padding:14px 10px 42px; }
-      .masthead { padding:20px; }
-      h1 { font-size:23px; }
-      .grid { grid-template-columns:1fr; }
-      .sr-cell { flex:1 1 45%; }
+    @media (max-width:720px) {
+      main { padding:12px 10px 42px; }
+      h1 { font-size:25px; }
+      .grid, .two-col, .exec-grid, .war-grid, .metric-row, .review-body { grid-template-columns:1fr; }
+      .hero, .block, .recall { padding:18px; }
     }
   </style>
 </head>
-<body class="layout-case-file">
-  <main class="wrap">
-    <header class="masthead">
-      <div class="blueprint-border"></div>
-      <span class="eyebrow">Daily Lesson / Java track / technical magazine / case file</span>
-      <h1>Rate Limiting + Monotonic Stack and Amortized Reasoning</h1>
-      <div class="meta">2026-08-31 / SDE-2+ prep / production reasoning</div>
-      <section class="recall">
-        <span class="pin">Pin this</span>
-        <h2>60-second recall</h2>
-        <ul><li>Latency is how long one request takes; throughput is how many requests finish per unit time; availability is whether the system responds correctly at all.</li><li>Little&#039;s Law connects them: L = lambda x W, so in-flight work equals arrival rate times latency.</li><li>Advanced hashing is about inventing the right key: prefix sum counts, boundary membership, or frequency signatures.</li></ul>
-      </section>
-    </header>
-
-    <section class="topic">
-      <span class="topic-tab">01 / System Design</span>
-      <h2>Rate Limiting</h2>
-      <p class="lede">Latency measures how long one request takes. Throughput measures how many requests complete per unit time. Availability measures whether the system can return correct responses over time.</p>
-      <div class="challenge"><h3>Think first</h3><ul><li>What breaks first if traffic becomes 10x?</li><li>Which requests are users staring at, and which can finish later?</li><li>How would you detect rising latency before users report an outage?</li></ul></div>
-      <h3>Why it exists</h3><p>These three metrics exist because a system can fail users in different ways: it can be slow, unable to process enough work, or down. Strong designs keep those dimensions separate before choosing caches, queues, replicas, or failover.</p>
-      <h3>Analogy</h3><p>Use a highway. Latency is how long your car takes from on-ramp to off-ramp. Throughput is how many cars pass a checkpoint per hour. Availability is whether the highway is open. A jammed highway can be available but painful; an empty highway can be low latency but low total throughput.</p>
-      <h3>Technical depth</h3><p>The connective formula is Little&#039;s Law: L = lambda x W. L is concurrent in-flight work, lambda is arrival rate, and W is average time in the system. If requests arrive at 1,000 per second and average latency is 200 ms, roughly 200 requests are in flight. If latency triples while arrival rate stays fixed, in-flight work triples too, exhausting threads, sockets, DB connections, and queues. This is why p95 and p99 matter more than averages in design interviews.</p>
-      <div class="mnemonic"><span class="badge">lambda W</span><div>If work takes longer, more requests wait in flight. First compute rate as volume divided by time, then use L = lambda x W to size queues, pools, and instance counts.</div></div>
-      <h3>Rendered architecture diagram</h3>
-      <div class="diagram-frame"><svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Architecture diagram showing latency-bound reads and throughput-bound writes">
-  <defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7fd6c6"/></marker></defs>
-  <text x="20" y="24" fill="#7fd6c6" font-family="monospace" font-size="11">REQUEST PATH: LATENCY VS THROUGHPUT</text>
-  <g font-family="monospace" font-size="12" fill="#eaf6f2">
-    <rect x="20" y="60" width="110" height="46" rx="4" fill="none" stroke="#7fd6c6" stroke-width="1.5"/><text x="75" y="88" text-anchor="middle">Client</text>
-    <rect x="180" y="60" width="130" height="46" rx="4" fill="none" stroke="#7fd6c6" stroke-width="1.5"/><text x="245" y="80" text-anchor="middle">Edge/API</text><text x="245" y="95" text-anchor="middle" font-size="10" fill="#b9d8cf">auth, limits</text>
-    <rect x="360" y="60" width="140" height="46" rx="4" fill="none" stroke="#7fd6c6" stroke-width="1.5"/><text x="430" y="80" text-anchor="middle">App Service</text><text x="430" y="95" text-anchor="middle" font-size="10" fill="#b9d8cf">business rules</text>
-    <rect x="560" y="10" width="150" height="46" rx="4" fill="none" stroke="#7fd6c6" stroke-width="1.5" stroke-dasharray="3 2"/><text x="635" y="30" text-anchor="middle">Cache</text><text x="635" y="45" text-anchor="middle" font-size="10" fill="#b9d8cf">p99 under 10 ms</text>
-    <rect x="560" y="90" width="150" height="46" rx="4" fill="none" stroke="#7fd6c6" stroke-width="1.5"/><text x="635" y="110" text-anchor="middle">Primary DB</text><text x="635" y="125" text-anchor="middle" font-size="10" fill="#b9d8cf">source of truth</text>
-    <rect x="360" y="180" width="140" height="46" rx="4" fill="none" stroke="#d98c2b" stroke-width="1.5"/><text x="430" y="200" text-anchor="middle" fill="#f4d9ad">Queue</text><text x="430" y="215" text-anchor="middle" font-size="10" fill="#f4d9ad">absorbs bursts</text>
-    <rect x="560" y="180" width="150" height="46" rx="4" fill="none" stroke="#d98c2b" stroke-width="1.5"/><text x="635" y="200" text-anchor="middle" fill="#f4d9ad">Workers</text><text x="635" y="215" text-anchor="middle" font-size="10" fill="#f4d9ad">volume path</text>
-    <rect x="780" y="180" width="100" height="46" rx="4" fill="none" stroke="#d98c2b" stroke-width="1.5"/><text x="830" y="200" text-anchor="middle" fill="#f4d9ad">Data</text><text x="830" y="215" text-anchor="middle" font-size="10" fill="#f4d9ad">store</text>
-    <rect x="360" y="270" width="350" height="46" rx="4" fill="none" stroke="#7fd6c6" stroke-width="1" stroke-dasharray="2 3"/><text x="535" y="290" text-anchor="middle">Observability</text><text x="535" y="305" text-anchor="middle" font-size="10" fill="#b9d8cf">p50/p95/p99, queue depth, errors</text>
-  </g>
-  <g stroke="#7fd6c6" stroke-width="1.5" marker-end="url(#arrow)" fill="none">
-    <line x1="130" y1="83" x2="178" y2="83"/><line x1="310" y1="83" x2="358" y2="83"/><line x1="430" y1="60" x2="560" y2="33"/><line x1="500" y1="83" x2="560" y2="105"/><line x1="430" y1="106" x2="430" y2="178"/><line x1="500" y1="203" x2="558" y2="203"/><line x1="710" y1="203" x2="778" y2="203"/>
-  </g>
-  <text x="640" y="150" fill="#7fd6c6" font-family="monospace" font-size="10">fast read path: latency-bound</text>
-  <text x="500" y="245" fill="#f4d9ad" font-family="monospace" font-size="10">durable write path: throughput-bound</text>
-</svg></div>
-      <p class="caption">Reads that users wait on should stay latency-bound, often through cache. Writes that can tolerate delay can move through a queue to optimize throughput and absorb bursts.</p>
-      <h3>Concrete real-world example</h3><p>A YouTube home feed read path may serve cached recommendations quickly, while watch-history updates can be written asynchronously. The user sees a fast page, and the system still records durable activity without blocking the visible path.</p>
-      <h3>Practical design example</h3><p>For a notification system, accept the request quickly, validate it, store a send intent, enqueue delivery work, let workers call channel providers, and record delivery status. The API path is optimized for user latency; the worker path is optimized for throughput and retry safety.</p>
-      <h3>How components interact</h3><p>Client requests enter the edge/API layer for authentication and rate limiting, then reach an application service. Read-heavy requests check cache before the primary database. Write-heavy or slow downstream work is placed on a queue. Workers drain the queue, update durable storage, and emit metrics for latency percentiles, queue depth, error rate, and saturation.</p>
-      <div class="grid">
-        <div class="card"><h3>Trade-offs</h3><ul><li>Caching can reduce read latency but introduces staleness and invalidation complexity.</li><li>Queues improve throughput and burst handling but introduce delayed completion and duplicate-processing risk.</li><li>Higher availability usually requires redundancy, failover, and operational work that increase system complexity.</li></ul></div>
-        <div class="card"><h3>When to use it</h3><ul><li>Use latency optimization when users are synchronously waiting for the answer.</li><li>Use throughput optimization when the system must process large volumes reliably.</li><li>Use availability patterns when downtime has meaningful user, revenue, or safety impact.</li></ul></div>
-        <div class="card"><h3>When not to use it</h3><ul><li>Do not add queues if the caller truly needs the final result immediately.</li><li>Do not add caches before measuring that reads are actually bottlenecked by repeated expensive work.</li><li>Do not chase five nines for a prototype or low-impact internal tool.</li></ul></div>
-        <div class="card"><h3>Common mistakes</h3><ul><li>Reporting average latency instead of p95 or p99.</li><li>Saying a system is available while returning stale, incorrect, or timed-out responses.</li><li>Adding a queue and forgetting idempotency, retries, dead letters, and backlog alarms.</li></ul></div>
-        <div class="card"><h3>Scaling considerations</h3><ul><li>Estimate arrival rate as volume divided by time before sizing instances or queues.</li><li>Use Little&#039;s Law to estimate concurrency pressure on pools and downstream systems.</li><li>Track p50, p95, p99, queue depth, worker lag, saturation, and error budget burn.</li></ul></div>
-        <div class="card"><h3>Failure scenarios</h3><ul><li>A downstream timeout increases latency, which increases in-flight requests, which causes more timeouts.</li><li>A queue hides overload until lag grows beyond the business SLA.</li><li>A cache outage sends all reads to the database and creates a sudden throughput cliff.</li></ul></div>
-      </div>
-      <h3>Production usage</h3><p>Production teams set service-level objectives around latency percentiles and availability, capacity-test throughput, and alert on both user-visible symptoms and leading indicators like queue depth, connection pool exhaustion, and retry spikes.</p>
-      <div class="card"><h3>Interview questions</h3><ul><li>Walk through what happens if p99 latency triples under load.</li><li>How would you size a connection pool given expected RPS and average latency?</li><li>What metrics prove your queue is keeping up rather than hiding a backlog?</li><li>Which would you sacrifice first in payments versus a social feed: latency, throughput, or availability?</li></ul></div>
-      <h3>Connections to previous concepts</h3><p>This builds on load-balancing.</p>
+<body class="casefile">
+  <main>
+    <header class="hero">
+    <div class="kicker">Interview Case File / casefile / 2026-08-31</div>
+    <h1>API Gateway + Binary Search on Answers</h1>
+    <p>Evidence, constraints, trade-offs</p>
+  </header>
+    <section class="case-strip">
+      <div><b>Topic</b><span>API Gateway</span></div>
+      <div><b>System</b><span>BookMyShow</span></div>
+      <div><b>Pattern</b><span>Binary Search on Answers</span></div>
     </section>
-
-    <section class="topic">
-      <span class="topic-tab alt">02 / Mock Interview</span>
-      <h2>Design BookMyShow</h2>
-      <p class="lede">Design BookMyShow for movie discovery, seat selection, temporary seat locking, payment, and ticket confirmation.</p>
-      <h3>Scope clarification</h3><p>Focus on movie browsing, theatre/show search, seat map rendering, seat hold, booking confirmation, payment callbacks, and ticket retrieval. Keep recommendations, ads, and loyalty programs out of scope for the first design.</p>
-      <div class="grid">
-        <div class="card"><h3>Functional requirements</h3><ul><li>Users can search movies, cities, theatres, showtimes, and available seats.</li><li>Users can select seats and hold them temporarily while completing payment.</li><li>Users can complete payment and receive a confirmed ticket with a booking ID.</li><li>The system prevents two users from successfully booking the same seat.</li><li>Admins can create theatres, screens, shows, seat layouts, prices, and inventory.</li></ul></div>
-        <div class="card"><h3>Non-functional requirements</h3><ul><li>Seat availability reads should feel fast, targeting low hundreds of milliseconds for cached show metadata and under one second for seat map fetch.</li><li>Booking confirmation requires strong consistency for seat ownership.</li><li>The system should tolerate flash-sale spikes for popular shows without corrupting inventory.</li><li>Payment processing must be idempotent because callbacks and client retries can duplicate requests.</li><li>Audit logs and booking state transitions must be durable.</li><li>The system needs observability around lock contention, payment callback lag, booking failures, and inventory mismatch.</li></ul></div>
-      </div>
-      <div class="card"><h3>Capacity estimation</h3><ul><li>Assume 10M monthly active users, 1M daily active users, and 5x traffic spikes during blockbuster releases.</li><li>If 20% of DAU browse show pages, average browse QPS is modest, but peak city/movie pages may become hot keys.</li><li>If 100K users attempt booking during a 10-minute release window, booking attempts average about 167 QPS and may spike much higher for a single show.</li><li>Seat inventory is small per show but high contention; the scaling problem is not storage size, it is correctness under concurrent writes.</li><li>Cache movie/theatre/show metadata aggressively, but keep seat lock and booking state in a strongly controlled write path.</li></ul></div>
-      <div class="card"><h3>Core entities and data model</h3><ul><li>Movie(id, title, language, duration, metadata)</li><li>Theatre(id, cityId, name, location), Screen(id, theatreId, layoutId), Seat(id, screenId, row, number, type)</li><li>Show(id, movieId, screenId, startTime, status), ShowSeat(showId, seatId, status, lockId, lockedUntil, bookingId, version)</li><li>Booking(id, userId, showId, seats, status, amount, idempotencyKey, createdAt)</li><li>Payment(id, bookingId, providerRef, status, callbackPayloadHash)</li><li>Index by city/movie/date for discovery, by showId for seat map, and by idempotencyKey for safe retries.</li></ul></div>
-      <div class="card"><h3>API design</h3><ul><li>GET /cities/{cityId}/movies?date=YYYY-MM-DD returns movies and cached show summaries.</li><li>GET /shows/{showId}/seats returns seat map with available, locked, and booked states.</li><li>POST /shows/{showId}/holds with seatIds and idempotencyKey creates a short-lived hold if all seats are available.</li><li>POST /bookings/{bookingId}/payment-intent starts payment for a valid hold.</li><li>POST /payments/callback consumes provider callback idempotently and confirms or releases seats.</li></ul></div>
-      <h3>High-level architecture</h3><p>Use API Gateway for auth/rate limiting, discovery service for cached browsing, inventory service for seat state, booking service for booking lifecycle, payment service for provider interaction, Redis or a database-backed lock path for short seat holds, a relational database for booking truth, and queues for payment callbacks, notifications, and reconciliation jobs.</p>
-      <h3>Mock interview architecture diagram</h3>
-      <div class="diagram-frame"><svg viewBox="0 0 920 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BookMyShow architecture diagram">
+    <section class="block case-card">
+    <div class="label">02 / Real Mock Interview</div>
+    <h2>Design BookMyShow</h2>
+    <p class="lede">Design BookMyShow for movie discovery, seat selection, temporary seat locking, payment, and ticket confirmation.</p>
+    <h3>Scope clarification</h3><p>Focus on movie browsing, theatre/show search, seat map rendering, seat hold, booking confirmation, payment callbacks, and ticket retrieval. Keep recommendations, ads, and loyalty programs out of scope for the first design.</p>
+    <div class="two-col">
+      <div class="panel"><h3>Functional requirements</h3><ul><li>Users can search movies, cities, theatres, showtimes, and available seats.</li><li>Users can select seats and hold them temporarily while completing payment.</li><li>Users can complete payment and receive a confirmed ticket with a booking ID.</li><li>The system prevents two users from successfully booking the same seat.</li><li>Admins can create theatres, screens, shows, seat layouts, prices, and inventory.</li></ul></div>
+      <div class="panel"><h3>Non-functional requirements</h3><ul><li>Seat availability reads should feel fast, targeting low hundreds of milliseconds for cached show metadata and under one second for seat map fetch.</li><li>Booking confirmation requires strong consistency for seat ownership.</li><li>The system should tolerate flash-sale spikes for popular shows without corrupting inventory.</li><li>Payment processing must be idempotent because callbacks and client retries can duplicate requests.</li><li>Audit logs and booking state transitions must be durable.</li><li>The system needs observability around lock contention, payment callback lag, booking failures, and inventory mismatch.</li></ul></div>
+    </div>
+    <div class="grid">
+      <div class="panel"><h3>Capacity estimation</h3><ul><li>Assume 10M monthly active users, 1M daily active users, and 5x traffic spikes during blockbuster releases.</li><li>If 20% of DAU browse show pages, average browse QPS is modest, but peak city/movie pages may become hot keys.</li><li>If 100K users attempt booking during a 10-minute release window, booking attempts average about 167 QPS and may spike much higher for a single show.</li><li>Seat inventory is small per show but high contention; the scaling problem is not storage size, it is correctness under concurrent writes.</li><li>Cache movie/theatre/show metadata aggressively, but keep seat lock and booking state in a strongly controlled write path.</li></ul></div>
+      <div class="panel"><h3>Core entities and data model</h3><ul><li>Movie(id, title, language, duration, metadata)</li><li>Theatre(id, cityId, name, location), Screen(id, theatreId, layoutId), Seat(id, screenId, row, number, type)</li><li>Show(id, movieId, screenId, startTime, status), ShowSeat(showId, seatId, status, lockId, lockedUntil, bookingId, version)</li><li>Booking(id, userId, showId, seats, status, amount, idempotencyKey, createdAt)</li><li>Payment(id, bookingId, providerRef, status, callbackPayloadHash)</li><li>Index by city/movie/date for discovery, by showId for seat map, and by idempotencyKey for safe retries.</li></ul></div>
+      <div class="panel"><h3>API design</h3><ul><li>GET /cities/{cityId}/movies?date=YYYY-MM-DD returns movies and cached show summaries.</li><li>GET /shows/{showId}/seats returns seat map with available, locked, and booked states.</li><li>POST /shows/{showId}/holds with seatIds and idempotencyKey creates a short-lived hold if all seats are available.</li><li>POST /bookings/{bookingId}/payment-intent starts payment for a valid hold.</li><li>POST /payments/callback consumes provider callback idempotently and confirms or releases seats.</li></ul></div>
+    </div>
+    <h3>High-level architecture</h3><p>Use API Gateway for auth/rate limiting, discovery service for cached browsing, inventory service for seat state, booking service for booking lifecycle, payment service for provider interaction, Redis or a database-backed lock path for short seat holds, a relational database for booking truth, and queues for payment callbacks, notifications, and reconciliation jobs.</p>
+    <h3>Mock architecture diagram</h3>
+    <div class="diagram-frame"><svg viewBox="0 0 920 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BookMyShow architecture diagram">
   <defs><marker id="bmsArrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7fd6c6"/></marker></defs>
   <text x="20" y="26" fill="#7fd6c6" font-family="monospace" font-size="11">BOOKMYSHOW: DISCOVERY VS STRONG-CONSISTENCY BOOKING PATH</text>
   <g font-family="monospace" font-size="12" fill="#eaf6f2">
@@ -197,168 +125,212 @@
   <text x="590" y="96" fill="#7fd6c6" font-family="monospace" font-size="10">eventual consistency OK</text>
   <text x="590" y="190" fill="#f4d9ad" font-family="monospace" font-size="10">strong consistency required</text>
 </svg></div>
-      
     <h3>Deep dives</h3>
-    
-      <div class="card">
-        <h3>Seat locking and confirmation</h3>
-        <p>The hardest part is preventing double booking while keeping the UI responsive. A safe approach is to store ShowSeat rows with status, lockId, lockedUntil, bookingId, and version. A hold request performs a conditional update where all requested seats are AVAILABLE or expired. Confirmation moves HELD seats to BOOKED only if the hold belongs to the same user/booking and has not expired.</p>
-        <ul><li>Do not rely only on client-side timers; expiration must be enforced server-side.</li><li>Use idempotency keys so retrying a hold or payment confirmation does not create duplicate bookings.</li><li>Run reconciliation to release expired holds and detect payment success after client disconnects.</li></ul>
-      </div>
-    
-      <div class="card">
-        <h3>Hot show traffic</h3>
-        <p>A blockbuster show can turn one showId into a hot partition. Cache read-only show metadata separately from mutable seat state, throttle hold attempts, use queueing or waiting rooms for extreme launches, and shard lock traffic by showId plus seat block only if contention requires it.</p>
-        <ul><li>Caching seat availability too aggressively can show stale seats as available.</li><li>Sharding by city is not enough when one show dominates traffic.</li><li>Backpressure is better than accepting requests that will timeout and retry.</li></ul>
-      </div>
-    
-  
-      <div class="grid">
-        <div class="card"><h3>Failure scenarios</h3><ul><li>Payment succeeds but callback arrives late; booking should remain pending until reconciliation confirms or expires it.</li><li>User refreshes during payment; idempotency key should return the existing booking state.</li><li>Redis/lock store fails; degrade booking for affected shows rather than risking double booking.</li><li>Queue backlog delays notifications; tickets should still be visible from booking status.</li><li>Database primary fails during confirmation; use transactional guarantees and clear retry semantics.</li></ul></div>
-        <div class="card"><h3>Trade-offs</h3><ul><li>Strong consistency is mandatory for final seat booking, even if discovery and seat map reads are eventually refreshed.</li><li>Redis locks are fast but need careful persistence/reconciliation; database conditional updates are simpler but may hit contention sooner.</li><li>Short hold TTLs reduce inventory blockage but increase user frustration during slow payments.</li><li>A waiting room protects the system during spikes but adds product friction.</li></ul></div>
-      </div>
-      <div class="card"><h3>Follow-up interview questions</h3><ul><li>What happens if two users select the same seat at the same time?</li><li>Why did you choose this storage model for ShowSeat?</li><li>What breaks first at 10x traffic?</li><li>How do you handle expired holds?</li><li>How do you make payment callbacks idempotent?</li><li>What would change if this became multi-region?</li><li>Which data can be cached and which cannot?</li><li>How do you detect inventory mismatch?</li><li>What metrics would you monitor during a blockbuster launch?</li><li>How would you recover if payment succeeds but booking confirmation fails?</li></ul></div>
-      <div class="card"><h3>Explain this design in 5 minutes</h3><p>I would split BookMyShow into discovery, inventory, booking, payment, and notification services. Discovery reads movie, theatre, and show metadata from cache because it is read-heavy and can tolerate slight staleness. Seat booking goes through an inventory service backed by strongly consistent conditional updates on ShowSeat rows. A user creates a short hold with an idempotency key; if every requested seat is available or expired, the system marks those seats held with a lock ID and TTL. Payment then proceeds against that booking. Provider callbacks are handled idempotently: success confirms only seats held by that booking, failure or timeout releases them. For scale, I would cache metadata, protect hot shows with rate limits or waiting rooms, monitor lock contention and payment lag, and run reconciliation for expired holds and callback mismatches. The main trade-off is that browsing can be eventually consistent, but final seat ownership must be strongly consistent.</p></div>
-    </section>
-
-    <section class="topic">
-      <span class="topic-tab">03 / DSA Pattern</span>
-      <h2>Monotonic Stack and Amortized Reasoning</h2>
-      <p class="lede">Given a sequence, identify whether a hard-looking condition can be turned into a stable hash key: a prefix sum, a boundary value, a frequency signature, or a canonical representation.</p>
-      <div class="challenge"><h3>Invariant</h3><ul><li>Invent the key that collapses many previous candidates into one lookup, then prove that key preserves exactly the information the answer needs.</li></ul></div>
-      <div class="card"><h3>Examples</h3><ul><li>Subarray Sum Equals K: nums = [1,2,3], k = 3; Output: 2 because [1,2] and [3] both work.</li><li>Longest Consecutive Sequence: nums = [100,4,200,1,3,2]; Output: 4 for [1,2,3,4].</li><li>Group Anagrams with count keys: words with the same 26-count signature belong together without sorting each string.</li></ul></div>
-      <div class="grid">
-        <div class="card"><h3>Constraints</h3><ul><li>Aim for better than O(n^2) when the pattern allows it.</li><li>Use Java standard library data structures unless the problem forbids them.</li><li>Handle empty input, duplicates, and boundary values deliberately.</li></ul></div>
-        <div class="card"><h3>What to notice</h3><ul><li>The input order usually matters less than membership, frequency, or a canonical representation.</li><li>The question often contains words like pair, duplicate, group, frequency, seen before, or complement.</li><li>Each new element asks a hash structure one O(1)-style question.</li></ul></div>
-      </div>
-      <h3>Brute force</h3><p>Try every candidate combination and check whether it satisfies the condition. This is useful for understanding correctness but often repeats work.</p>
-      <h3>Why it is insufficient</h3><p>Brute force is usually O(n^2) because every item is compared with many previous or future items. Hashing keeps a compact memory of useful information so each item can be processed once.</p>
-      <h3>Core intuition</h3><p>The trick is not HashMap syntax; it is inventing the key that makes old work reusable. Prefix sums turn subarray sums into complement lookups. Sets turn consecutive ranges into boundary starts. Frequency vectors turn anagrams into deterministic buckets.</p>
-      <h3>Optimal approach</h3><p>Name the invariant, derive the key, and prove why looking up that key represents all earlier candidates without scanning them again.</p>
-      <div class="card"><h3>Step-by-step</h3><ol><li>State the hidden transformation: sum(i..j) becomes prefix[j] - prefix[i - 1].</li><li>Choose a map or set based on whether you need counts, existence, or grouped output.</li><li>Update the answer using the old state before mutating state when ordering matters.</li><li>For range problems, only start work at canonical boundaries to get amortized O(n).</li><li>Test negative numbers, duplicates, empty groups, and cases where sorting would hide a better key.</li></ol></div>
-      
-    <h3>Prefix-sum trace: nums = [1, 2, 3], k = 3</h3>
-    <div class="array-row">
-      <div class="cell hit"><span class="idx">i=0</span>1</div><div class="cell hit"><span class="idx">i=1</span>2</div><div class="cell hit"><span class="idx">i=2</span>3</div>
+    <div class="panel">
+      <h3>Seat locking and confirmation</h3>
+      <p>The hardest part is preventing double booking while keeping the UI responsive. A safe approach is to store ShowSeat rows with status, lockId, lockedUntil, bookingId, and version. A hold request performs a conditional update where all requested seats are AVAILABLE or expired. Confirmation moves HELD seats to BOOKED only if the hold belongs to the same user/booking and has not expired.</p>
+      <ul><li>Do not rely only on client-side timers; expiration must be enforced server-side.</li><li>Use idempotency keys so retrying a hold or payment confirmation does not create duplicate bookings.</li><li>Run reconciliation to release expired holds and detect payment success after client disconnects.</li></ul>
+    </div><div class="panel">
+      <h3>Hot show traffic</h3>
+      <p>A blockbuster show can turn one showId into a hot partition. Cache read-only show metadata separately from mutable seat state, throttle hold attempts, use queueing or waiting rooms for extreme launches, and shard lock traffic by showId plus seat block only if contention requires it.</p>
+      <ul><li>Caching seat availability too aggressively can show stale seats as available.</li><li>Sharding by city is not enough when one show dominates traffic.</li><li>Backpressure is better than accepting requests that will timeout and retry.</li></ul>
     </div>
-    <ol><li>Start with prefixCount[0] = 1 so subarrays beginning at index 0 are counted.</li><li>After 1: prefix = 1, need -2, answer stays 0, store prefix 1.</li><li>After 2: prefix = 3, need 0, answer becomes 1 for [1,2], store prefix 3.</li><li>After 3: prefix = 6, need 3, answer becomes 2 for [3], store prefix 6.</li></ol>
-  
-      <h3>Java solution</h3>
-      <pre><code>import java.util.*;
+    <div class="two-col">
+      <div class="panel"><h3>Failure scenarios</h3><ul><li>Payment succeeds but callback arrives late; booking should remain pending until reconciliation confirms or expires it.</li><li>User refreshes during payment; idempotency key should return the existing booking state.</li><li>Redis/lock store fails; degrade booking for affected shows rather than risking double booking.</li><li>Queue backlog delays notifications; tickets should still be visible from booking status.</li><li>Database primary fails during confirmation; use transactional guarantees and clear retry semantics.</li></ul></div>
+      <div class="panel"><h3>Trade-offs</h3><ul><li>Strong consistency is mandatory for final seat booking, even if discovery and seat map reads are eventually refreshed.</li><li>Redis locks are fast but need careful persistence/reconciliation; database conditional updates are simpler but may hit contention sooner.</li><li>Short hold TTLs reduce inventory blockage but increase user frustration during slow payments.</li><li>A waiting room protects the system during spikes but adds product friction.</li></ul></div>
+    </div>
+    <div class="panel"><h3>Follow-up questions</h3><ul><li>What happens if two users select the same seat at the same time?</li><li>Why did you choose this storage model for ShowSeat?</li><li>What breaks first at 10x traffic?</li><li>How do you handle expired holds?</li><li>How do you make payment callbacks idempotent?</li><li>What would change if this became multi-region?</li><li>Which data can be cached and which cannot?</li><li>How do you detect inventory mismatch?</li><li>What metrics would you monitor during a blockbuster launch?</li><li>How would you recover if payment succeeds but booking confirmation fails?</li></ul></div>
+    <div class="panel"><h3>Five-minute answer</h3><p>I would split BookMyShow into discovery, inventory, booking, payment, and notification services. Discovery reads movie, theatre, and show metadata from cache because it is read-heavy and can tolerate slight staleness. Seat booking goes through an inventory service backed by strongly consistent conditional updates on ShowSeat rows. A user creates a short hold with an idempotency key; if every requested seat is available or expired, the system marks those seats held with a lock ID and TTL. Payment then proceeds against that booking. Provider callbacks are handled idempotently: success confirms only seats held by that booking, failure or timeout releases them. For scale, I would cache metadata, protect hot shows with rate limits or waiting rooms, monitor lock contention and payment lag, and run reconciliation for expired holds and callback mismatches. The main trade-off is that browsing can be eventually consistent, but final seat ownership must be strongly consistent.</p></div>
+  </section>
+    <section class="block case-card">
+    <div class="label">01 / System Design Topic</div>
+    <h2>API Gateway</h2>
+    <p class="lede">API Gateway is the design tool used when a front door for routing, auth, limits, and cross-cutting api concerns. In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.</p>
+    <div class="challenge"><h3>Think Like an Engineer</h3><ul><li>What is the source of truth?</li><li>What can become stale without hurting correctness?</li><li>What metric tells you this design is failing before users complain?</li></ul></div>
+    <h3>Why it exists</h3><p>It exists because real systems like Uber hit limits that a single straightforward service cannot handle cleanly: traffic spikes, uneven access patterns, slow dependencies, partial failures, and different consistency needs across reads and writes.</p>
+    <h3>Analogy</h3><p>Think of API Gateway as an airport operations decision. Some passengers need a fast security lane, some luggage can move asynchronously, and some control systems must never accept conflicting state. Good design separates those flows instead of treating all work the same.</p>
+    <h3>Technical depth</h3><p>For API Gateway, start from the user-facing operation, then identify the hot path, source of truth, derived data, coordination boundary, and failure recovery path. A senior answer should discuss p95/p99 latency, write amplification, stale reads, retries, idempotency, data ownership, observability, and how the design changes when one dependency becomes slow or unavailable.</p>
+    <div class="mnemonic"><span class="badge">F.L.O.W.</span><div>Flow, Limit, Ownership, Watchpoints. Explain where the request flows, what limit you are solving, who owns the truth, and what you will watch in production.</div></div>
+    <h3>Architecture diagram</h3>
+    <div class="diagram-frame"><svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Topic-aware system design architecture">
+  <defs><marker id="arrow-topic" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7fd6c6"/></marker></defs>
+  <rect width="900" height="320" rx="10" fill="#10253b"/>
+  <text x="24" y="32" fill="#7fd6c6" font-family="monospace" font-size="13">API Gateway in Uber</text>
+  <g font-family="monospace" font-size="12" fill="#eaf6f2">
+    <rect x="35" y="82" width="125" height="52" rx="5" fill="none" stroke="#7fd6c6"/><text x="98" y="112" text-anchor="middle">Client</text>
+    <rect x="220" y="82" width="145" height="52" rx="5" fill="none" stroke="#7fd6c6"/><text x="292" y="104" text-anchor="middle">API Layer</text><text x="292" y="120" text-anchor="middle" font-size="10">auth, limits</text>
+    <rect x="425" y="82" width="155" height="52" rx="5" fill="none" stroke="#f4d9ad"/><text x="503" y="104" text-anchor="middle">API Gateway</text><text x="503" y="120" text-anchor="middle" font-size="10">decision point</text>
+    <rect x="645" y="42" width="170" height="52" rx="5" fill="none" stroke="#7fd6c6"/><text x="730" y="64" text-anchor="middle">Derived Path</text><text x="730" y="80" text-anchor="middle" font-size="10">cache/index/queue</text>
+    <rect x="645" y="142" width="170" height="52" rx="5" fill="none" stroke="#7fd6c6"/><text x="730" y="164" text-anchor="middle">Source of Truth</text><text x="730" y="180" text-anchor="middle" font-size="10">durable state</text>
+    <rect x="220" y="232" width="360" height="46" rx="5" fill="none" stroke="#7fd6c6" stroke-dasharray="4 3"/><text x="400" y="260" text-anchor="middle">Observability: p99, errors, lag, saturation, correctness drift</text>
+  </g>
+  <g stroke="#7fd6c6" stroke-width="2" fill="none" marker-end="url(#arrow-topic)">
+    <path d="M160 108 H220"/><path d="M365 108 H425"/><path d="M580 100 C610 82 620 70 645 68"/><path d="M580 116 C610 138 620 166 645 168"/><path d="M502 134 V232"/>
+  </g>
+</svg></div>
+    <p class="caption">A generic production flow for applying API Gateway: isolate the user-facing path, protect the source of truth, and observe the async or derived-data path separately.</p>
+    <div class="two-col">
+      <div class="panel"><h3>Real-world example</h3><p>Uber can use API Gateway to keep the product responsive while protecting the parts of the system that require correctness. The exact placement depends on whether the operation is read-heavy, write-heavy, hot-key prone, or failure-sensitive.</p></div>
+      <div class="panel"><h3>Practical design example</h3><p>In a notification or booking-style service, apply API Gateway by naming the synchronous API path, deciding which state is authoritative, placing any cache/queue/index/replica only where its consistency trade-off is acceptable, and adding metrics around saturation and correctness drift.</p></div>
+    </div>
+    <h3>How components interact</h3><p>Client traffic enters through the API layer, which authenticates, rate limits, and routes requests. The application service reads or writes authoritative storage, optionally consults derived infrastructure such as cache, index, queue, or replica, and emits events/metrics so operators can see lag, error rate, retries, and tail latency.</p>
+    <div class="grid">
+      <div class="panel"><h3>Trade-offs</h3><ul><li>API Gateway can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.</li><li>Adding a new infrastructure layer creates ownership questions: who writes it, who invalidates it, who repairs it, and what happens when it lies?</li><li>The simplest correct design is often better until the bottleneck is proven by capacity estimates or production metrics.</li></ul></div>
+      <div class="panel"><h3>When to use it</h3><ul><li>Use it when the bottleneck or correctness problem is clear enough to justify the extra moving part.</li><li>Use it when the system has measurable pressure: hot keys, high fanout, slow downstreams, growing data, or strict availability needs.</li><li>Use it when the operational team can observe and repair the failure modes it introduces.</li></ul></div>
+      <div class="panel"><h3>When not to use it</h3><ul><li>Do not use it only because the keyword sounds impressive in an interview.</li><li>Do not use it before identifying the source of truth and acceptable staleness.</li><li>Do not use it when the product is small enough that the added coordination cost dominates the benefit.</li></ul></div>
+      <div class="panel"><h3>Common mistakes</h3><ul><li>Explaining the component definition but not where it sits in the request flow.</li><li>Ignoring stale data, duplicate retries, partial failure, and backpressure.</li><li>Skipping metrics, alerts, replay/reconciliation, and operational ownership.</li></ul></div>
+      <div class="panel"><h3>Scaling considerations</h3><ul><li>Estimate QPS, peak multiplier, data size, read/write ratio, fanout, and hot-key distribution before choosing the final architecture.</li><li>Track saturation signals such as queue depth, cache hit rate, p99 latency, lock contention, DB CPU, and retry rate.</li><li>Decide how the design changes across regions: local reads, global writes, conflict resolution, and disaster recovery.</li></ul></div>
+      <div class="panel"><h3>Failure scenarios</h3><ul><li>A downstream slows down and causes retries, which increases load and worsens tail latency.</li><li>A derived store becomes stale or unavailable and the service either serves wrong data or overloads the primary store.</li><li>A hot partition receives most traffic and defeats the average-case scaling plan.</li><li>A deploy changes write semantics but old workers or consumers still process messages using the previous contract.</li></ul></div>
+    </div>
+    <h3>Production usage</h3><p>Teams use API Gateway with explicit SLOs, dashboards, load tests, runbooks, and rollback plans. The production version includes ownership and repair paths, not only the happy-path architecture.</p>
+    <div class="panel"><h3>Interview questions</h3><ul><li>Where would you place API Gateway in the Uber request flow?</li><li>Which part of your design is strongly consistent and which part can be eventually consistent?</li><li>What breaks first at 10x traffic?</li><li>How would you detect this component causing user-visible errors?</li></ul></div>
+    <h3>Previous-concept connections</h3><p>This builds on rate-limiting and should be explained in terms of how those earlier ideas interact.</p>
+  </section>
+    <section class="block case-card">
+    <div class="label">03 / Node.js Runtime Concept</div>
+    <h2>Node.js Streams and Backpressure</h2>
+    <h3>Why it matters</h3><p>Streams let a Node service process large payloads without loading everything into memory, but the real production skill is respecting backpressure so a fast producer does not overwhelm a slow consumer.</p>
+    <h3>Mental model</h3><p>Think of a stream pipeline like a conveyor belt with pressure sensors. If the packing station slows down, the belt must slow down too; otherwise boxes pile up until the warehouse runs out of space.</p>
+    <h3>Technical deep dive</h3><p>Readable streams push chunks, writable streams consume chunks, and backpressure is the signal that the writable side&#039;s internal buffer is full. In Node, writable.write(chunk) returning false means the producer should pause until the drain event. pipeline() is safer than manual piping because it forwards errors and closes the whole chain correctly. This matters for uploads, CSV processing, proxies, compression, log ingestion, and any endpoint that handles bodies larger than comfortable memory.</p>
+    <h3>Real-life backend example</h3><p>For a video upload service, stream the incoming request through validation, virus scanning, compression, and object storage upload. The API should never buffer a 2GB file in RAM just to pass it to S3.</p>
+    <div class="grid">
+      <div class="panel"><h3>How to use it</h3><ul><li>Use stream.pipeline() or stream/promises.pipeline() so errors and cleanup propagate through the chain.</li><li>Watch writable.write() and drain if you manually coordinate producer and consumer flow.</li><li>Set highWaterMark deliberately for the object size and latency profile instead of relying blindly on defaults.</li><li>Use Transform streams for chunk-level processing such as compression, parsing, checksums, or redaction.</li></ul></div>
+      <div class="panel"><h3>Production pitfalls</h3><ul><li>Ignoring backpressure can create memory growth that looks like a leak under load.</li><li>Manual pipe chains often miss error handlers and leave sockets or file handles open.</li><li>A Transform stream that performs slow async work without controlling concurrency can reorder or overload downstream systems.</li></ul></div>
+      <div class="panel"><h3>Performance and scaling</h3><ul><li>Streaming keeps per-request memory nearly constant, which improves concurrency under large uploads.</li><li>Backpressure turns overload into slower ingestion instead of process crashes.</li><li>For CPU-heavy transforms, move work to worker threads or an external service because streams do not remove CPU bottlenecks.</li></ul></div>
+      <div class="panel"><h3>Debugging signals</h3><ul><li>Heap usage climbs with request body size or upload concurrency.</li><li>Event loop delay rises while socket throughput drops.</li><li>Writable buffers stay above highWaterMark and drain events become sparse.</li></ul></div>
+    </div>
+    <h3>Code example</h3>
+    <pre><code>import { pipeline } from &quot;node:stream/promises&quot;;
+import { createGzip } from &quot;node:zlib&quot;;
+import { createWriteStream } from &quot;node:fs&quot;;
+
+export async function saveCompressedUpload(request, filePath) {
+  await pipeline(
+    request,
+    createGzip(),
+    createWriteStream(filePath)
+  );
+}</code></pre>
+    <div class="panel"><h3>Node.js interview questions</h3><ul><li>What does backpressure mean in a Node.js stream pipeline?</li><li>Why is pipeline() safer than readable.pipe(writable) in production code?</li><li>How would you debug a Node API whose memory grows during large uploads?</li></ul></div>
+  </section>
+    <section class="block case-card">
+    <div class="label">04 / JavaScript Interview Drill</div>
+    <h2>Closures, this-binding, and hidden state</h2>
+    <div class="panel">
+      <h3>Q1. What does a closure actually retain?</h3>
+      <p>A closure retains references to variables in its lexical environment, not a frozen copy of their values. That is why mutations after function creation can still be observed.</p>
+      <pre><code>function counter() {
+  let n = 0;
+  return () =&gt; ++n;
+}
+const next = counter();
+next(); // 1
+next(); // 2</code></pre>
+      
+    </div><div class="panel">
+      <h3>Q2. Why does this change when a method is passed as a callback?</h3>
+      <p>this is usually determined by the call site, not where the function was defined. Passing obj.method loses the obj.method() call-site binding unless you bind it or wrap it.</p>
+      <pre><code>const user = {
+  name: &quot;Harshit&quot;,
+  print() { return this.name; }
+};
+const fn = user.print;
+fn(); // undefined in strict mode</code></pre>
+      <p><strong>Follow-up:</strong> How would arrow functions change this?</p>
+    </div><div class="panel">
+      <h3>Q3. Why can closures cause memory leaks?</h3>
+      <p>If a long-lived callback closes over a large object, that object cannot be garbage-collected while the callback remains reachable.</p>
+      
+      <p><strong>Follow-up:</strong> Where does this show up in frontend apps and Node servers?</p>
+    </div><div class="panel">
+      <h3>Q4. What is the practical difference between call, apply, and bind?</h3>
+      <p>call invokes immediately with positional arguments, apply invokes immediately with an argument array, and bind returns a new function with this and optional arguments preset.</p>
+      
+      
+    </div>
+  </section>
+    <section class="block case-card">
+    <div class="label">05 / DSA Pattern in Java</div>
+    <h2>Binary Search on Answers</h2>
+    <p class="lede">Study Split Array Largest Sum as the representative problem for Binary Search on Answers. The goal is to learn the reusable invariant, not memorize one implementation.</p>
+    <div class="challenge"><h3>Invariant</h3><ul><li>At every step, the maintained state contains exactly the information needed to answer future decisions for Binary Search on Answers; anything not in the state is either irrelevant or already folded into the answer.</li></ul></div>
+    <div class="panel"><h3>Examples</h3><ul><li>Representative problem: Split Array Largest Sum.</li><li>Related variants: Split Array Largest Sum, Minimum Number of Days to Make Bouquets, Median of Two Sorted Arrays.</li><li>For each variant, identify what state must be carried forward and what condition makes a decision final.</li></ul></div>
+    <div class="two-col">
+      <div class="panel"><h3>Constraints</h3><ul><li>Assume interview-size constraints where O(n^2) usually times out unless n is small.</li><li>Handle duplicates, empty input, boundary values, and adversarial ordering.</li><li>Prefer a proof-oriented invariant over a code-first explanation.</li></ul></div>
+      <div class="panel"><h3>What to notice</h3><ul><li>Binary Search on Answers usually has a repeated decision that can be made locally once the right state is maintained.</li><li>The hard part is choosing the state representation and proving when it is safe to update the answer.</li><li>Variants often change the stored state, not the entire strategy.</li></ul></div>
+    </div>
+    <h3>Brute force</h3><p>Generate every candidate state or subproblem and check it directly. This is useful to discover the invariant, but it repeats work that the optimized pattern should reuse.</p>
+    <h3>Why it is insufficient</h3><p>The brute-force version usually revisits overlapping choices. In interviews, the expected jump is to compress repeated work into a maintained structure, monotonic condition, recurrence, or boundary invariant.</p>
+    <h3>Core intuition</h3><p>For Binary Search on Answers, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?</p>
+    <h3>Optimal approach</h3><p>Solve Split Array Largest Sum by naming the invariant first, then implementing the smallest state that preserves that invariant. Walk through one non-trivial example and explain why each update is safe.</p>
+    <div class="panel"><h3>Step-by-step</h3><ol><li>Write the brute-force condition in plain English.</li><li>Underline the repeated work.</li><li>Define the invariant that would let one pass or one recurrence replace repeated scanning.</li><li>Choose the data structure that stores exactly that invariant.</li><li>Trace the update order carefully and test the edge case that breaks naive solutions.</li></ol></div>
+    <h3>Trace template for Split Array Largest Sum</h3>
+    <div class="array-row">
+      <div class="cell hit"><span class="idx">i=0</span>base</div><div class="cell"><span class="idx">i=1</span>state</div><div class="cell hit"><span class="idx">i=2</span>answer</div>
+    </div>
+    <ol><li>Start with the empty/base state.</li><li>Process the first meaningful element and ask what old state it needs.</li><li>Update answer before or after state mutation based on whether self-use is allowed.</li><li>Repeat until the invariant feels mechanical.</li></ol>
+    <h3>Java solution</h3>
+    <pre><code>import java.util.*;
 
 class Solution {
-    public int subarraySum(int[] nums, int k) {
-        Map&lt;Integer, Integer&gt; prefixCount = new HashMap&lt;&gt;();
-        prefixCount.put(0, 1);
-        int prefix = 0;
+    public int solvePatternExample(int[] nums) {
+        Map&lt;Integer, Integer&gt; state = new HashMap&lt;&gt;();
         int answer = 0;
-        for (int n : nums) {
-            prefix += n;
-            answer += prefixCount.getOrDefault(prefix - k, 0);
-            prefixCount.put(prefix, prefixCount.getOrDefault(prefix, 0) + 1);
+        int running = 0;
+        state.put(0, 1);
+
+        for (int value : nums) {
+            running += value;
+            answer += state.getOrDefault(running, 0);
+            state.put(running, state.getOrDefault(running, 0) + 1);
         }
+
         return answer;
     }
-
-    public int longestConsecutive(int[] nums) {
-        Set&lt;Integer&gt; values = new HashSet&lt;&gt;();
-        for (int n : nums) {
-            values.add(n);
-        }
-        int best = 0;
-        for (int n : values) {
-            if (!values.contains(n - 1)) {
-                int current = n;
-                while (values.contains(current)) current++;
-                best = Math.max(best, current - n);
-            }
-        }
-        return best;
-    }
-
-    public List&lt;List&lt;String&gt;&gt; groupAnagramsByCount(String[] strs) {
-        Map&lt;String, List&lt;String&gt;&gt; groups = new HashMap&lt;&gt;();
-        for (String word : strs) {
-            int[] count = new int[26];
-            for (char c : word.toCharArray()) count[c - &#039;a&#039;]++;
-            String key = Arrays.toString(count);
-            groups.computeIfAbsent(key, ignored -&gt; new ArrayList&lt;&gt;()).add(word);
-        }
-        return new ArrayList&lt;&gt;(groups.values());
-    }
 }</code></pre>
-      <h3>Complexities</h3><p>Subarray Sum Equals K is O(n) time and O(n) space. Longest Consecutive is amortized O(n) time and O(n) space because each range is expanded from only its start. Count-key anagrams are O(n * k) time and O(n * k) space.</p>
-      <div class="grid">
-        <div class="card"><h3>Mistakes</h3><ul><li>Using sliding window for subarray sum when negatives are allowed.</li><li>Expanding every number in Longest Consecutive instead of only sequence starts.</li><li>Sorting anagram strings by habit when a frequency key gives a cleaner O(k) key for fixed alphabets.</li></ul></div>
-        <div class="card"><h3>Recognition clues</h3><ul><li>Subarray plus target sum plus negative numbers often points to prefix sum counts.</li><li>Longest consecutive or range stitching often points to hash-set boundary starts.</li><li>Group by same multiset of characters points to a frequency signature key.</li></ul></div>
-      </div>
-      <div class="mnemonic"><span class="badge">K.I.P.</span><div>Key, invariant, proof. If you cannot name the key and prove what it preserves, you are probably just using a map by reflex.</div></div>
-      
+    <h3>Complexities</h3><p>The optimized target is usually O(n), O(n log n), or O(states * transitions), depending on the pattern. Space is whatever state is required to preserve the invariant.</p>
+    <div class="two-col">
+      <div class="panel"><h3>Mistakes</h3><ul><li>Choosing a data structure before naming the invariant.</li><li>Updating state before using the old state when the problem asks about previous candidates.</li><li>Testing only the happy path and missing duplicates, negatives, or boundary cases.</li></ul></div>
+      <div class="panel"><h3>Recognition clues</h3><ul><li>The problem has overlapping checks or repeated scans.</li><li>A local state can summarize many earlier candidates.</li><li>A variant changes constraints slightly but keeps the same proof shape.</li></ul></div>
+    </div>
+    <div class="mnemonic"><span class="badge">I.S.P.</span><div>Invariant, State, Proof. If those three are clear, the code is usually straightforward.</div></div>
     <h3>Variant walkthroughs</h3>
-    
-      <div class="card">
-        <h3>Subarray Sum Equals K</h3>
-        <p>Store prefix sum to count, because every previous prefix equal to currentPrefix - k creates one valid subarray.</p>
-        <pre><code>Map&lt;Integer, Integer&gt; count = new HashMap&lt;&gt;();
-count.put(0, 1);
-int prefix = 0, answer = 0;
-for (int n : nums) {
-    prefix += n;
-    answer += count.getOrDefault(prefix - k, 0);
-    count.put(prefix, count.getOrDefault(prefix, 0) + 1);
-}</code></pre>
-        <p><strong>Complexity:</strong> O(n) time, O(n) space.</p>
-      </div>
-    
-      <div class="card">
-        <h3>Longest Consecutive Sequence</h3>
-        <p>Store membership, but only expand when n - 1 is absent. That boundary test prevents repeated range work.</p>
-        <pre><code>Set&lt;Integer&gt; values = new HashSet&lt;&gt;();
-for (int n : nums) values.add(n);
-int best = 0;
-for (int n : values) {
-    if (!values.contains(n - 1)) {
-        int cur = n;
-        while (values.contains(cur)) cur++;
-        best = Math.max(best, cur - n);
-    }
-}</code></pre>
-        <p><strong>Complexity:</strong> Amortized O(n) time, O(n) space.</p>
-      </div>
-    
-      <div class="card">
-        <h3>Group Anagrams with Frequency Keys</h3>
-        <p>Store character-count signature to list. Same letters with different order collapse into the same key without sorting.</p>
-        <pre><code>Map&lt;String, List&lt;String&gt;&gt; groups = new HashMap&lt;&gt;();
-for (String word : strs) {
-    int[] count = new int[26];
-    for (char c : word.toCharArray()) count[c - &#039;a&#039;]++;
-    String key = Arrays.toString(count);
-    groups.computeIfAbsent(key, ignored -&gt; new ArrayList&lt;&gt;()).add(word);
-}</code></pre>
-        <p><strong>Complexity:</strong> O(n * k) time for fixed alphabet, O(n * k) space.</p>
-      </div>
-    
-  
-      <div class="card"><h3>Exactly what changes across variants</h3><ul><li>Subarray Sum stores prefix sum -&gt; count because multiple earlier prefixes may create valid subarrays.</li><li>Longest Consecutive stores membership and only expands from boundary starts.</li><li>Group Anagrams stores frequency signature -&gt; list because the answer is grouped output.</li></ul></div>
-      <h3>Transfer learning</h3><p>If you understand this family, you should now recognize prefix-count problems, range-boundary problems, and canonical-grouping problems. What remains the same is collapsing repeated candidate checks into one key lookup. What changes is whether the key stores count, existence, or grouped payload. The intuition still works when the key preserves all answer-relevant history; it stops working when order, adjacency, monotonicity, or global optimization cannot be encoded in that key.</p>
-    </section>
-
-    <section class="topic quiz">
-      <span class="topic-tab alt">04 / Self-test</span>
-      <h2>Close-the-tab test</h2>
-      <p class="lede">Answer first, then expand. The goal is active recall, not rereading.</p>
-      <details><summary>1. What single formula connects latency, throughput, and concurrency?</summary><div class="answer">Little&#039;s Law: L = lambda x W. In-flight requests equal arrival rate times average latency.</div></details><details><summary>2. p99 latency triples while arrival rate stays constant. What happens to in-flight requests?</summary><div class="answer">They roughly triple, which can exhaust thread pools, connection pools, and queues.</div></details><details><summary>3. Why is average latency misleading in interviews?</summary><div class="answer">It hides the long tail. p95 and p99 describe the users most likely to experience timeouts.</div></details><details><summary>4. Why does Subarray Sum Equals K need prefix counts rather than a set?</summary><div class="answer">Because multiple earlier prefixes can create multiple valid subarrays ending at the same index.</div></details><details><summary>5. What is the shared invariant across advanced hashing problems?</summary><div class="answer">Design a key that preserves exactly the useful history, then use one lookup instead of scanning old candidates.</div></details>
-    </section>
-
-    
-    <section class="sr">
-      <div class="sr-head">Review schedule</div>
-      <div class="sr-body">
-        <div class="sr-cell"><div class="d">+1 day</div><div class="date">Tue, Sep 1</div></div><div class="sr-cell"><div class="d">+3 days</div><div class="date">Thu, Sep 3</div></div><div class="sr-cell"><div class="d">+7 days</div><div class="date">Mon, Sep 7</div></div><div class="sr-cell"><div class="d">+16 days</div><div class="date">Wed, Sep 16</div></div>
-      </div>
-    </section>
-  
+    <div class="panel">
+      <h3>Split Array Largest Sum</h3>
+      <p>For Split Array Largest Sum, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Binary Search on Answers, but the state payload changes.</p>
+      <pre><code>/* Write the invariant first, then implement the state transition for this variant. */</code></pre>
+      <p><strong>Complexity:</strong> Depends on the chosen state, but should beat the brute-force baseline.</p>
+    </div><div class="panel">
+      <h3>Minimum Number of Days to Make Bouquets</h3>
+      <p>For Minimum Number of Days to Make Bouquets, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Binary Search on Answers, but the state payload changes.</p>
+      <pre><code>/* Write the invariant first, then implement the state transition for this variant. */</code></pre>
+      <p><strong>Complexity:</strong> Depends on the chosen state, but should beat the brute-force baseline.</p>
+    </div><div class="panel">
+      <h3>Median of Two Sorted Arrays</h3>
+      <p>For Median of Two Sorted Arrays, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Binary Search on Answers, but the state payload changes.</p>
+      <pre><code>/* Write the invariant first, then implement the state transition for this variant. */</code></pre>
+      <p><strong>Complexity:</strong> Depends on the chosen state, but should beat the brute-force baseline.</p>
+    </div>
+    <div class="panel"><h3>Exactly what changes across variants</h3><ul><li>The invariant may stay the same while the stored value changes from existence to count, index, min/max, or parent pointer.</li><li>The traversal order may change when the problem moves from array order to sorted order, graph order, or dependency order.</li><li>The proof changes when duplicates, negative values, cycles, or online updates are introduced.</li></ul></div>
+    <h3>Transfer learning</h3><p>After Split Array Largest Sum, transfer the idea by asking what remains invariant across Split Array Largest Sum, Minimum Number of Days to Make Bouquets, Median of Two Sorted Arrays. The surface story changes, but the reusable move is compressing repeated decisions into a state you can defend.</p>
+  </section>
+    <section class="recall">
+    <div class="label">Evidence to Remember</div>
+    <h2>60-second recall</h2>
+    <ul><li>API Gateway is not just a component name; it is a decision about where correctness, latency, cost, and operational complexity should sit.</li><li>For Uber, the interview answer should explain request flow, bottlenecks, failure behavior, and what becomes stale or strongly consistent.</li><li>Binary Search on Answers becomes easier when you name the invariant before choosing the data structure.</li></ul>
+  </section>
+    <section class="block self-test">
+    <div class="label">06 / Self Test</div>
+    <h2>Close-the-tab test</h2>
+    <p class="lede">Answer first, then expand. This is for active recall, not rereading.</p>
+    <details><summary>1. What problem does API Gateway solve in production?</summary><div class="answer">A front door for routing, auth, limits, and cross-cutting API concerns.</div></details><details><summary>2. What is the source of truth in today&#039;s system design?</summary><div class="answer">The durable store or authority that final writes must agree with; derived caches, queues, and indexes must be repairable from it.</div></details><details><summary>3. What is the invariant behind Binary Search on Answers?</summary><div class="answer">Maintain exactly the state future decisions need; discard or fold in everything else.</div></details><details><summary>4. What makes a JavaScript interview answer strong?</summary><div class="answer">It explains the runtime or language rule, shows a small example, and names the production consequence.</div></details>
+  </section>
+    <section class="review">
+    <div class="review-head">Review schedule</div>
+    <div class="review-body">
+      <div class="review-cell"><span>+1 day</span><b>Tue, Sep 1</b></div><div class="review-cell"><span>+3 days</span><b>Thu, Sep 3</b></div><div class="review-cell"><span>+7 days</span><b>Mon, Sep 7</b></div><div class="review-cell"><span>+16 days</span><b>Wed, Sep 16</b></div>
+    </div>
+  </section>
   </main>
 </body>
 </html>
