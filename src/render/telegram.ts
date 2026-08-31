@@ -2,6 +2,8 @@ import type { GeneratedLesson } from "../types.js";
 
 export function renderTelegram(lesson: GeneratedLesson): string {
   const sd = lesson.systemDesign;
+  const node = lesson.nodejs;
+  const js = lesson.javascriptInterview;
   const dsa = lesson.dsa;
   const text = [
     `${lesson.mode === "weekly-review" ? "Sunday Mastery" : "Daily Lesson"}: ${lesson.title}`,
@@ -10,6 +12,17 @@ export function renderTelegram(lesson: GeneratedLesson): string {
     `Core idea: ${sd.simpleConcept}`,
     `Trade-off: ${sd.tradeOffs[0]}`,
     `Engineer question: ${sd.thinkLikeEngineerQuestions[0]}`,
+    "",
+    `Mock Interview: Design ${lesson.mockInterview.systemName}`,
+    `Focus: ${lesson.mockInterview.followUpQuestions[0]}`,
+    "",
+    `Node.js: ${node.concept}`,
+    `Use it for: ${node.howToUseIt[0]}`,
+    `Watch: ${node.productionPitfalls[0]}`,
+    "",
+    `JS Interview: ${js.theme}`,
+    `Question: ${js.questions[0]?.question}`,
+    `Answer: ${js.questions[0]?.answer}`,
     "",
     `DSA: ${dsa.pattern}`,
     `Notice: ${dsa.whatToNotice[0]}`,

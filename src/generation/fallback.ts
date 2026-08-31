@@ -132,6 +132,8 @@ export function fallbackLesson(selection: LessonSelection): GeneratedLesson {
       ],
       fiveMinuteAnswer: "I would split BookMyShow into discovery, inventory, booking, payment, and notification services. Discovery reads movie, theatre, and show metadata from cache because it is read-heavy and can tolerate slight staleness. Seat booking goes through an inventory service backed by strongly consistent conditional updates on ShowSeat rows. A user creates a short hold with an idempotency key; if every requested seat is available or expired, the system marks those seats held with a lock ID and TTL. Payment then proceeds against that booking. Provider callbacks are handled idempotently: success confirms only seats held by that booking, failure or timeout releases them. For scale, I would cache metadata, protect hot shows with rate limits or waiting rooms, monitor lock contention and payment lag, and run reconciliation for expired holds and callback mismatches. The main trade-off is that browsing can be eventually consistent, but final seat ownership must be strongly consistent."
     },
+    nodejs: nodeFallback(selection),
+    javascriptInterview: javascriptInterviewFallback(selection),
     dsa: {
       patternId: pattern.id,
       pattern: pattern.title,
@@ -240,7 +242,8 @@ class Solution {
       passed: true,
       notes: ["Local fallback lesson contains every required section, retention mechanics, rendered SVG, and DSA variant walkthroughs."]
     },
-    telegramSummary: `${weekly ? "Sunday mastery" : "Daily lesson"}: ${topic.title} + ${pattern.title}\n\nSystem Design: Little's Law is L = lambda x W. If latency rises at the same arrival rate, in-flight requests rise too.\n\nMock interview: BookMyShow. Focus on seat holds, idempotent payment callbacks, hot-show contention, and strong consistency for final booking.\n\nDSA: ${pattern.title} = invent the key that preserves useful history. Prefix sum counts, boundary sets, and frequency signatures are three high-density variants.`
+    telegramSummary: `${weekly ? "Sunday mastery" : "Daily lesson"}: ${topic.title} + ${pattern.title}\n\nSystem Design: Little's Law is L = lambda x W. If latency rises at the same arrival rate, in-flight requests rise too.\n\nMock interview: BookMyShow. Focus on seat holds, idempotent payment callbacks, hot-show contention, and strong consistency for final booking.\n\nDSA: ${pattern.title} = invent the key that preserves useful history. Prefix sum counts, boundary sets, and frequency signatures are three high-density variants.`,
+    ...freshFallbackOverrides(selection)
   };
 }
 
@@ -265,6 +268,389 @@ function latencyThroughputSvg(): string {
   <text x="640" y="150" fill="#7fd6c6" font-family="monospace" font-size="10">fast read path: latency-bound</text>
   <text x="500" y="245" fill="#f4d9ad" font-family="monospace" font-size="10">durable write path: throughput-bound</text>
 </svg>`;
+}
+
+function nodeFallback(selection: LessonSelection): GeneratedLesson["nodejs"] {
+  const concepts: Array<GeneratedLesson["nodejs"]> = [
+    {
+      conceptId: "streams-backpressure",
+      concept: "Node.js Streams and Backpressure",
+      whyItMatters: "Streams let a Node service process large payloads without loading everything into memory, but the real production skill is respecting backpressure so a fast producer does not overwhelm a slow consumer.",
+      mentalModel: "Think of a stream pipeline like a conveyor belt with pressure sensors. If the packing station slows down, the belt must slow down too; otherwise boxes pile up until the warehouse runs out of space.",
+      technicalDeepDive: "Readable streams push chunks, writable streams consume chunks, and backpressure is the signal that the writable side's internal buffer is full. In Node, writable.write(chunk) returning false means the producer should pause until the drain event. pipeline() is safer than manual piping because it forwards errors and closes the whole chain correctly. This matters for uploads, CSV processing, proxies, compression, log ingestion, and any endpoint that handles bodies larger than comfortable memory.",
+      realLifeExample: "For a video upload service, stream the incoming request through validation, virus scanning, compression, and object storage upload. The API should never buffer a 2GB file in RAM just to pass it to S3.",
+      howToUseIt: [
+        "Use stream.pipeline() or stream/promises.pipeline() so errors and cleanup propagate through the chain.",
+        "Watch writable.write() and drain if you manually coordinate producer and consumer flow.",
+        "Set highWaterMark deliberately for the object size and latency profile instead of relying blindly on defaults.",
+        "Use Transform streams for chunk-level processing such as compression, parsing, checksums, or redaction."
+      ],
+      productionPitfalls: [
+        "Ignoring backpressure can create memory growth that looks like a leak under load.",
+        "Manual pipe chains often miss error handlers and leave sockets or file handles open.",
+        "A Transform stream that performs slow async work without controlling concurrency can reorder or overload downstream systems."
+      ],
+      performanceAndScaling: [
+        "Streaming keeps per-request memory nearly constant, which improves concurrency under large uploads.",
+        "Backpressure turns overload into slower ingestion instead of process crashes.",
+        "For CPU-heavy transforms, move work to worker threads or an external service because streams do not remove CPU bottlenecks."
+      ],
+      debuggingSignals: [
+        "Heap usage climbs with request body size or upload concurrency.",
+        "Event loop delay rises while socket throughput drops.",
+        "Writable buffers stay above highWaterMark and drain events become sparse."
+      ],
+      codeExample: `import { pipeline } from "node:stream/promises";
+import { createGzip } from "node:zlib";
+import { createWriteStream } from "node:fs";
+
+export async function saveCompressedUpload(request, filePath) {
+  await pipeline(
+    request,
+    createGzip(),
+    createWriteStream(filePath)
+  );
+}`,
+      interviewQuestions: [
+        "What does backpressure mean in a Node.js stream pipeline?",
+        "Why is pipeline() safer than readable.pipe(writable) in production code?",
+        "How would you debug a Node API whose memory grows during large uploads?"
+      ]
+    },
+    {
+      conceptId: "worker-threads-cpu-bound",
+      concept: "Worker Threads for CPU-Bound Node.js Work",
+      whyItMatters: "Node handles I/O concurrency well, but CPU-heavy JavaScript blocks the event loop and makes every request slower. Worker threads let you isolate CPU work without freezing the main server.",
+      mentalModel: "The event loop is the receptionist. It can coordinate many calls, but it should not personally do a three-hour spreadsheet calculation while callers wait.",
+      technicalDeepDive: "Worker threads run JavaScript in separate V8 isolates with their own event loops. They communicate through messages, transferable objects, SharedArrayBuffer, and Atomics when needed. They are useful for image processing, crypto-heavy work, report generation, parsing huge files, compression, and ML-style computation. They are not a general replacement for async I/O; database and network calls should remain non-blocking in the main process.",
+      realLifeExample: "A reporting API receives a request to generate a large PDF from thousands of records. The main Node server validates and schedules the work, while a worker thread performs layout and compression so normal API requests keep responding.",
+      howToUseIt: [
+        "Keep the HTTP server and routing on the main thread.",
+        "Send CPU-heavy jobs to a bounded worker pool rather than spawning unlimited workers.",
+        "Transfer ArrayBuffer data when possible to avoid expensive copies.",
+        "Add timeout and cancellation behavior so stuck jobs do not occupy workers forever."
+      ],
+      productionPitfalls: [
+        "Creating a worker per request can exhaust memory faster than it solves event-loop blocking.",
+        "Large message payloads can spend more time serializing than computing.",
+        "Shared memory requires careful synchronization and can introduce hard-to-debug races."
+      ],
+      performanceAndScaling: [
+        "Use a pool size close to available CPU cores minus capacity needed by the main process.",
+        "Track queue depth and worker utilization, not just average job latency.",
+        "Move very heavy or long-running work to a separate job system if it outgrows in-process workers."
+      ],
+      debuggingSignals: [
+        "High event-loop delay while CPU usage is high.",
+        "Fast endpoints become slow only when expensive calculations run.",
+        "Worker queue depth grows while process memory climbs."
+      ],
+      codeExample: `import { Worker } from "node:worker_threads";
+
+export function runCpuJob(payload) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(new URL("./cpu-job.js", import.meta.url), {
+      workerData: payload
+    });
+    worker.once("message", resolve);
+    worker.once("error", reject);
+    worker.once("exit", (code) => {
+      if (code !== 0) reject(new Error(\`Worker stopped with code \${code}\`));
+    });
+  });
+}`,
+      interviewQuestions: [
+        "Why does CPU-bound work hurt a Node.js server more than slow I/O?",
+        "When would you use worker threads instead of a queue and separate worker service?",
+        "What metrics prove that worker threads helped rather than just moved the bottleneck?"
+      ]
+    }
+  ];
+  const index = (selection.systemDesignTopic.id.length + selection.dsaPattern.id.length + selection.date.length) % concepts.length;
+  return concepts[index];
+}
+
+function javascriptInterviewFallback(selection: LessonSelection): GeneratedLesson["javascriptInterview"] {
+  const usePromises = selection.dsaPattern.id.length % 2 === 0;
+  if (usePromises) {
+    return {
+      theme: "Promise scheduling, microtasks, and concurrency control",
+      questions: [
+        {
+          question: "What runs first: a resolved Promise callback, setTimeout(..., 0), or synchronous code?",
+          answer: "Synchronous code runs first. Promise callbacks run next in the microtask queue after the current call stack finishes. setTimeout callbacks run later in the macrotask/timer phase.",
+          code: `console.log("A");
+setTimeout(() => console.log("B"), 0);
+Promise.resolve().then(() => console.log("C"));
+console.log("D");
+// A, D, C, B`,
+          followUp: "Explain why too many microtasks can starve timers and I/O callbacks."
+        },
+        {
+          question: "Why is Promise.all dangerous for unbounded work?",
+          answer: "Promise.all starts all promises immediately if you create them first. For thousands of network calls, that can overload your service, the remote service, sockets, memory, and rate limits.",
+          code: `async function runWithLimit(items, limit, task) {
+  const results = [];
+  let next = 0;
+  async function worker() {
+    while (next < items.length) {
+      const i = next++;
+      results[i] = await task(items[i]);
+    }
+  }
+  await Promise.all(Array.from({ length: limit }, worker));
+  return results;
+}`,
+          followUp: "How would you add retries without breaking ordering?"
+        },
+        {
+          question: "What is the difference between Promise.all and Promise.allSettled?",
+          answer: "Promise.all fails fast when any input rejects. Promise.allSettled waits for every input and returns fulfilled/rejected results, which is better for partial success workflows.",
+          followUp: "Which would you use for sending 1,000 optional notifications?"
+        },
+        {
+          question: "How do you cancel async work in modern JavaScript?",
+          answer: "Use AbortController and pass its signal into APIs that support cancellation, such as fetch. Cancellation is cooperative; your code must observe the signal and stop work."
+        }
+      ]
+    };
+  }
+  return {
+    theme: "Closures, this-binding, and hidden state",
+    questions: [
+      {
+        question: "What does a closure actually retain?",
+        answer: "A closure retains references to variables in its lexical environment, not a frozen copy of their values. That is why mutations after function creation can still be observed.",
+        code: `function counter() {
+  let n = 0;
+  return () => ++n;
+}
+const next = counter();
+next(); // 1
+next(); // 2`
+      },
+      {
+        question: "Why does this change when a method is passed as a callback?",
+        answer: "this is usually determined by the call site, not where the function was defined. Passing obj.method loses the obj.method() call-site binding unless you bind it or wrap it.",
+        code: `const user = {
+  name: "Harshit",
+  print() { return this.name; }
+};
+const fn = user.print;
+fn(); // undefined in strict mode`,
+        followUp: "How would arrow functions change this?"
+      },
+      {
+        question: "Why can closures cause memory leaks?",
+        answer: "If a long-lived callback closes over a large object, that object cannot be garbage-collected while the callback remains reachable.",
+        followUp: "Where does this show up in frontend apps and Node servers?"
+      },
+      {
+        question: "What is the practical difference between call, apply, and bind?",
+        answer: "call invokes immediately with positional arguments, apply invokes immediately with an argument array, and bind returns a new function with this and optional arguments preset."
+      }
+    ]
+  };
+}
+
+function freshFallbackOverrides(selection: LessonSelection): Partial<GeneratedLesson> {
+  const topic = selection.systemDesignTopic;
+  const pattern = selection.dsaPattern;
+  const example = topic.exampleSystems[0] || "a high-scale product";
+  const problem = pattern.sampleProblems[0] || pattern.title;
+  const weekly = selection.mode === "weekly-review";
+  return {
+    title: weekly ? `Sunday Mastery: ${topic.title} + ${pattern.title}` : `${topic.title} + ${pattern.title}`,
+    recall: [
+      `${topic.title} is not just a component name; it is a decision about where correctness, latency, cost, and operational complexity should sit.`,
+      `For ${example}, the interview answer should explain request flow, bottlenecks, failure behavior, and what becomes stale or strongly consistent.`,
+      `${pattern.title} becomes easier when you name the invariant before choosing the data structure.`
+    ],
+    systemDesign: {
+      topicId: topic.id,
+      topic: topic.title,
+      simpleConcept: `${topic.title} is the design tool used when ${topic.summary.toLowerCase()} In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.`,
+      whyItExists: `It exists because real systems like ${example} hit limits that a single straightforward service cannot handle cleanly: traffic spikes, uneven access patterns, slow dependencies, partial failures, and different consistency needs across reads and writes.`,
+      analogy: `Think of ${topic.title} as an airport operations decision. Some passengers need a fast security lane, some luggage can move asynchronously, and some control systems must never accept conflicting state. Good design separates those flows instead of treating all work the same.`,
+      technicalDepth: `For ${topic.title}, start from the user-facing operation, then identify the hot path, source of truth, derived data, coordination boundary, and failure recovery path. A senior answer should discuss p95/p99 latency, write amplification, stale reads, retries, idempotency, data ownership, observability, and how the design changes when one dependency becomes slow or unavailable.`,
+      diagram: topicAwareSvg(topic.title, example),
+      diagramCaption: `A generic production flow for applying ${topic.title}: isolate the user-facing path, protect the source of truth, and observe the async or derived-data path separately.`,
+      realWorldExample: `${example} can use ${topic.title} to keep the product responsive while protecting the parts of the system that require correctness. The exact placement depends on whether the operation is read-heavy, write-heavy, hot-key prone, or failure-sensitive.`,
+      practicalDesignExample: `In a notification or booking-style service, apply ${topic.title} by naming the synchronous API path, deciding which state is authoritative, placing any cache/queue/index/replica only where its consistency trade-off is acceptable, and adding metrics around saturation and correctness drift.`,
+      componentInteraction: `Client traffic enters through the API layer, which authenticates, rate limits, and routes requests. The application service reads or writes authoritative storage, optionally consults derived infrastructure such as cache, index, queue, or replica, and emits events/metrics so operators can see lag, error rate, retries, and tail latency.`,
+      tradeOffs: [
+        `${topic.title} can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.`,
+        "Adding a new infrastructure layer creates ownership questions: who writes it, who invalidates it, who repairs it, and what happens when it lies?",
+        "The simplest correct design is often better until the bottleneck is proven by capacity estimates or production metrics."
+      ],
+      whenToUse: [
+        "Use it when the bottleneck or correctness problem is clear enough to justify the extra moving part.",
+        "Use it when the system has measurable pressure: hot keys, high fanout, slow downstreams, growing data, or strict availability needs.",
+        "Use it when the operational team can observe and repair the failure modes it introduces."
+      ],
+      whenNotToUse: [
+        "Do not use it only because the keyword sounds impressive in an interview.",
+        "Do not use it before identifying the source of truth and acceptable staleness.",
+        "Do not use it when the product is small enough that the added coordination cost dominates the benefit."
+      ],
+      commonMistakes: [
+        "Explaining the component definition but not where it sits in the request flow.",
+        "Ignoring stale data, duplicate retries, partial failure, and backpressure.",
+        "Skipping metrics, alerts, replay/reconciliation, and operational ownership."
+      ],
+      scalingConsiderations: [
+        "Estimate QPS, peak multiplier, data size, read/write ratio, fanout, and hot-key distribution before choosing the final architecture.",
+        "Track saturation signals such as queue depth, cache hit rate, p99 latency, lock contention, DB CPU, and retry rate.",
+        "Decide how the design changes across regions: local reads, global writes, conflict resolution, and disaster recovery."
+      ],
+      failureScenarios: [
+        "A downstream slows down and causes retries, which increases load and worsens tail latency.",
+        "A derived store becomes stale or unavailable and the service either serves wrong data or overloads the primary store.",
+        "A hot partition receives most traffic and defeats the average-case scaling plan.",
+        "A deploy changes write semantics but old workers or consumers still process messages using the previous contract."
+      ],
+      productionUsage: `Teams use ${topic.title} with explicit SLOs, dashboards, load tests, runbooks, and rollback plans. The production version includes ownership and repair paths, not only the happy-path architecture.`,
+      interviewQuestions: [
+        `Where would you place ${topic.title} in the ${example} request flow?`,
+        "Which part of your design is strongly consistent and which part can be eventually consistent?",
+        "What breaks first at 10x traffic?",
+        "How would you detect this component causing user-visible errors?"
+      ],
+      previousConceptConnections: topic.prerequisites.length > 0 ? `This builds on ${topic.prerequisites.join(", ")} and should be explained in terms of how those earlier ideas interact.` : "This is a foundation for later topics such as caching, queues, partitioning, consistency, and reliability.",
+      thinkLikeEngineerQuestions: [
+        "What is the source of truth?",
+        "What can become stale without hurting correctness?",
+        "What metric tells you this design is failing before users complain?"
+      ],
+      mnemonic: {
+        label: "F.L.O.W.",
+        text: "Flow, Limit, Ownership, Watchpoints. Explain where the request flows, what limit you are solving, who owns the truth, and what you will watch in production."
+      }
+    },
+    dsa: {
+      patternId: pattern.id,
+      pattern: pattern.title,
+      problemStatement: `Study ${problem} as the representative problem for ${pattern.title}. The goal is to learn the reusable invariant, not memorize one implementation.`,
+      examples: [
+        `Representative problem: ${problem}.`,
+        `Related variants: ${pattern.sampleProblems.join(", ")}.`,
+        "For each variant, identify what state must be carried forward and what condition makes a decision final."
+      ],
+      constraints: [
+        "Assume interview-size constraints where O(n^2) usually times out unless n is small.",
+        "Handle duplicates, empty input, boundary values, and adversarial ordering.",
+        "Prefer a proof-oriented invariant over a code-first explanation."
+      ],
+      whatToNotice: [
+        `${pattern.title} usually has a repeated decision that can be made locally once the right state is maintained.`,
+        "The hard part is choosing the state representation and proving when it is safe to update the answer.",
+        "Variants often change the stored state, not the entire strategy."
+      ],
+      bruteForce: "Generate every candidate state or subproblem and check it directly. This is useful to discover the invariant, but it repeats work that the optimized pattern should reuse.",
+      whyInsufficient: "The brute-force version usually revisits overlapping choices. In interviews, the expected jump is to compress repeated work into a maintained structure, monotonic condition, recurrence, or boundary invariant.",
+      coreIntuition: `For ${pattern.title}, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?`,
+      optimalApproach: `Solve ${problem} by naming the invariant first, then implementing the smallest state that preserves that invariant. Walk through one non-trivial example and explain why each update is safe.`,
+      stepByStep: [
+        "Write the brute-force condition in plain English.",
+        "Underline the repeated work.",
+        "Define the invariant that would let one pass or one recurrence replace repeated scanning.",
+        "Choose the data structure that stores exactly that invariant.",
+        "Trace the update order carefully and test the edge case that breaks naive solutions."
+      ],
+      javaCode: `import java.util.*;
+
+class Solution {
+    public int solvePatternExample(int[] nums) {
+        Map<Integer, Integer> state = new HashMap<>();
+        int answer = 0;
+        int running = 0;
+        state.put(0, 1);
+
+        for (int value : nums) {
+            running += value;
+            answer += state.getOrDefault(running, 0);
+            state.put(running, state.getOrDefault(running, 0) + 1);
+        }
+
+        return answer;
+    }
+}`,
+      complexities: "The optimized target is usually O(n), O(n log n), or O(states * transitions), depending on the pattern. Space is whatever state is required to preserve the invariant.",
+      mistakes: [
+        "Choosing a data structure before naming the invariant.",
+        "Updating state before using the old state when the problem asks about previous candidates.",
+        "Testing only the happy path and missing duplicates, negatives, or boundary cases."
+      ],
+      recognitionClues: [
+        "The problem has overlapping checks or repeated scans.",
+        "A local state can summarize many earlier candidates.",
+        "A variant changes constraints slightly but keeps the same proof shape."
+      ],
+      variations: pattern.sampleProblems,
+      relatedProblems: pattern.sampleProblems.slice(0, 3),
+      exactlyWhatChangesAcrossVariants: [
+        "The invariant may stay the same while the stored value changes from existence to count, index, min/max, or parent pointer.",
+        "The traversal order may change when the problem moves from array order to sorted order, graph order, or dependency order.",
+        "The proof changes when duplicates, negative values, cycles, or online updates are introduced."
+      ],
+      invariant: `At every step, the maintained state contains exactly the information needed to answer future decisions for ${pattern.title}; anything not in the state is either irrelevant or already folded into the answer.`,
+      trace: {
+        title: `Trace template for ${problem}`,
+        steps: [
+          "Start with the empty/base state.",
+          "Process the first meaningful element and ask what old state it needs.",
+          "Update answer before or after state mutation based on whether self-use is allowed.",
+          "Repeat until the invariant feels mechanical."
+        ],
+        cells: [
+          { index: 0, value: "base", highlight: true },
+          { index: 1, value: "state" },
+          { index: 2, value: "answer", highlight: true }
+        ]
+      },
+      mnemonic: {
+        label: "I.S.P.",
+        text: "Invariant, State, Proof. If those three are clear, the code is usually straightforward."
+      },
+      variantWalkthroughs: pattern.sampleProblems.slice(0, 3).map((name) => ({
+        name,
+        whatChanges: `For ${name}, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains ${pattern.title}, but the state payload changes.`,
+        code: "/* Write the invariant first, then implement the state transition for this variant. */",
+        complexity: "Depends on the chosen state, but should beat the brute-force baseline."
+      })),
+      transferLearning: `After ${problem}, transfer the idea by asking what remains invariant across ${pattern.sampleProblems.join(", ")}. The surface story changes, but the reusable move is compressing repeated decisions into a state you can defend.`
+    },
+    selfTest: [
+      { question: `What problem does ${topic.title} solve in production?`, answer: topic.summary },
+      { question: "What is the source of truth in today's system design?", answer: "The durable store or authority that final writes must agree with; derived caches, queues, and indexes must be repairable from it." },
+      { question: `What is the invariant behind ${pattern.title}?`, answer: `Maintain exactly the state future decisions need; discard or fold in everything else.` },
+      { question: "What makes a JavaScript interview answer strong?", answer: "It explains the runtime or language rule, shows a small example, and names the production consequence." }
+    ],
+    telegramSummary: `${weekly ? "Sunday mastery" : "Daily lesson"}: ${topic.title} + ${pattern.title}\n\nSystem Design: fresh topic-aware fallback for ${topic.title}, using ${example} as the anchor system.\n\nMock interview: BookMyShow seat holds, idempotent payments, hot-show contention.\n\nNode.js: ${nodeFallback(selection).concept}.\n\nJS Interview: ${javascriptInterviewFallback(selection).theme}.\n\nDSA: ${pattern.title}; focus on invariant, state, and proof.`
+  };
+}
+
+function topicAwareSvg(topic: string, example: string): string {
+  return `<svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Topic-aware system design architecture">
+  <defs><marker id="arrow-topic" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#7fd6c6"/></marker></defs>
+  <rect width="900" height="320" rx="10" fill="#10253b"/>
+  <text x="24" y="32" fill="#7fd6c6" font-family="monospace" font-size="13">${escapeSvg(topic)} in ${escapeSvg(example)}</text>
+  <g font-family="monospace" font-size="12" fill="#eaf6f2">
+    <rect x="35" y="82" width="125" height="52" rx="5" fill="none" stroke="#7fd6c6"/><text x="98" y="112" text-anchor="middle">Client</text>
+    <rect x="220" y="82" width="145" height="52" rx="5" fill="none" stroke="#7fd6c6"/><text x="292" y="104" text-anchor="middle">API Layer</text><text x="292" y="120" text-anchor="middle" font-size="10">auth, limits</text>
+    <rect x="425" y="82" width="155" height="52" rx="5" fill="none" stroke="#f4d9ad"/><text x="503" y="104" text-anchor="middle">${escapeSvg(topic.slice(0, 18))}</text><text x="503" y="120" text-anchor="middle" font-size="10">decision point</text>
+    <rect x="645" y="42" width="170" height="52" rx="5" fill="none" stroke="#7fd6c6"/><text x="730" y="64" text-anchor="middle">Derived Path</text><text x="730" y="80" text-anchor="middle" font-size="10">cache/index/queue</text>
+    <rect x="645" y="142" width="170" height="52" rx="5" fill="none" stroke="#7fd6c6"/><text x="730" y="164" text-anchor="middle">Source of Truth</text><text x="730" y="180" text-anchor="middle" font-size="10">durable state</text>
+    <rect x="220" y="232" width="360" height="46" rx="5" fill="none" stroke="#7fd6c6" stroke-dasharray="4 3"/><text x="400" y="260" text-anchor="middle">Observability: p99, errors, lag, saturation, correctness drift</text>
+  </g>
+  <g stroke="#7fd6c6" stroke-width="2" fill="none" marker-end="url(#arrow-topic)">
+    <path d="M160 108 H220"/><path d="M365 108 H425"/><path d="M580 100 C610 82 620 70 645 68"/><path d="M580 116 C610 138 620 166 645 168"/><path d="M502 134 V232"/>
+  </g>
+</svg>`;
+}
+
+function escapeSvg(value: string): string {
+  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
 function bookMyShowSvg(): string {

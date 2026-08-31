@@ -118,6 +118,29 @@ export interface GeneratedLesson {
     followUpQuestions: string[];
     fiveMinuteAnswer: string;
   };
+  nodejs: {
+    conceptId: string;
+    concept: string;
+    whyItMatters: string;
+    mentalModel: string;
+    technicalDeepDive: string;
+    realLifeExample: string;
+    howToUseIt: string[];
+    productionPitfalls: string[];
+    performanceAndScaling: string[];
+    debuggingSignals: string[];
+    codeExample: string;
+    interviewQuestions: string[];
+  };
+  javascriptInterview: {
+    theme: string;
+    questions: Array<{
+      question: string;
+      answer: string;
+      code?: string;
+      followUp?: string;
+    }>;
+  };
   dsa: {
     patternId: string;
     pattern: string;

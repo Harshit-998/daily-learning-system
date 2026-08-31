@@ -32,6 +32,16 @@ const mockInterviewRequired = [
   "fiveMinuteAnswer"
 ] as const;
 
+const nodejsRequired = [
+  "conceptId",
+  "concept",
+  "whyItMatters",
+  "mentalModel",
+  "technicalDeepDive",
+  "realLifeExample",
+  "codeExample"
+] as const;
+
 export function validateLesson(lesson: GeneratedLesson): string[] {
   const notes: string[] = [];
   if (!lesson.title) notes.push("Missing title.");
@@ -49,6 +59,10 @@ export function validateLesson(lesson: GeneratedLesson): string[] {
 
   for (const key of mockInterviewRequired) {
     if (!lesson.mockInterview?.[key]?.trim()) notes.push(`Missing mock interview section: ${key}.`);
+  }
+
+  for (const key of nodejsRequired) {
+    if (!lesson.nodejs?.[key]?.trim()) notes.push(`Missing Node.js section: ${key}.`);
   }
 
   checkArray(notes, lesson.systemDesign?.tradeOffs, "systemDesign.tradeOffs", 2);
@@ -70,6 +84,14 @@ export function validateLesson(lesson: GeneratedLesson): string[] {
   checkArray(notes, lesson.mockInterview?.tradeOffs, "mockInterview.tradeOffs", 4);
   checkArray(notes, lesson.mockInterview?.followUpQuestions, "mockInterview.followUpQuestions", 8, 12);
   if (lesson.mockInterview?.architectureDiagram?.includes("flowchart")) notes.push("Mock interview diagram should be rendered SVG or HTML, not Mermaid.");
+  checkArray(notes, lesson.nodejs?.howToUseIt, "nodejs.howToUseIt", 3);
+  checkArray(notes, lesson.nodejs?.productionPitfalls, "nodejs.productionPitfalls", 3);
+  checkArray(notes, lesson.nodejs?.performanceAndScaling, "nodejs.performanceAndScaling", 2);
+  checkArray(notes, lesson.nodejs?.debuggingSignals, "nodejs.debuggingSignals", 2);
+  checkArray(notes, lesson.nodejs?.interviewQuestions, "nodejs.interviewQuestions", 3);
+  if (!lesson.nodejs?.codeExample?.includes("function") && !lesson.nodejs?.codeExample?.includes("=>") && !lesson.nodejs?.codeExample?.includes("class")) notes.push("Node.js code example should include executable code.");
+  if (!lesson.javascriptInterview?.theme?.trim()) notes.push("Missing JavaScript interview theme.");
+  checkArray(notes, lesson.javascriptInterview?.questions, "javascriptInterview.questions", 4);
   checkArray(notes, lesson.dsa?.examples, "dsa.examples", 1);
   checkArray(notes, lesson.dsa?.constraints, "dsa.constraints", 2);
   checkArray(notes, lesson.dsa?.whatToNotice, "dsa.whatToNotice", 2);

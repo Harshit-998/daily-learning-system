@@ -21,7 +21,10 @@ export async function generateLessonWithReview(selection: LessonSelection, promp
     try {
       const lesson = await callGemini(prompt, config);
       const reviewed = withQualityReview(lesson, [`Gemini generation succeeded on attempt ${attempt}.`]);
-      validateLesson(reviewed);
+      const validationNotes = validateLesson(reviewed);
+      if (validationNotes.length > 0) {
+        throw new Error(`Gemini lesson failed validation: ${validationNotes.join(" ")}`);
+      }
       return reviewed;
     } catch (error) {
       lastError = error instanceof Error ? error.message : String(error);

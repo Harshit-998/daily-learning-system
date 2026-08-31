@@ -3,7 +3,17 @@ import type { LessonSelection, Progress } from "../types.js";
 export function buildLessonPrompt(selection: LessonSelection, progress: Progress): string {
   const priorTopics = progress.systemDesign.completedTopicIds.slice(-5).join(", ") || "none yet";
   const priorPatterns = progress.dsa.completedPatternIds.slice(-5).join(", ") || "none yet";
+  const recentTitles = progress.history.slice(0, 8).map((item) => item.title).join(" | ") || "none yet";
   const reviewList = selection.reviewItems.map((item) => `${item.type}:${item.id}`).join(", ") || "none";
+  const contentFingerprint = [
+    selection.date,
+    selection.mode,
+    selection.systemDesignTopic.id,
+    selection.dsaPattern.id,
+    progress.systemDesign.currentIndex,
+    progress.dsa.currentPatternIndex,
+    progress.history.length
+  ].join(":");
 
   return `
 You are creating a premium daily learning lesson for a software engineer preparing for System Design and DSA interviews.
@@ -30,11 +40,21 @@ Candidate DSA problems: ${selection.dsaPattern.sampleProblems.join(", ")}
 Due review items: ${reviewList}
 Recently completed System Design topics: ${priorTopics}
 Recently completed DSA patterns: ${priorPatterns}
+Recent lesson titles: ${recentTitles}
+Unique content fingerprint for today's lesson: ${contentFingerprint}
 
-The final HTML must contain three main learning blocks:
+The final HTML must contain five main learning blocks:
 1. The focused System Design topic lesson.
 2. A separate full System Design mock interview problem of the day.
-3. The DSA pattern/problem lesson.
+3. A Node.js concept lesson at intermediate/advanced level.
+4. Interview-level JavaScript questions with answers.
+5. The DSA pattern/problem lesson.
+
+Freshness rules:
+- Do NOT reuse the same explanations, same examples, same analogies, same DSA problem body, same mock interview system, or same Node.js/JS content from recent lessons.
+- The selected System Design topic and DSA pattern are the anchors, but the actual examples, diagrams, practice framing, mock system, Node.js concept, and JS interview questions must be fresh.
+- If the topic sounds familiar, teach a deeper angle: bottlenecks, failure cases, production debugging, migration, multi-region, backpressure, cost, or observability.
+- Avoid using Latency/Throughput/Little's Law or Arrays/Hashing examples unless those are explicitly today's selected curriculum items.
 
 The mock interview does not need to connect to the focused topic. Choose one realistic system such as BookMyShow, WhatsApp, Google Drive, Dropbox, YouTube, Instagram, Uber, food delivery, Netflix, Google Photos, notification system, payment system, URL shortener, ride sharing, distributed file storage, live streaming, search autocomplete, chat system, news feed, calendar, or collaborative document editor.
 
@@ -90,6 +110,31 @@ Required JSON shape:
     "followUpQuestions": ["8 to 12 realistic interviewer follow-ups"],
     "fiveMinuteAnswer": "A crisp spoken answer the learner can rehearse in an interview"
   },
+  "nodejs": {
+    "conceptId": "stable-kebab-case-id",
+    "concept": "Intermediate/advanced Node.js concept, not beginner syntax",
+    "whyItMatters": "Why this matters in production Node.js systems",
+    "mentalModel": "A memorable but technically accurate model",
+    "technicalDeepDive": "Detailed explanation with event loop/runtime/libuv/V8/networking/streams/workers/security/performance details as relevant",
+    "realLifeExample": "Concrete backend example",
+    "howToUseIt": ["specific implementation guidance"],
+    "productionPitfalls": ["mistakes and failure modes"],
+    "performanceAndScaling": ["performance or scale considerations"],
+    "debuggingSignals": ["logs/metrics/profiles/symptoms to watch"],
+    "codeExample": "TypeScript or JavaScript code example",
+    "interviewQuestions": ["interview questions about this concept"]
+  },
+  "javascriptInterview": {
+    "theme": "Advanced JavaScript interview theme",
+    "questions": [
+      {
+        "question": "interview-level JS question",
+        "answer": "clear answer with reasoning",
+        "code": "optional JavaScript snippet",
+        "followUp": "optional follow-up"
+      }
+    ]
+  },
   "dsa": {
     "patternId": "${selection.dsaPattern.id}",
     "pattern": "string",
@@ -139,5 +184,7 @@ Quality bar:
 - DSA variants must explain what changes, not only list names.
 - The email renderer rotates visual themes, so focus on structured content and do not hard-code CSS.
 - The mock interview section must be complete enough to rehearse like a real mid-level/senior interview, from requirements to a five-minute spoken answer.
+- Node.js and JavaScript sections must be intermediate/advanced: event loop internals, streams/backpressure, worker threads, clustering, async context, memory leaks, V8 GC, AbortController, module loading, promise concurrency, closures/prototypes at interview depth, this/bind/call/apply, microtasks vs macrotasks, or performance debugging.
+- JavaScript interview answers must teach reasoning, not trivia.
 `.trim();
 }
