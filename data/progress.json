@@ -7,7 +7,7 @@
     "dsa"
   ],
   "timezone": "Asia/Kolkata",
-  "lastRunDate": "2026-08-31",
+  "lastRunDate": "2026-09-01",
   "systemDesign": {
     "completedTopicIds": [
       "latency-throughput-availability",
@@ -16,9 +16,10 @@
       "caching",
       "rate-limiting",
       "api-gateway",
-      "database-indexing"
+      "database-indexing",
+      "replication"
     ],
-    "currentIndex": 7
+    "currentIndex": 8
   },
   "dsa": {
     "completedPatternIds": [
@@ -28,60 +29,13 @@
       "prefix-sums",
       "stack-monotonic",
       "binary-search",
-      "linked-list"
+      "linked-list",
+      "trees-dfs-bfs"
     ],
-    "currentPatternIndex": 7,
+    "currentPatternIndex": 8,
     "currentDifficulty": "hard",
     "reviewQueue": [
       {
-        "id": "latency-throughput-availability",
-        "type": "system-design",
-        "dueDate": "2026-08-31",
-        "strength": 0
-      },
-      {
-        "id": "arrays-hashing",
-        "type": "dsa",
-        "dueDate": "2026-08-31",
-        "strength": 0
-      },
-      {
-        "id": "client-server-apis",
-        "type": "system-design",
-        "dueDate": "2026-08-31",
-        "strength": 0
-      },
-      {
-        "id": "two-pointers",
-        "type": "dsa",
-        "dueDate": "2026-08-31",
-        "strength": 0
-      },
-      {
-        "id": "load-balancing",
-        "type": "system-design",
-        "dueDate": "2026-08-31",
-        "strength": 0
-      },
-      {
-        "id": "sliding-window",
-        "type": "dsa",
-        "dueDate": "2026-08-31",
-        "strength": 0
-      },
-      {
-        "id": "caching",
-        "type": "system-design",
-        "dueDate": "2026-08-31",
-        "strength": 0
-      },
-      {
-        "id": "prefix-sums",
-        "type": "dsa",
-        "dueDate": "2026-08-31",
-        "strength": 0
-      },
-      {
         "id": "rate-limiting",
         "type": "system-design",
         "dueDate": "2026-09-01",
@@ -166,6 +120,18 @@
         "strength": 0
       },
       {
+        "id": "replication",
+        "type": "system-design",
+        "dueDate": "2026-09-02",
+        "strength": 0
+      },
+      {
+        "id": "trees-dfs-bfs",
+        "type": "dsa",
+        "dueDate": "2026-09-02",
+        "strength": 0
+      },
+      {
         "id": "rate-limiting",
         "type": "system-design",
         "dueDate": "2026-09-03",
@@ -199,6 +165,18 @@
         "id": "linked-list",
         "type": "dsa",
         "dueDate": "2026-09-03",
+        "strength": 0
+      },
+      {
+        "id": "replication",
+        "type": "system-design",
+        "dueDate": "2026-09-04",
+        "strength": 0
+      },
+      {
+        "id": "trees-dfs-bfs",
+        "type": "dsa",
+        "dueDate": "2026-09-04",
         "strength": 0
       },
       {
@@ -286,6 +264,18 @@
         "strength": 0
       },
       {
+        "id": "replication",
+        "type": "system-design",
+        "dueDate": "2026-09-08",
+        "strength": 0
+      },
+      {
+        "id": "trees-dfs-bfs",
+        "type": "dsa",
+        "dueDate": "2026-09-08",
+        "strength": 0
+      },
+      {
         "id": "latency-throughput-availability",
         "type": "system-design",
         "dueDate": "2026-09-15",
@@ -367,11 +357,30 @@
         "id": "linked-list",
         "type": "dsa",
         "dueDate": "2026-09-16",
+        "strength": 0
+      },
+      {
+        "id": "replication",
+        "type": "system-design",
+        "dueDate": "2026-09-17",
+        "strength": 0
+      },
+      {
+        "id": "trees-dfs-bfs",
+        "type": "dsa",
+        "dueDate": "2026-09-17",
         "strength": 0
       }
     ]
   },
   "history": [
+    {
+      "date": "2026-09-01",
+      "mode": "daily",
+      "systemDesignTopicId": "replication",
+      "dsaPatternId": "trees-dfs-bfs",
+      "title": "Replication + Tree Transformations and Rerooting"
+    },
     {
       "date": "2026-08-31",
       "mode": "daily",
