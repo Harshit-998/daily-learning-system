@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Replication + Tree Transformations and Rerooting</title>
+  <title>Sharding and Data Partitioning + Heap-Based Optimization</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
     html { -webkit-text-size-adjust:100%; }
     body {
       margin:0;
-      background:#f2f5f1;
-      color:#172018;
+      background:#07110c;
+      color:#dafbe1;
       font-family:'IBM Plex Sans', Arial, sans-serif;
       line-height:1.62;
     }
@@ -21,53 +21,53 @@
     h1, h2, h3 { letter-spacing:0; }
     h1 { margin:10px 0; font:700 34px/1.08 'Space Grotesk', Arial, sans-serif; }
     h2 { margin:8px 0 12px; font:700 24px/1.2 'Space Grotesk', Arial, sans-serif; }
-    h3 { margin:22px 0 8px; font:700 15px/1.25 'Space Grotesk', Arial, sans-serif; color:#166534; }
+    h3 { margin:22px 0 8px; font:700 15px/1.25 'Space Grotesk', Arial, sans-serif; color:#69db7c; }
     p, li { font-size:15px; }
     ul, ol { margin:0; padding-left:20px; }
     code, pre, .label, .kicker, .metric strong, .caption { font-family:'IBM Plex Mono', Consolas, monospace; }
-    .hero, .block, .recall, .panel, details, .review { background:#ffffff; border:1px solid #cbd8c4; }
-    .hero { padding:30px; margin-bottom:22px; color:#172018; }
-    .hero p, .lede, .caption, .answer { color:#65715f; }
-    .kicker, .label { color:#166534; text-transform:uppercase; font-size:11px; font-weight:700; letter-spacing:.08em; }
+    .hero, .block, .recall, .panel, details, .review { background:#0d1f15; border:1px solid #315443; }
+    .hero { padding:30px; margin-bottom:22px; color:#dafbe1; }
+    .hero p, .lede, .caption, .answer { color:#9fc4aa; }
+    .kicker, .label { color:#69db7c; text-transform:uppercase; font-size:11px; font-weight:700; letter-spacing:.08em; }
     .block, .recall { margin:22px 0; padding:24px; }
     .panel { padding:15px; margin:12px 0; }
     .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:14px 0; }
     .two-col, .exec-grid, .war-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
-    .challenge, .mnemonic { border:1px solid #166534; background:#16653418; padding:14px 16px; margin:14px 0; }
+    .challenge, .mnemonic { border:1px solid #69db7c; background:#69db7c18; padding:14px 16px; margin:14px 0; }
     .mnemonic { display:flex; gap:10px; align-items:flex-start; }
-    .badge { display:inline-flex; min-width:42px; justify-content:center; padding:4px 8px; background:#166534; color:#ffffff; font-weight:700; }
-    .diagram-frame { background:#102018; border:1px solid #cbd8c4; padding:14px; margin:10px 0; overflow-x:auto; }
+    .badge { display:inline-flex; min-width:42px; justify-content:center; padding:4px 8px; background:#69db7c; color:#06120a; font-weight:700; }
+    .diagram-frame { background:#020403; border:1px solid #315443; padding:14px; margin:10px 0; overflow-x:auto; }
     .diagram-frame svg { display:block; min-width:640px; max-width:100%; height:auto; }
     .html-diagram { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; min-width:560px; }
-    .diagram-node { background:#ffffff; color:#172018; border:1px solid #cbd8c4; padding:12px; min-height:74px; }
-    .diagram-node span { display:block; color:#166534; font-family:'IBM Plex Mono', Consolas, monospace; font-size:11px; font-weight:700; margin-bottom:6px; }
+    .diagram-node { background:#0d1f15; color:#dafbe1; border:1px solid #315443; padding:12px; min-height:74px; }
+    .diagram-node span { display:block; color:#69db7c; font-family:'IBM Plex Mono', Consolas, monospace; font-size:11px; font-weight:700; margin-bottom:6px; }
     .diagram-node b { display:block; font-size:13px; line-height:1.35; }
-    pre { background:#102018; color:#f8fafc; padding:15px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
+    pre { background:#020403; color:#f8fafc; padding:15px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
     details { padding:13px 15px; margin:9px 0; }
     summary { cursor:pointer; font-weight:700; }
-    .answer { margin-top:8px; padding-top:8px; border-top:1px dashed #cbd8c4; }
+    .answer { margin-top:8px; padding-top:8px; border-top:1px dashed #315443; }
     .array-row { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }
-    .cell { min-width:44px; padding:8px 4px; text-align:center; border:1px solid #cbd8c4; background:#ffffff; font-family:'IBM Plex Mono', monospace; }
-    .cell .idx { display:block; color:#65715f; font-size:10px; }
-    .cell.hit { border-color:#166534; background:#16653418; }
+    .cell { min-width:44px; padding:8px 4px; text-align:center; border:1px solid #315443; background:#0d1f15; font-family:'IBM Plex Mono', monospace; }
+    .cell .idx { display:block; color:#9fc4aa; font-size:10px; }
+    .cell.hit { border-color:#69db7c; background:#69db7c18; }
     .review { margin-top:28px; overflow:hidden; }
-    .review-head { padding:12px 16px; background:#172018; color:#ffffff; font-weight:700; }
+    .review-head { padding:12px 16px; background:#dafbe1; color:#06120a; font-weight:700; }
     .review-body { display:grid; grid-template-columns:repeat(4,1fr); }
-    .review-cell { padding:14px 16px; border-right:1px solid #cbd8c4; }
-    .review-cell span { display:block; color:#65715f; font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; }
+    .review-cell { padding:14px 16px; border-right:1px solid #315443; }
+    .review-cell span { display:block; color:#9fc4aa; font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; }
     .metric-row { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:18px 0; }
-    .metric { background:#ffffff; border:1px solid #cbd8c4; padding:16px; }
-    .metric strong { display:block; color:#166534; font-size:12px; }
+    .metric { background:#0d1f15; border:1px solid #315443; padding:16px; }
+    .metric strong { display:block; color:#69db7c; font-size:12px; }
     .metric span { font-weight:700; }
     
-      main { max-width:880px; }
-      .hero { border-radius:18px; text-align:center; }
-      .card-stack { display:grid; gap:18px; }
-      .study-card, .recall, .self-test { border-radius:18px; box-shadow:0 18px 40px rgba(15,23,42,.12); }
-      .study-card:nth-child(1) { transform:rotate(-.25deg); }
-      .study-card:nth-child(2) { transform:rotate(.25deg); }
-      .study-card:nth-child(3) { transform:rotate(-.15deg); }
-      .panel, details { border-radius:12px; }
+      body { background:#07110c; color:#dafbe1; }
+      main { max-width:980px; }
+      .hero, .block, .recall, .panel, details { background:#0d1f15; color:#dafbe1; border-color:#315443; border-radius:6px; }
+      .console { background:#020403; border:1px solid #315443; border-radius:8px; margin:20px 0; overflow:hidden; }
+      .console-bar { padding:8px 10px; border-bottom:1px solid #315443; }
+      .console-bar span { display:inline-block; width:10px; height:10px; margin-right:6px; border-radius:50%; background:#69db7c; opacity:.85; }
+      .console pre { margin:0; border:0; }
+      h2 { color:#f8fafc; }
     
     @media (max-width:720px) {
       main { padding:12px 10px 42px; }
@@ -77,33 +77,40 @@
     }
   </style>
 </head>
-<body class="cards">
+<body class="terminal">
   <main>
     <header class="hero">
-    <div class="kicker">Study Card Deck / cards / 2026-09-01</div>
-    <h1>Replication + Tree Transformations and Rerooting</h1>
-    <p>Flip through the core decisions</p>
+    <div class="kicker">Runbook Session / terminal / 2026-09-02</div>
+    <h1>Sharding and Data Partitioning + Heap-Based Optimization</h1>
+    <p>Production reasoning log</p>
   </header>
+    <section class="console">
+      <div class="console-bar"><span></span><span></span><span></span></div>
+      <pre><code>$ load daily-lesson --mode=daily
+$ focus system-design dsa mock-interview
+$ difficulty hard
+
+Sharding and Data Partitioning + Heap-Based Optimization</code></pre>
+    </section>
     <section class="recall">
-    <div class="label">Card 00</div>
+    <div class="label">Fast Recall</div>
     <h2>60-second recall</h2>
-    <ul><li>Replication is not just a component name; it is a decision about where correctness, latency, cost, and operational complexity should sit.</li><li>For Instagram, the interview answer should explain request flow, bottlenecks, failure behavior, and what becomes stale or strongly consistent.</li><li>Tree Transformations and Rerooting becomes easier when you name the invariant before choosing the data structure.</li></ul>
+    <ul><li>Sharding and Data Partitioning is not just a component name; it is a decision about where correctness, latency, cost, and operational complexity should sit.</li><li>For WhatsApp, the interview answer should explain request flow, bottlenecks, failure behavior, and what becomes stale or strongly consistent.</li><li>Heap-Based Optimization becomes easier when you name the invariant before choosing the data structure.</li></ul>
   </section>
-    <section class="card-stack">
-      <section class="block study-card">
+    <section class="block console-section">
     <div class="label">01 / System Design Topic</div>
-    <h2>Replication</h2>
-    <p class="lede">Replication is the design tool used when keeping copies of data for reads, locality, and resilience. In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.</p>
+    <h2>Sharding and Data Partitioning</h2>
+    <p class="lede">Sharding and Data Partitioning is the design tool used when splitting data so storage and traffic can scale horizontally. In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.</p>
     <div class="challenge"><h3>Think Like an Engineer</h3><ul><li>What is the source of truth?</li><li>What can become stale without hurting correctness?</li><li>What metric tells you this design is failing before users complain?</li></ul></div>
-    <h3>Why it exists</h3><p>It exists because real systems like Instagram hit limits that a single straightforward service cannot handle cleanly: traffic spikes, uneven access patterns, slow dependencies, partial failures, and different consistency needs across reads and writes.</p>
-    <h3>Analogy</h3><p>Think of Replication as an airport operations decision. Some passengers need a fast security lane, some luggage can move asynchronously, and some control systems must never accept conflicting state. Good design separates those flows instead of treating all work the same.</p>
-    <h3>Technical depth</h3><p>For Replication, start from the user-facing operation, then identify the hot path, source of truth, derived data, coordination boundary, and failure recovery path. A senior answer should discuss p95/p99 latency, write amplification, stale reads, retries, idempotency, data ownership, observability, and how the design changes when one dependency becomes slow or unavailable.</p>
+    <h3>Why it exists</h3><p>It exists because real systems like WhatsApp hit limits that a single straightforward service cannot handle cleanly: traffic spikes, uneven access patterns, slow dependencies, partial failures, and different consistency needs across reads and writes.</p>
+    <h3>Analogy</h3><p>Think of Sharding and Data Partitioning as an airport operations decision. Some passengers need a fast security lane, some luggage can move asynchronously, and some control systems must never accept conflicting state. Good design separates those flows instead of treating all work the same.</p>
+    <h3>Technical depth</h3><p>For Sharding and Data Partitioning, start from the user-facing operation, then identify the hot path, source of truth, derived data, coordination boundary, and failure recovery path. A senior answer should discuss p95/p99 latency, write amplification, stale reads, retries, idempotency, data ownership, observability, and how the design changes when one dependency becomes slow or unavailable.</p>
     <div class="mnemonic"><span class="badge">F.L.O.W.</span><div>Flow, Limit, Ownership, Watchpoints. Explain where the request flows, what limit you are solving, who owns the truth, and what you will watch in production.</div></div>
     <h3>Architecture diagram</h3>
     <div class="diagram-frame"><div class="html-diagram">
     <div class="diagram-node">
       <span>01</span>
-      <b>Replication in Instagram</b>
+      <b>Sharding and Data Partitioning in WhatsApp</b>
     </div><div class="diagram-node">
       <span>02</span>
       <b>Client</b>
@@ -115,7 +122,7 @@
       <b>auth, limits</b>
     </div><div class="diagram-node">
       <span>05</span>
-      <b>Replication</b>
+      <b>Sharding and Data</b>
     </div><div class="diagram-node">
       <span>06</span>
       <b>decision point</b>
@@ -130,29 +137,29 @@
       <b>Source of Truth</b>
     </div>
   </div></div>
-    <p class="caption">A generic production flow for applying Replication: isolate the user-facing path, protect the source of truth, and observe the async or derived-data path separately.</p>
+    <p class="caption">A generic production flow for applying Sharding and Data Partitioning: isolate the user-facing path, protect the source of truth, and observe the async or derived-data path separately.</p>
     <div class="two-col">
-      <div class="panel"><h3>Real-world example</h3><p>Instagram can use Replication to keep the product responsive while protecting the parts of the system that require correctness. The exact placement depends on whether the operation is read-heavy, write-heavy, hot-key prone, or failure-sensitive.</p></div>
-      <div class="panel"><h3>Practical design example</h3><p>In a notification or booking-style service, apply Replication by naming the synchronous API path, deciding which state is authoritative, placing any cache/queue/index/replica only where its consistency trade-off is acceptable, and adding metrics around saturation and correctness drift.</p></div>
+      <div class="panel"><h3>Real-world example</h3><p>WhatsApp can use Sharding and Data Partitioning to keep the product responsive while protecting the parts of the system that require correctness. The exact placement depends on whether the operation is read-heavy, write-heavy, hot-key prone, or failure-sensitive.</p></div>
+      <div class="panel"><h3>Practical design example</h3><p>In a notification or booking-style service, apply Sharding and Data Partitioning by naming the synchronous API path, deciding which state is authoritative, placing any cache/queue/index/replica only where its consistency trade-off is acceptable, and adding metrics around saturation and correctness drift.</p></div>
     </div>
     <h3>How components interact</h3><p>Client traffic enters through the API layer, which authenticates, rate limits, and routes requests. The application service reads or writes authoritative storage, optionally consults derived infrastructure such as cache, index, queue, or replica, and emits events/metrics so operators can see lag, error rate, retries, and tail latency.</p>
     <div class="grid">
-      <div class="panel"><h3>Trade-offs</h3><ul><li>Replication can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.</li><li>Adding a new infrastructure layer creates ownership questions: who writes it, who invalidates it, who repairs it, and what happens when it lies?</li><li>The simplest correct design is often better until the bottleneck is proven by capacity estimates or production metrics.</li></ul></div>
+      <div class="panel"><h3>Trade-offs</h3><ul><li>Sharding and Data Partitioning can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.</li><li>Adding a new infrastructure layer creates ownership questions: who writes it, who invalidates it, who repairs it, and what happens when it lies?</li><li>The simplest correct design is often better until the bottleneck is proven by capacity estimates or production metrics.</li></ul></div>
       <div class="panel"><h3>When to use it</h3><ul><li>Use it when the bottleneck or correctness problem is clear enough to justify the extra moving part.</li><li>Use it when the system has measurable pressure: hot keys, high fanout, slow downstreams, growing data, or strict availability needs.</li><li>Use it when the operational team can observe and repair the failure modes it introduces.</li></ul></div>
       <div class="panel"><h3>When not to use it</h3><ul><li>Do not use it only because the keyword sounds impressive in an interview.</li><li>Do not use it before identifying the source of truth and acceptable staleness.</li><li>Do not use it when the product is small enough that the added coordination cost dominates the benefit.</li></ul></div>
       <div class="panel"><h3>Common mistakes</h3><ul><li>Explaining the component definition but not where it sits in the request flow.</li><li>Ignoring stale data, duplicate retries, partial failure, and backpressure.</li><li>Skipping metrics, alerts, replay/reconciliation, and operational ownership.</li></ul></div>
       <div class="panel"><h3>Scaling considerations</h3><ul><li>Estimate QPS, peak multiplier, data size, read/write ratio, fanout, and hot-key distribution before choosing the final architecture.</li><li>Track saturation signals such as queue depth, cache hit rate, p99 latency, lock contention, DB CPU, and retry rate.</li><li>Decide how the design changes across regions: local reads, global writes, conflict resolution, and disaster recovery.</li></ul></div>
       <div class="panel"><h3>Failure scenarios</h3><ul><li>A downstream slows down and causes retries, which increases load and worsens tail latency.</li><li>A derived store becomes stale or unavailable and the service either serves wrong data or overloads the primary store.</li><li>A hot partition receives most traffic and defeats the average-case scaling plan.</li><li>A deploy changes write semantics but old workers or consumers still process messages using the previous contract.</li></ul></div>
     </div>
-    <h3>Production usage</h3><p>Teams use Replication with explicit SLOs, dashboards, load tests, runbooks, and rollback plans. The production version includes ownership and repair paths, not only the happy-path architecture.</p>
-    <div class="panel"><h3>Interview questions</h3><ul><li>Where would you place Replication in the Instagram request flow?</li><li>Which part of your design is strongly consistent and which part can be eventually consistent?</li><li>What breaks first at 10x traffic?</li><li>How would you detect this component causing user-visible errors?</li></ul></div>
-    <h3>Previous-concept connections</h3><p>This builds on database-indexing and should be explained in terms of how those earlier ideas interact.</p>
+    <h3>Production usage</h3><p>Teams use Sharding and Data Partitioning with explicit SLOs, dashboards, load tests, runbooks, and rollback plans. The production version includes ownership and repair paths, not only the happy-path architecture.</p>
+    <div class="panel"><h3>Interview questions</h3><ul><li>Where would you place Sharding and Data Partitioning in the WhatsApp request flow?</li><li>Which part of your design is strongly consistent and which part can be eventually consistent?</li><li>What breaks first at 10x traffic?</li><li>How would you detect this component causing user-visible errors?</li></ul></div>
+    <h3>Previous-concept connections</h3><p>This builds on replication and should be explained in terms of how those earlier ideas interact.</p>
   </section>
-      <section class="block study-card">
+    <section class="block console-section">
     <div class="label">02 / Real Mock Interview</div>
-    <h2>Design Dropbox</h2>
-    <p class="lede">Design Dropbox for a realistic high-traffic production workload.</p>
-    <h3>Scope clarification</h3><p>Focus on the core user journey, write path, read path, data ownership, consistency choices, and operational failure handling for Dropbox. Keep low-value extras out of scope until the core design is correct.</p>
+    <h2>Design Uber Ride Matching</h2>
+    <p class="lede">Design Uber Ride Matching for a realistic high-traffic production workload.</p>
+    <h3>Scope clarification</h3><p>Focus on the core user journey, write path, read path, data ownership, consistency choices, and operational failure handling for Uber Ride Matching. Keep low-value extras out of scope until the core design is correct.</p>
     <div class="two-col">
       <div class="panel"><h3>Functional requirements</h3><ul><li>Users can perform the primary product action with clear success/failure state.</li><li>Users can read current state quickly without overloading the source of truth.</li><li>The system records durable state transitions and exposes history where needed.</li><li>Admins or internal systems can monitor, retry, reconcile, and correct failed work.</li><li>The product supports idempotent retries from clients and background workers.</li></ul></div>
       <div class="panel"><h3>Non-functional requirements</h3><ul><li>Low p95/p99 latency for the primary read path.</li><li>Strong consistency for final user-visible commitments.</li><li>High availability for browsing and graceful degradation for non-critical features.</li><li>Backpressure during traffic spikes instead of unlimited retries.</li><li>Durable auditability for important state changes.</li><li>Security controls around authentication, authorization, abuse, and sensitive data.</li><li>Observability across API latency, queue lag, error rate, saturation, and correctness drift.</li></ul></div>
@@ -162,12 +169,12 @@
       <div class="panel"><h3>Core entities and data model</h3><ul><li>User(id, profile, auth metadata, status)</li><li>PrimaryResource(id, ownerId, state, version, createdAt, updatedAt)</li><li>Operation(id, userId, resourceId, idempotencyKey, status, attemptCount, timestamps)</li><li>Event(id, resourceId, type, payload, createdAt) for async propagation and replay.</li><li>Indexes should match the top access patterns; partition keys should avoid hot partitions.</li></ul></div>
       <div class="panel"><h3>API design</h3><ul><li>GET /resources?cursor=... returns paginated, cached read results.</li><li>POST /resources/{id}/operations with an idempotency key starts a state transition.</li><li>GET /operations/{operationId} returns pending, succeeded, failed, or retryable state.</li><li>POST /internal/reconcile scans stuck operations and repairs derived state.</li></ul></div>
     </div>
-    <h3>High-level architecture</h3><p>For Dropbox, use an API gateway, a product service for request validation, a strongly consistent primary database for final state, a cache or read model for high-volume reads, a queue/event log for asynchronous side effects, workers for fanout/retries, and an observability layer for tracing state transitions.</p>
+    <h3>High-level architecture</h3><p>For Uber Ride Matching, use an API gateway, a product service for request validation, a strongly consistent primary database for final state, a cache or read model for high-volume reads, a queue/event log for asynchronous side effects, workers for fanout/retries, and an observability layer for tracing state transitions.</p>
     <h3>Mock architecture diagram</h3>
     <div class="diagram-frame"><div class="html-diagram">
     <div class="diagram-node">
       <span>01</span>
-      <b>Design Dropbox in Dropbox</b>
+      <b>Design Uber Ride Matching in Uber Ride Matching</b>
     </div><div class="diagram-node">
       <span>02</span>
       <b>Client</b>
@@ -179,7 +186,7 @@
       <b>auth, limits</b>
     </div><div class="diagram-node">
       <span>05</span>
-      <b>Design Dropbox</b>
+      <b>Design Uber Ride M</b>
     </div><div class="diagram-node">
       <span>06</span>
       <b>decision point</b>
@@ -209,87 +216,94 @@
       <div class="panel"><h3>Trade-offs</h3><ul><li>Strong consistency protects user trust but limits write scalability.</li><li>Caching improves reads but introduces staleness and invalidation work.</li><li>Queues smooth spikes but add delayed completion and replay complexity.</li><li>Partitioning improves capacity but makes cross-partition queries harder.</li></ul></div>
     </div>
     <div class="panel"><h3>Follow-up questions</h3><ul><li>What is the source of truth?</li><li>Which APIs need idempotency keys?</li><li>What can be eventually consistent?</li><li>What happens at 10x peak traffic?</li><li>How do you choose partition keys?</li><li>How do you prevent cache stampede?</li><li>How do you retry failed async work?</li><li>What metrics would you page on?</li><li>How would this change in multi-region?</li><li>How do you recover after a partial write failure?</li></ul></div>
-    <div class="panel"><h3>Five-minute answer</h3><p>I would design Dropbox around the primary user journey first, then split reads, writes, and async side effects. The API layer handles auth and rate limits. The product service validates requests and writes final state to a strongly consistent primary store. High-volume reads come from cache or read models that can be rebuilt from the source of truth. Expensive side effects go through a queue with idempotent workers and dead-letter handling. For scale, I would estimate peak QPS, identify hot entities, partition by the dominant access pattern, and add backpressure before the database saturates. For reliability, I would trace every state transition, monitor p99 latency and queue lag, and run reconciliation for stuck operations.</p></div>
+    <div class="panel"><h3>Five-minute answer</h3><p>I would design Uber Ride Matching around the primary user journey first, then split reads, writes, and async side effects. The API layer handles auth and rate limits. The product service validates requests and writes final state to a strongly consistent primary store. High-volume reads come from cache or read models that can be rebuilt from the source of truth. Expensive side effects go through a queue with idempotent workers and dead-letter handling. For scale, I would estimate peak QPS, identify hot entities, partition by the dominant access pattern, and add backpressure before the database saturates. For reliability, I would trace every state transition, monitor p99 latency and queue lag, and run reconciliation for stuck operations.</p></div>
   </section>
-      <section class="block study-card">
+    <section class="block console-section">
     <div class="label">03 / Node.js Runtime Concept</div>
-    <h2>Node.js Streams and Backpressure</h2>
-    <h3>Why it matters</h3><p>Streams let a Node service process large payloads without loading everything into memory, but the real production skill is respecting backpressure so a fast producer does not overwhelm a slow consumer.</p>
-    <h3>Mental model</h3><p>Think of a stream pipeline like a conveyor belt with pressure sensors. If the packing station slows down, the belt must slow down too; otherwise boxes pile up until the warehouse runs out of space.</p>
-    <h3>Technical deep dive</h3><p>Readable streams push chunks, writable streams consume chunks, and backpressure is the signal that the writable side&#039;s internal buffer is full. In Node, writable.write(chunk) returning false means the producer should pause until the drain event. pipeline() is safer than manual piping because it forwards errors and closes the whole chain correctly. This matters for uploads, CSV processing, proxies, compression, log ingestion, and any endpoint that handles bodies larger than comfortable memory.</p>
-    <h3>Real-life backend example</h3><p>For a video upload service, stream the incoming request through validation, virus scanning, compression, and object storage upload. The API should never buffer a 2GB file in RAM just to pass it to S3.</p>
+    <h2>Worker Threads for CPU-Bound Node.js Work</h2>
+    <h3>Why it matters</h3><p>Node handles I/O concurrency well, but CPU-heavy JavaScript blocks the event loop and makes every request slower. Worker threads let you isolate CPU work without freezing the main server.</p>
+    <h3>Mental model</h3><p>The event loop is the receptionist. It can coordinate many calls, but it should not personally do a three-hour spreadsheet calculation while callers wait.</p>
+    <h3>Technical deep dive</h3><p>Worker threads run JavaScript in separate V8 isolates with their own event loops. They communicate through messages, transferable objects, SharedArrayBuffer, and Atomics when needed. They are useful for image processing, crypto-heavy work, report generation, parsing huge files, compression, and ML-style computation. They are not a general replacement for async I/O; database and network calls should remain non-blocking in the main process.</p>
+    <h3>Real-life backend example</h3><p>A reporting API receives a request to generate a large PDF from thousands of records. The main Node server validates and schedules the work, while a worker thread performs layout and compression so normal API requests keep responding.</p>
     <div class="grid">
-      <div class="panel"><h3>How to use it</h3><ul><li>Use stream.pipeline() or stream/promises.pipeline() so errors and cleanup propagate through the chain.</li><li>Watch writable.write() and drain if you manually coordinate producer and consumer flow.</li><li>Set highWaterMark deliberately for the object size and latency profile instead of relying blindly on defaults.</li><li>Use Transform streams for chunk-level processing such as compression, parsing, checksums, or redaction.</li></ul></div>
-      <div class="panel"><h3>Production pitfalls</h3><ul><li>Ignoring backpressure can create memory growth that looks like a leak under load.</li><li>Manual pipe chains often miss error handlers and leave sockets or file handles open.</li><li>A Transform stream that performs slow async work without controlling concurrency can reorder or overload downstream systems.</li></ul></div>
-      <div class="panel"><h3>Performance and scaling</h3><ul><li>Streaming keeps per-request memory nearly constant, which improves concurrency under large uploads.</li><li>Backpressure turns overload into slower ingestion instead of process crashes.</li><li>For CPU-heavy transforms, move work to worker threads or an external service because streams do not remove CPU bottlenecks.</li></ul></div>
-      <div class="panel"><h3>Debugging signals</h3><ul><li>Heap usage climbs with request body size or upload concurrency.</li><li>Event loop delay rises while socket throughput drops.</li><li>Writable buffers stay above highWaterMark and drain events become sparse.</li></ul></div>
+      <div class="panel"><h3>How to use it</h3><ul><li>Keep the HTTP server and routing on the main thread.</li><li>Send CPU-heavy jobs to a bounded worker pool rather than spawning unlimited workers.</li><li>Transfer ArrayBuffer data when possible to avoid expensive copies.</li><li>Add timeout and cancellation behavior so stuck jobs do not occupy workers forever.</li></ul></div>
+      <div class="panel"><h3>Production pitfalls</h3><ul><li>Creating a worker per request can exhaust memory faster than it solves event-loop blocking.</li><li>Large message payloads can spend more time serializing than computing.</li><li>Shared memory requires careful synchronization and can introduce hard-to-debug races.</li></ul></div>
+      <div class="panel"><h3>Performance and scaling</h3><ul><li>Use a pool size close to available CPU cores minus capacity needed by the main process.</li><li>Track queue depth and worker utilization, not just average job latency.</li><li>Move very heavy or long-running work to a separate job system if it outgrows in-process workers.</li></ul></div>
+      <div class="panel"><h3>Debugging signals</h3><ul><li>High event-loop delay while CPU usage is high.</li><li>Fast endpoints become slow only when expensive calculations run.</li><li>Worker queue depth grows while process memory climbs.</li></ul></div>
     </div>
     <h3>Code example</h3>
-    <pre><code>import { pipeline } from &quot;node:stream/promises&quot;;
-import { createGzip } from &quot;node:zlib&quot;;
-import { createWriteStream } from &quot;node:fs&quot;;
+    <pre><code>import { Worker } from &quot;node:worker_threads&quot;;
 
-export async function saveCompressedUpload(request, filePath) {
-  await pipeline(
-    request,
-    createGzip(),
-    createWriteStream(filePath)
-  );
+export function runCpuJob(payload) {
+  return new Promise((resolve, reject) =&gt; {
+    const worker = new Worker(new URL(&quot;./cpu-job.js&quot;, import.meta.url), {
+      workerData: payload
+    });
+    worker.once(&quot;message&quot;, resolve);
+    worker.once(&quot;error&quot;, reject);
+    worker.once(&quot;exit&quot;, (code) =&gt; {
+      if (code !== 0) reject(new Error(`Worker stopped with code ${code}`));
+    });
+  });
 }</code></pre>
-    <div class="panel"><h3>Node.js interview questions</h3><ul><li>What does backpressure mean in a Node.js stream pipeline?</li><li>Why is pipeline() safer than readable.pipe(writable) in production code?</li><li>How would you debug a Node API whose memory grows during large uploads?</li></ul></div>
+    <div class="panel"><h3>Node.js interview questions</h3><ul><li>Why does CPU-bound work hurt a Node.js server more than slow I/O?</li><li>When would you use worker threads instead of a queue and separate worker service?</li><li>What metrics prove that worker threads helped rather than just moved the bottleneck?</li></ul></div>
   </section>
-      <section class="block study-card">
+    <section class="block console-section">
     <div class="label">04 / JavaScript Interview Drill</div>
-    <h2>Closures, this-binding, and hidden state</h2>
+    <h2>Promise scheduling, microtasks, and concurrency control</h2>
     <div class="panel">
-      <h3>Q1. What does a closure actually retain?</h3>
-      <p>A closure retains references to variables in its lexical environment, not a frozen copy of their values. That is why mutations after function creation can still be observed.</p>
-      <pre><code>function counter() {
-  let n = 0;
-  return () =&gt; ++n;
-}
-const next = counter();
-next(); // 1
-next(); // 2</code></pre>
+      <h3>Q1. What runs first: a resolved Promise callback, setTimeout(..., 0), or synchronous code?</h3>
+      <p>Synchronous code runs first. Promise callbacks run next in the microtask queue after the current call stack finishes. setTimeout callbacks run later in the macrotask/timer phase.</p>
+      <pre><code>console.log(&quot;A&quot;);
+setTimeout(() =&gt; console.log(&quot;B&quot;), 0);
+Promise.resolve().then(() =&gt; console.log(&quot;C&quot;));
+console.log(&quot;D&quot;);
+// A, D, C, B</code></pre>
+      <p><strong>Follow-up:</strong> Explain why too many microtasks can starve timers and I/O callbacks.</p>
+    </div><div class="panel">
+      <h3>Q2. Why is Promise.all dangerous for unbounded work?</h3>
+      <p>Promise.all starts all promises immediately if you create them first. For thousands of network calls, that can overload your service, the remote service, sockets, memory, and rate limits.</p>
+      <pre><code>async function runWithLimit(items, limit, task) {
+  const results = [];
+  let next = 0;
+  async function worker() {
+    while (next &lt; items.length) {
+      const i = next++;
+      results[i] = await task(items[i]);
+    }
+  }
+  await Promise.all(Array.from({ length: limit }, worker));
+  return results;
+}</code></pre>
+      <p><strong>Follow-up:</strong> How would you add retries without breaking ordering?</p>
+    </div><div class="panel">
+      <h3>Q3. What is the difference between Promise.all and Promise.allSettled?</h3>
+      <p>Promise.all fails fast when any input rejects. Promise.allSettled waits for every input and returns fulfilled/rejected results, which is better for partial success workflows.</p>
       
+      <p><strong>Follow-up:</strong> Which would you use for sending 1,000 optional notifications?</p>
     </div><div class="panel">
-      <h3>Q2. Why does this change when a method is passed as a callback?</h3>
-      <p>this is usually determined by the call site, not where the function was defined. Passing obj.method loses the obj.method() call-site binding unless you bind it or wrap it.</p>
-      <pre><code>const user = {
-  name: &quot;Harshit&quot;,
-  print() { return this.name; }
-};
-const fn = user.print;
-fn(); // undefined in strict mode</code></pre>
-      <p><strong>Follow-up:</strong> How would arrow functions change this?</p>
-    </div><div class="panel">
-      <h3>Q3. Why can closures cause memory leaks?</h3>
-      <p>If a long-lived callback closes over a large object, that object cannot be garbage-collected while the callback remains reachable.</p>
-      
-      <p><strong>Follow-up:</strong> Where does this show up in frontend apps and Node servers?</p>
-    </div><div class="panel">
-      <h3>Q4. What is the practical difference between call, apply, and bind?</h3>
-      <p>call invokes immediately with positional arguments, apply invokes immediately with an argument array, and bind returns a new function with this and optional arguments preset.</p>
+      <h3>Q4. How do you cancel async work in modern JavaScript?</h3>
+      <p>Use AbortController and pass its signal into APIs that support cancellation, such as fetch. Cancellation is cooperative; your code must observe the signal and stop work.</p>
       
       
     </div>
   </section>
-      <section class="block study-card">
+    <section class="block console-section">
     <div class="label">05 / DSA Pattern in Java</div>
-    <h2>Tree Transformations and Rerooting</h2>
-    <p class="lede">Study Binary Tree Maximum Path Sum as the representative problem for Tree Transformations and Rerooting. The goal is to learn the reusable invariant, not memorize one implementation.</p>
-    <div class="challenge"><h3>Invariant</h3><ul><li>At every step, the maintained state contains exactly the information needed to answer future decisions for Tree Transformations and Rerooting; anything not in the state is either irrelevant or already folded into the answer.</li></ul></div>
-    <div class="panel"><h3>Examples</h3><ul><li>Representative problem: Binary Tree Maximum Path Sum.</li><li>Related variants: Binary Tree Maximum Path Sum, Serialize and Deserialize Binary Tree, Sum of Distances in Tree.</li><li>For each variant, identify what state must be carried forward and what condition makes a decision final.</li></ul></div>
+    <h2>Heap-Based Optimization</h2>
+    <p class="lede">Study Find Median from Data Stream as the representative problem for Heap-Based Optimization. The goal is to learn the reusable invariant, not memorize one implementation.</p>
+    <div class="challenge"><h3>Invariant</h3><ul><li>At every step, the maintained state contains exactly the information needed to answer future decisions for Heap-Based Optimization; anything not in the state is either irrelevant or already folded into the answer.</li></ul></div>
+    <div class="panel"><h3>Examples</h3><ul><li>Representative problem: Find Median from Data Stream.</li><li>Related variants: Find Median from Data Stream, IPO, Smallest Range Covering Elements from K Lists.</li><li>For each variant, identify what state must be carried forward and what condition makes a decision final.</li></ul></div>
     <div class="two-col">
       <div class="panel"><h3>Constraints</h3><ul><li>Assume interview-size constraints where O(n^2) usually times out unless n is small.</li><li>Handle duplicates, empty input, boundary values, and adversarial ordering.</li><li>Prefer a proof-oriented invariant over a code-first explanation.</li></ul></div>
-      <div class="panel"><h3>What to notice</h3><ul><li>Tree Transformations and Rerooting usually has a repeated decision that can be made locally once the right state is maintained.</li><li>The hard part is choosing the state representation and proving when it is safe to update the answer.</li><li>Variants often change the stored state, not the entire strategy.</li></ul></div>
+      <div class="panel"><h3>What to notice</h3><ul><li>Heap-Based Optimization usually has a repeated decision that can be made locally once the right state is maintained.</li><li>The hard part is choosing the state representation and proving when it is safe to update the answer.</li><li>Variants often change the stored state, not the entire strategy.</li></ul></div>
     </div>
     <h3>Brute force</h3><p>Generate every candidate state or subproblem and check it directly. This is useful to discover the invariant, but it repeats work that the optimized pattern should reuse.</p>
     <h3>Why it is insufficient</h3><p>The brute-force version usually revisits overlapping choices. In interviews, the expected jump is to compress repeated work into a maintained structure, monotonic condition, recurrence, or boundary invariant.</p>
-    <h3>Core intuition</h3><p>For Tree Transformations and Rerooting, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?</p>
-    <h3>Optimal approach</h3><p>Solve Binary Tree Maximum Path Sum by naming the invariant first, then implementing the smallest state that preserves that invariant. Walk through one non-trivial example and explain why each update is safe.</p>
+    <h3>Core intuition</h3><p>For Heap-Based Optimization, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?</p>
+    <h3>Optimal approach</h3><p>Solve Find Median from Data Stream by naming the invariant first, then implementing the smallest state that preserves that invariant. Walk through one non-trivial example and explain why each update is safe.</p>
     <div class="panel"><h3>Step-by-step</h3><ol><li>Write the brute-force condition in plain English.</li><li>Underline the repeated work.</li><li>Define the invariant that would let one pass or one recurrence replace repeated scanning.</li><li>Choose the data structure that stores exactly that invariant.</li><li>Trace the update order carefully and test the edge case that breaks naive solutions.</li></ol></div>
-    <h3>Trace template for Binary Tree Maximum Path Sum</h3>
+    <h3>Trace template for Find Median from Data Stream</h3>
     <div class="array-row">
       <div class="cell hit"><span class="idx">i=0</span>base</div><div class="cell"><span class="idx">i=1</span>state</div><div class="cell hit"><span class="idx">i=2</span>answer</div>
     </div>
@@ -321,35 +335,34 @@ class Solution {
     <div class="mnemonic"><span class="badge">I.S.P.</span><div>Invariant, State, Proof. If those three are clear, the code is usually straightforward.</div></div>
     <h3>Variant walkthroughs</h3>
     <div class="panel">
-      <h3>Binary Tree Maximum Path Sum</h3>
-      <p>For Binary Tree Maximum Path Sum, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Tree Transformations and Rerooting, but the state payload changes.</p>
+      <h3>Find Median from Data Stream</h3>
+      <p>For Find Median from Data Stream, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Heap-Based Optimization, but the state payload changes.</p>
       <pre><code>/* Write the invariant first, then implement the state transition for this variant. */</code></pre>
       <p><strong>Complexity:</strong> Depends on the chosen state, but should beat the brute-force baseline.</p>
     </div><div class="panel">
-      <h3>Serialize and Deserialize Binary Tree</h3>
-      <p>For Serialize and Deserialize Binary Tree, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Tree Transformations and Rerooting, but the state payload changes.</p>
+      <h3>IPO</h3>
+      <p>For IPO, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Heap-Based Optimization, but the state payload changes.</p>
       <pre><code>/* Write the invariant first, then implement the state transition for this variant. */</code></pre>
       <p><strong>Complexity:</strong> Depends on the chosen state, but should beat the brute-force baseline.</p>
     </div><div class="panel">
-      <h3>Sum of Distances in Tree</h3>
-      <p>For Sum of Distances in Tree, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Tree Transformations and Rerooting, but the state payload changes.</p>
+      <h3>Smallest Range Covering Elements from K Lists</h3>
+      <p>For Smallest Range Covering Elements from K Lists, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Heap-Based Optimization, but the state payload changes.</p>
       <pre><code>/* Write the invariant first, then implement the state transition for this variant. */</code></pre>
       <p><strong>Complexity:</strong> Depends on the chosen state, but should beat the brute-force baseline.</p>
     </div>
     <div class="panel"><h3>Exactly what changes across variants</h3><ul><li>The invariant may stay the same while the stored value changes from existence to count, index, min/max, or parent pointer.</li><li>The traversal order may change when the problem moves from array order to sorted order, graph order, or dependency order.</li><li>The proof changes when duplicates, negative values, cycles, or online updates are introduced.</li></ul></div>
-    <h3>Transfer learning</h3><p>After Binary Tree Maximum Path Sum, transfer the idea by asking what remains invariant across Binary Tree Maximum Path Sum, Serialize and Deserialize Binary Tree, Sum of Distances in Tree. The surface story changes, but the reusable move is compressing repeated decisions into a state you can defend.</p>
+    <h3>Transfer learning</h3><p>After Find Median from Data Stream, transfer the idea by asking what remains invariant across Find Median from Data Stream, IPO, Smallest Range Covering Elements from K Lists. The surface story changes, but the reusable move is compressing repeated decisions into a state you can defend.</p>
   </section>
-    </section>
     <section class="block self-test">
     <div class="label">06 / Self Test</div>
     <h2>Close-the-tab test</h2>
     <p class="lede">Answer first, then expand. This is for active recall, not rereading.</p>
-    <details><summary>1. What problem does Replication solve in production?</summary><div class="answer">Keeping copies of data for reads, locality, and resilience.</div></details><details><summary>2. What is the source of truth in today&#039;s system design?</summary><div class="answer">The durable store or authority that final writes must agree with; derived caches, queues, and indexes must be repairable from it.</div></details><details><summary>3. What is the invariant behind Tree Transformations and Rerooting?</summary><div class="answer">Maintain exactly the state future decisions need; discard or fold in everything else.</div></details><details><summary>4. What makes a JavaScript interview answer strong?</summary><div class="answer">It explains the runtime or language rule, shows a small example, and names the production consequence.</div></details>
+    <details><summary>1. What problem does Sharding and Data Partitioning solve in production?</summary><div class="answer">Splitting data so storage and traffic can scale horizontally.</div></details><details><summary>2. What is the source of truth in today&#039;s system design?</summary><div class="answer">The durable store or authority that final writes must agree with; derived caches, queues, and indexes must be repairable from it.</div></details><details><summary>3. What is the invariant behind Heap-Based Optimization?</summary><div class="answer">Maintain exactly the state future decisions need; discard or fold in everything else.</div></details><details><summary>4. What makes a JavaScript interview answer strong?</summary><div class="answer">It explains the runtime or language rule, shows a small example, and names the production consequence.</div></details>
   </section>
     <section class="review">
     <div class="review-head">Review schedule</div>
     <div class="review-body">
-      <div class="review-cell"><span>+1 day</span><b>Wed, Sep 2</b></div><div class="review-cell"><span>+3 days</span><b>Fri, Sep 4</b></div><div class="review-cell"><span>+7 days</span><b>Tue, Sep 8</b></div><div class="review-cell"><span>+16 days</span><b>Thu, Sep 17</b></div>
+      <div class="review-cell"><span>+1 day</span><b>Thu, Sep 3</b></div><div class="review-cell"><span>+3 days</span><b>Sat, Sep 5</b></div><div class="review-cell"><span>+7 days</span><b>Wed, Sep 9</b></div><div class="review-cell"><span>+16 days</span><b>Fri, Sep 18</b></div>
     </div>
   </section>
   </main>

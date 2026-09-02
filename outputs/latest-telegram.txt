@@ -1,24 +1,24 @@
-Daily Lesson: Replication + Tree Transformations and Rerooting
+Daily Lesson: Sharding and Data Partitioning + Heap-Based Optimization
 
-System Design: Replication
-Core idea: Replication is the design tool used when keeping copies of data for reads, locality, and resilience. In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.
-Trade-off: Replication can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.
+System Design: Sharding and Data Partitioning
+Core idea: Sharding and Data Partitioning is the design tool used when splitting data so storage and traffic can scale horizontally. In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.
+Trade-off: Sharding and Data Partitioning can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.
 Engineer question: What is the source of truth?
 
-Mock Interview: Design Dropbox
+Mock Interview: Design Uber Ride Matching
 Focus: What is the source of truth?
 
-Node.js: Node.js Streams and Backpressure
-Use it for: Use stream.pipeline() or stream/promises.pipeline() so errors and cleanup propagate through the chain.
-Watch: Ignoring backpressure can create memory growth that looks like a leak under load.
+Node.js: Worker Threads for CPU-Bound Node.js Work
+Use it for: Keep the HTTP server and routing on the main thread.
+Watch: Creating a worker per request can exhaust memory faster than it solves event-loop blocking.
 
-JS Interview: Closures, this-binding, and hidden state
-Question: What does a closure actually retain?
-Answer: A closure retains references to variables in its lexical environment, not a frozen copy of their values. That is why mutations after function creation can still be observed.
+JS Interview: Promise scheduling, microtasks, and concurrency control
+Question: What runs first: a resolved Promise callback, setTimeout(..., 0), or synchronous code?
+Answer: Synchronous code runs first. Promise callbacks run next in the microtask queue after the current call stack finishes. setTimeout callbacks run later in the macrotask/timer phase.
 
-DSA: Tree Transformations and Rerooting
-Notice: Tree Transformations and Rerooting usually has a repeated decision that can be made locally once the right state is maintained.
-Approach: For Tree Transformations and Rerooting, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?
+DSA: Heap-Based Optimization
+Notice: Heap-Based Optimization usually has a repeated decision that can be made locally once the right state is maintained.
+Approach: For Heap-Based Optimization, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?
 Complexity: The optimized target is usually O(n), O(n log n), or O(states * transitions), depending on the pattern. Space is whatever state is required to preserve the invariant.
 
 Today's action: explain the concept aloud, trace the Java solution once, then solve one variant.
