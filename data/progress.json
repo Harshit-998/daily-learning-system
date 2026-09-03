@@ -7,7 +7,7 @@
     "dsa"
   ],
   "timezone": "Asia/Kolkata",
-  "lastRunDate": "2026-09-02",
+  "lastRunDate": "2026-09-03",
   "systemDesign": {
     "completedTopicIds": [
       "latency-throughput-availability",
@@ -18,9 +18,10 @@
       "api-gateway",
       "database-indexing",
       "replication",
-      "sharding-partitioning"
+      "sharding-partitioning",
+      "consistency-models"
     ],
-    "currentIndex": 9
+    "currentIndex": 10
   },
   "dsa": {
     "completedPatternIds": [
@@ -32,72 +33,13 @@
       "binary-search",
       "linked-list",
       "trees-dfs-bfs",
-      "heaps-priority-queue"
+      "heaps-priority-queue",
+      "backtracking"
     ],
-    "currentPatternIndex": 9,
+    "currentPatternIndex": 10,
     "currentDifficulty": "hard",
     "reviewQueue": [
       {
-        "id": "latency-throughput-availability",
-        "type": "system-design",
-        "dueDate": "2026-09-02",
-        "strength": 0
-      },
-      {
-        "id": "arrays-hashing",
-        "type": "dsa",
-        "dueDate": "2026-09-02",
-        "strength": 0
-      },
-      {
-        "id": "client-server-apis",
-        "type": "system-design",
-        "dueDate": "2026-09-02",
-        "strength": 0
-      },
-      {
-        "id": "two-pointers",
-        "type": "dsa",
-        "dueDate": "2026-09-02",
-        "strength": 0
-      },
-      {
-        "id": "load-balancing",
-        "type": "system-design",
-        "dueDate": "2026-09-02",
-        "strength": 0
-      },
-      {
-        "id": "sliding-window",
-        "type": "dsa",
-        "dueDate": "2026-09-02",
-        "strength": 0
-      },
-      {
-        "id": "caching",
-        "type": "system-design",
-        "dueDate": "2026-09-02",
-        "strength": 0
-      },
-      {
-        "id": "prefix-sums",
-        "type": "dsa",
-        "dueDate": "2026-09-02",
-        "strength": 0
-      },
-      {
-        "id": "replication",
-        "type": "system-design",
-        "dueDate": "2026-09-02",
-        "strength": 0
-      },
-      {
-        "id": "trees-dfs-bfs",
-        "type": "dsa",
-        "dueDate": "2026-09-02",
-        "strength": 0
-      },
-      {
         "id": "rate-limiting",
         "type": "system-design",
         "dueDate": "2026-09-03",
@@ -153,6 +95,18 @@
       },
       {
         "id": "trees-dfs-bfs",
+        "type": "dsa",
+        "dueDate": "2026-09-04",
+        "strength": 0
+      },
+      {
+        "id": "consistency-models",
+        "type": "system-design",
+        "dueDate": "2026-09-04",
+        "strength": 0
+      },
+      {
+        "id": "backtracking",
         "type": "dsa",
         "dueDate": "2026-09-04",
         "strength": 0
@@ -218,6 +172,18 @@
         "strength": 0
       },
       {
+        "id": "consistency-models",
+        "type": "system-design",
+        "dueDate": "2026-09-06",
+        "strength": 0
+      },
+      {
+        "id": "backtracking",
+        "type": "dsa",
+        "dueDate": "2026-09-06",
+        "strength": 0
+      },
+      {
         "id": "rate-limiting",
         "type": "system-design",
         "dueDate": "2026-09-07",
@@ -275,6 +241,18 @@
         "id": "heaps-priority-queue",
         "type": "dsa",
         "dueDate": "2026-09-09",
+        "strength": 0
+      },
+      {
+        "id": "consistency-models",
+        "type": "system-design",
+        "dueDate": "2026-09-10",
+        "strength": 0
+      },
+      {
+        "id": "backtracking",
+        "type": "dsa",
+        "dueDate": "2026-09-10",
         "strength": 0
       },
       {
@@ -383,11 +361,30 @@
         "id": "heaps-priority-queue",
         "type": "dsa",
         "dueDate": "2026-09-18",
+        "strength": 0
+      },
+      {
+        "id": "consistency-models",
+        "type": "system-design",
+        "dueDate": "2026-09-19",
+        "strength": 0
+      },
+      {
+        "id": "backtracking",
+        "type": "dsa",
+        "dueDate": "2026-09-19",
         "strength": 0
       }
     ]
   },
   "history": [
+    {
+      "date": "2026-09-03",
+      "mode": "daily",
+      "systemDesignTopicId": "consistency-models",
+      "dsaPatternId": "backtracking",
+      "title": "Consistency Models + Backtracking with Pruning"
+    },
     {
       "date": "2026-09-02",
       "mode": "daily",
