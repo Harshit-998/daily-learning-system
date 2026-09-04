@@ -7,7 +7,7 @@
     "dsa"
   ],
   "timezone": "Asia/Kolkata",
-  "lastRunDate": "2026-09-03",
+  "lastRunDate": "2026-09-04",
   "systemDesign": {
     "completedTopicIds": [
       "latency-throughput-availability",
@@ -19,9 +19,10 @@
       "database-indexing",
       "replication",
       "sharding-partitioning",
-      "consistency-models"
+      "consistency-models",
+      "cap-theorem"
     ],
-    "currentIndex": 10
+    "currentIndex": 11
   },
   "dsa": {
     "completedPatternIds": [
@@ -34,60 +35,13 @@
       "linked-list",
       "trees-dfs-bfs",
       "heaps-priority-queue",
-      "backtracking"
+      "backtracking",
+      "graphs-traversal"
     ],
-    "currentPatternIndex": 10,
+    "currentPatternIndex": 11,
     "currentDifficulty": "hard",
     "reviewQueue": [
       {
-        "id": "rate-limiting",
-        "type": "system-design",
-        "dueDate": "2026-09-03",
-        "strength": 0
-      },
-      {
-        "id": "stack-monotonic",
-        "type": "dsa",
-        "dueDate": "2026-09-03",
-        "strength": 0
-      },
-      {
-        "id": "api-gateway",
-        "type": "system-design",
-        "dueDate": "2026-09-03",
-        "strength": 0
-      },
-      {
-        "id": "binary-search",
-        "type": "dsa",
-        "dueDate": "2026-09-03",
-        "strength": 0
-      },
-      {
-        "id": "database-indexing",
-        "type": "system-design",
-        "dueDate": "2026-09-03",
-        "strength": 0
-      },
-      {
-        "id": "linked-list",
-        "type": "dsa",
-        "dueDate": "2026-09-03",
-        "strength": 0
-      },
-      {
-        "id": "sharding-partitioning",
-        "type": "system-design",
-        "dueDate": "2026-09-03",
-        "strength": 0
-      },
-      {
-        "id": "heaps-priority-queue",
-        "type": "dsa",
-        "dueDate": "2026-09-03",
-        "strength": 0
-      },
-      {
         "id": "replication",
         "type": "system-design",
         "dueDate": "2026-09-04",
@@ -119,6 +73,18 @@
       },
       {
         "id": "heaps-priority-queue",
+        "type": "dsa",
+        "dueDate": "2026-09-05",
+        "strength": 0
+      },
+      {
+        "id": "cap-theorem",
+        "type": "system-design",
+        "dueDate": "2026-09-05",
+        "strength": 0
+      },
+      {
+        "id": "graphs-traversal",
         "type": "dsa",
         "dueDate": "2026-09-05",
         "strength": 0
@@ -220,6 +186,18 @@
         "strength": 0
       },
       {
+        "id": "cap-theorem",
+        "type": "system-design",
+        "dueDate": "2026-09-07",
+        "strength": 0
+      },
+      {
+        "id": "graphs-traversal",
+        "type": "dsa",
+        "dueDate": "2026-09-07",
+        "strength": 0
+      },
+      {
         "id": "replication",
         "type": "system-design",
         "dueDate": "2026-09-08",
@@ -253,6 +231,18 @@
         "id": "backtracking",
         "type": "dsa",
         "dueDate": "2026-09-10",
+        "strength": 0
+      },
+      {
+        "id": "cap-theorem",
+        "type": "system-design",
+        "dueDate": "2026-09-11",
+        "strength": 0
+      },
+      {
+        "id": "graphs-traversal",
+        "type": "dsa",
+        "dueDate": "2026-09-11",
         "strength": 0
       },
       {
@@ -373,11 +363,30 @@
         "id": "backtracking",
         "type": "dsa",
         "dueDate": "2026-09-19",
+        "strength": 0
+      },
+      {
+        "id": "cap-theorem",
+        "type": "system-design",
+        "dueDate": "2026-09-20",
+        "strength": 0
+      },
+      {
+        "id": "graphs-traversal",
+        "type": "dsa",
+        "dueDate": "2026-09-20",
         "strength": 0
       }
     ]
   },
   "history": [
+    {
+      "date": "2026-09-04",
+      "mode": "daily",
+      "systemDesignTopicId": "cap-theorem",
+      "dsaPatternId": "graphs-traversal",
+      "title": "CAP Theorem + Graph Modeling and Traversal"
+    },
     {
       "date": "2026-09-03",
       "mode": "daily",
