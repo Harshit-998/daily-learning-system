@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CAP Theorem + Graph Modeling and Traversal</title>
+  <title>Message Queues + Shortest Path Variants</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
     html { -webkit-text-size-adjust:100%; }
     body {
       margin:0;
-      background:#15110d;
-      color:#fff7ed;
+      background:#f8f9fb;
+      color:#111827;
       font-family:'IBM Plex Sans', Arial, sans-serif;
       line-height:1.62;
     }
@@ -21,52 +21,50 @@
     h1, h2, h3 { letter-spacing:0; }
     h1 { margin:10px 0; font:700 34px/1.08 'Space Grotesk', Arial, sans-serif; }
     h2 { margin:8px 0 12px; font:700 24px/1.2 'Space Grotesk', Arial, sans-serif; }
-    h3 { margin:22px 0 8px; font:700 15px/1.25 'Space Grotesk', Arial, sans-serif; color:#ea580c; }
+    h3 { margin:22px 0 8px; font:700 15px/1.25 'Space Grotesk', Arial, sans-serif; color:#9f1239; }
     p, li { font-size:15px; }
     ul, ol { margin:0; padding-left:20px; }
     code, pre, .label, .kicker, .metric strong, .caption { font-family:'IBM Plex Mono', Consolas, monospace; }
-    .hero, .block, .recall, .panel, details, .review { background:#211a14; border:1px solid #7c4a23; }
-    .hero { padding:30px; margin-bottom:22px; color:#fff7ed; }
-    .hero p, .lede, .caption, .answer { color:#e1c7a7; }
-    .kicker, .label { color:#ea580c; text-transform:uppercase; font-size:11px; font-weight:700; letter-spacing:.08em; }
+    .hero, .block, .recall, .panel, details, .review { background:#ffffff; border:1px solid #d9dee7; }
+    .hero { padding:30px; margin-bottom:22px; color:#111827; }
+    .hero p, .lede, .caption, .answer { color:#5b6472; }
+    .kicker, .label { color:#9f1239; text-transform:uppercase; font-size:11px; font-weight:700; letter-spacing:.08em; }
     .block, .recall { margin:22px 0; padding:24px; }
     .panel { padding:15px; margin:12px 0; }
     .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:14px 0; }
     .two-col, .exec-grid, .war-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0; }
-    .challenge, .mnemonic { border:1px solid #ea580c; background:#ea580c18; padding:14px 16px; margin:14px 0; }
+    .challenge, .mnemonic { border:1px solid #9f1239; background:#9f123918; padding:14px 16px; margin:14px 0; }
     .mnemonic { display:flex; gap:10px; align-items:flex-start; }
-    .badge { display:inline-flex; min-width:42px; justify-content:center; padding:4px 8px; background:#ea580c; color:#ffffff; font-weight:700; }
-    .diagram-frame { background:#0c0a09; border:1px solid #7c4a23; padding:14px; margin:10px 0; overflow-x:auto; }
+    .badge { display:inline-flex; min-width:42px; justify-content:center; padding:4px 8px; background:#9f1239; color:#ffffff; font-weight:700; }
+    .diagram-frame { background:#111827; border:1px solid #d9dee7; padding:14px; margin:10px 0; overflow-x:auto; }
     .diagram-frame svg { display:block; min-width:640px; max-width:100%; height:auto; }
     .html-diagram { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; min-width:560px; }
-    .diagram-node { background:#211a14; color:#fff7ed; border:1px solid #7c4a23; padding:12px; min-height:74px; }
-    .diagram-node span { display:block; color:#ea580c; font-family:'IBM Plex Mono', Consolas, monospace; font-size:11px; font-weight:700; margin-bottom:6px; }
+    .diagram-node { background:#ffffff; color:#111827; border:1px solid #d9dee7; padding:12px; min-height:74px; }
+    .diagram-node span { display:block; color:#9f1239; font-family:'IBM Plex Mono', Consolas, monospace; font-size:11px; font-weight:700; margin-bottom:6px; }
     .diagram-node b { display:block; font-size:13px; line-height:1.35; }
-    pre { background:#0c0a09; color:#f8fafc; padding:15px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
+    pre { background:#111827; color:#f8fafc; padding:15px; overflow-x:auto; font-size:12.8px; line-height:1.55; }
     details { padding:13px 15px; margin:9px 0; }
     summary { cursor:pointer; font-weight:700; }
-    .answer { margin-top:8px; padding-top:8px; border-top:1px dashed #7c4a23; }
+    .answer { margin-top:8px; padding-top:8px; border-top:1px dashed #d9dee7; }
     .array-row { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; }
-    .cell { min-width:44px; padding:8px 4px; text-align:center; border:1px solid #7c4a23; background:#211a14; font-family:'IBM Plex Mono', monospace; }
-    .cell .idx { display:block; color:#e1c7a7; font-size:10px; }
-    .cell.hit { border-color:#ea580c; background:#ea580c18; }
+    .cell { min-width:44px; padding:8px 4px; text-align:center; border:1px solid #d9dee7; background:#ffffff; font-family:'IBM Plex Mono', monospace; }
+    .cell .idx { display:block; color:#5b6472; font-size:10px; }
+    .cell.hit { border-color:#9f1239; background:#9f123918; }
     .review { margin-top:28px; overflow:hidden; }
-    .review-head { padding:12px 16px; background:#fff7ed; color:#ffffff; font-weight:700; }
+    .review-head { padding:12px 16px; background:#111827; color:#ffffff; font-weight:700; }
     .review-body { display:grid; grid-template-columns:repeat(4,1fr); }
-    .review-cell { padding:14px 16px; border-right:1px solid #7c4a23; }
-    .review-cell span { display:block; color:#e1c7a7; font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; }
+    .review-cell { padding:14px 16px; border-right:1px solid #d9dee7; }
+    .review-cell span { display:block; color:#5b6472; font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; }
     .metric-row { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:18px 0; }
-    .metric { background:#211a14; border:1px solid #7c4a23; padding:16px; }
-    .metric strong { display:block; color:#ea580c; font-size:12px; }
+    .metric { background:#ffffff; border:1px solid #d9dee7; padding:16px; }
+    .metric strong { display:block; color:#9f1239; font-size:12px; }
     .metric span { font-weight:700; }
     
-      body { background:#15110d; color:#fff7ed; }
-      .hero, .block, .recall, .panel, details { background:#211a14; color:#fff7ed; border-color:#7c4a23; }
-      .hero { border-radius:0; border-top:8px solid #ea580c; }
-      .war-grid { align-items:stretch; }
-      .block { border-left:6px solid #ea580c; }
-      .label, h3 { color:#fbbf24; }
-      .diagram-frame, pre { border-color:#7c4a23; }
+      main { max-width:900px; }
+      .hero { border-radius:0; border-left:10px solid #9f1239; box-shadow:0 20px 50px rgba(15,23,42,.09); }
+      .block { border-radius:0; box-shadow:0 12px 30px rgba(15,23,42,.07); }
+      .label { border-bottom:1px solid #d9dee7; display:block; padding-bottom:8px; margin-bottom:8px; }
+      .panel { border-left:4px solid #9f1239; }
     
     @media (max-width:720px) {
       main { padding:12px 10px 42px; }
@@ -76,32 +74,32 @@
     }
   </style>
 </head>
-<body class="warroom">
+<body class="executive">
   <main>
     <header class="hero">
-    <div class="kicker">Architecture War Room / warroom / 2026-09-04</div>
-    <h1>CAP Theorem + Graph Modeling and Traversal</h1>
-    <p>Requirements, risks, fallback paths</p>
+    <div class="kicker">Engineering Brief / executive / 2026-09-05</div>
+    <h1>Message Queues + Shortest Path Variants</h1>
+    <p>Decision memo for production interviews</p>
   </header>
     <section class="recall">
-    <div class="label">Standup Recall</div>
+    <div class="label">Board Summary</div>
     <h2>60-second recall</h2>
-    <ul><li>CAP Theorem is not just a component name; it is a decision about where correctness, latency, cost, and operational complexity should sit.</li><li>For DynamoDB-style stores, the interview answer should explain request flow, bottlenecks, failure behavior, and what becomes stale or strongly consistent.</li><li>Graph Modeling and Traversal becomes easier when you name the invariant before choosing the data structure.</li></ul>
+    <ul><li>Message Queues is not just a component name; it is a decision about where correctness, latency, cost, and operational complexity should sit.</li><li>For Notification System, the interview answer should explain request flow, bottlenecks, failure behavior, and what becomes stale or strongly consistent.</li><li>Shortest Path Variants becomes easier when you name the invariant before choosing the data structure.</li></ul>
   </section>
-    <section class="block war-panel">
+    <section class="block memo">
     <div class="label">01 / System Design Topic</div>
-    <h2>CAP Theorem</h2>
-    <p class="lede">CAP Theorem is the design tool used when reasoning about consistency and availability during network partitions. In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.</p>
+    <h2>Message Queues</h2>
+    <p class="lede">Message Queues is the design tool used when decoupling producers and consumers with durable asynchronous work. In interviews, the important part is not the definition; it is deciding where this idea belongs in the request path and what trade-off it creates.</p>
     <div class="challenge"><h3>Think Like an Engineer</h3><ul><li>What is the source of truth?</li><li>What can become stale without hurting correctness?</li><li>What metric tells you this design is failing before users complain?</li></ul></div>
-    <h3>Why it exists</h3><p>It exists because real systems like DynamoDB-style stores hit limits that a single straightforward service cannot handle cleanly: traffic spikes, uneven access patterns, slow dependencies, partial failures, and different consistency needs across reads and writes.</p>
-    <h3>Analogy</h3><p>Think of CAP Theorem as an airport operations decision. Some passengers need a fast security lane, some luggage can move asynchronously, and some control systems must never accept conflicting state. Good design separates those flows instead of treating all work the same.</p>
-    <h3>Technical depth</h3><p>For CAP Theorem, start from the user-facing operation, then identify the hot path, source of truth, derived data, coordination boundary, and failure recovery path. A senior answer should discuss p95/p99 latency, write amplification, stale reads, retries, idempotency, data ownership, observability, and how the design changes when one dependency becomes slow or unavailable.</p>
+    <h3>Why it exists</h3><p>It exists because real systems like Notification System hit limits that a single straightforward service cannot handle cleanly: traffic spikes, uneven access patterns, slow dependencies, partial failures, and different consistency needs across reads and writes.</p>
+    <h3>Analogy</h3><p>Think of Message Queues as an airport operations decision. Some passengers need a fast security lane, some luggage can move asynchronously, and some control systems must never accept conflicting state. Good design separates those flows instead of treating all work the same.</p>
+    <h3>Technical depth</h3><p>For Message Queues, start from the user-facing operation, then identify the hot path, source of truth, derived data, coordination boundary, and failure recovery path. A senior answer should discuss p95/p99 latency, write amplification, stale reads, retries, idempotency, data ownership, observability, and how the design changes when one dependency becomes slow or unavailable.</p>
     <div class="mnemonic"><span class="badge">F.L.O.W.</span><div>Flow, Limit, Ownership, Watchpoints. Explain where the request flows, what limit you are solving, who owns the truth, and what you will watch in production.</div></div>
     <h3>Architecture diagram</h3>
     <div class="diagram-frame"><div class="html-diagram">
     <div class="diagram-node">
       <span>01</span>
-      <b>CAP Theorem in DynamoDB-style stores</b>
+      <b>Message Queues in Notification System</b>
     </div><div class="diagram-node">
       <span>02</span>
       <b>Client</b>
@@ -113,7 +111,7 @@
       <b>auth, limits</b>
     </div><div class="diagram-node">
       <span>05</span>
-      <b>CAP Theorem</b>
+      <b>Message Queues</b>
     </div><div class="diagram-node">
       <span>06</span>
       <b>decision point</b>
@@ -128,29 +126,29 @@
       <b>Source of Truth</b>
     </div>
   </div></div>
-    <p class="caption">A generic production flow for applying CAP Theorem: isolate the user-facing path, protect the source of truth, and observe the async or derived-data path separately.</p>
+    <p class="caption">A generic production flow for applying Message Queues: isolate the user-facing path, protect the source of truth, and observe the async or derived-data path separately.</p>
     <div class="two-col">
-      <div class="panel"><h3>Real-world example</h3><p>DynamoDB-style stores can use CAP Theorem to keep the product responsive while protecting the parts of the system that require correctness. The exact placement depends on whether the operation is read-heavy, write-heavy, hot-key prone, or failure-sensitive.</p></div>
-      <div class="panel"><h3>Practical design example</h3><p>In a notification or booking-style service, apply CAP Theorem by naming the synchronous API path, deciding which state is authoritative, placing any cache/queue/index/replica only where its consistency trade-off is acceptable, and adding metrics around saturation and correctness drift.</p></div>
+      <div class="panel"><h3>Real-world example</h3><p>Notification System can use Message Queues to keep the product responsive while protecting the parts of the system that require correctness. The exact placement depends on whether the operation is read-heavy, write-heavy, hot-key prone, or failure-sensitive.</p></div>
+      <div class="panel"><h3>Practical design example</h3><p>In a notification or booking-style service, apply Message Queues by naming the synchronous API path, deciding which state is authoritative, placing any cache/queue/index/replica only where its consistency trade-off is acceptable, and adding metrics around saturation and correctness drift.</p></div>
     </div>
     <h3>How components interact</h3><p>Client traffic enters through the API layer, which authenticates, rate limits, and routes requests. The application service reads or writes authoritative storage, optionally consults derived infrastructure such as cache, index, queue, or replica, and emits events/metrics so operators can see lag, error rate, retries, and tail latency.</p>
     <div class="grid">
-      <div class="panel"><h3>Trade-offs</h3><ul><li>CAP Theorem can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.</li><li>Adding a new infrastructure layer creates ownership questions: who writes it, who invalidates it, who repairs it, and what happens when it lies?</li><li>The simplest correct design is often better until the bottleneck is proven by capacity estimates or production metrics.</li></ul></div>
+      <div class="panel"><h3>Trade-offs</h3><ul><li>Message Queues can improve one dimension such as latency, throughput, availability, or operability while increasing another dimension such as consistency complexity or debugging difficulty.</li><li>Adding a new infrastructure layer creates ownership questions: who writes it, who invalidates it, who repairs it, and what happens when it lies?</li><li>The simplest correct design is often better until the bottleneck is proven by capacity estimates or production metrics.</li></ul></div>
       <div class="panel"><h3>When to use it</h3><ul><li>Use it when the bottleneck or correctness problem is clear enough to justify the extra moving part.</li><li>Use it when the system has measurable pressure: hot keys, high fanout, slow downstreams, growing data, or strict availability needs.</li><li>Use it when the operational team can observe and repair the failure modes it introduces.</li></ul></div>
       <div class="panel"><h3>When not to use it</h3><ul><li>Do not use it only because the keyword sounds impressive in an interview.</li><li>Do not use it before identifying the source of truth and acceptable staleness.</li><li>Do not use it when the product is small enough that the added coordination cost dominates the benefit.</li></ul></div>
       <div class="panel"><h3>Common mistakes</h3><ul><li>Explaining the component definition but not where it sits in the request flow.</li><li>Ignoring stale data, duplicate retries, partial failure, and backpressure.</li><li>Skipping metrics, alerts, replay/reconciliation, and operational ownership.</li></ul></div>
       <div class="panel"><h3>Scaling considerations</h3><ul><li>Estimate QPS, peak multiplier, data size, read/write ratio, fanout, and hot-key distribution before choosing the final architecture.</li><li>Track saturation signals such as queue depth, cache hit rate, p99 latency, lock contention, DB CPU, and retry rate.</li><li>Decide how the design changes across regions: local reads, global writes, conflict resolution, and disaster recovery.</li></ul></div>
       <div class="panel"><h3>Failure scenarios</h3><ul><li>A downstream slows down and causes retries, which increases load and worsens tail latency.</li><li>A derived store becomes stale or unavailable and the service either serves wrong data or overloads the primary store.</li><li>A hot partition receives most traffic and defeats the average-case scaling plan.</li><li>A deploy changes write semantics but old workers or consumers still process messages using the previous contract.</li></ul></div>
     </div>
-    <h3>Production usage</h3><p>Teams use CAP Theorem with explicit SLOs, dashboards, load tests, runbooks, and rollback plans. The production version includes ownership and repair paths, not only the happy-path architecture.</p>
-    <div class="panel"><h3>Interview questions</h3><ul><li>Where would you place CAP Theorem in the DynamoDB-style stores request flow?</li><li>Which part of your design is strongly consistent and which part can be eventually consistent?</li><li>What breaks first at 10x traffic?</li><li>How would you detect this component causing user-visible errors?</li></ul></div>
-    <h3>Previous-concept connections</h3><p>This builds on consistency-models and should be explained in terms of how those earlier ideas interact.</p>
+    <h3>Production usage</h3><p>Teams use Message Queues with explicit SLOs, dashboards, load tests, runbooks, and rollback plans. The production version includes ownership and repair paths, not only the happy-path architecture.</p>
+    <div class="panel"><h3>Interview questions</h3><ul><li>Where would you place Message Queues in the Notification System request flow?</li><li>Which part of your design is strongly consistent and which part can be eventually consistent?</li><li>What breaks first at 10x traffic?</li><li>How would you detect this component causing user-visible errors?</li></ul></div>
+    <h3>Previous-concept connections</h3><p>This builds on api-gateway and should be explained in terms of how those earlier ideas interact.</p>
   </section>
-    <section class="block war-panel">
+    <section class="block memo">
     <div class="label">02 / Real Mock Interview</div>
-    <h2>Design Google Photos</h2>
-    <p class="lede">Design Google Photos for a realistic high-traffic production workload.</p>
-    <h3>Scope clarification</h3><p>Focus on the core user journey, write path, read path, data ownership, consistency choices, and operational failure handling for Google Photos. Keep low-value extras out of scope until the core design is correct.</p>
+    <h2>Design Notification Platform</h2>
+    <p class="lede">Design Notification Platform for a realistic high-traffic production workload.</p>
+    <h3>Scope clarification</h3><p>Focus on the core user journey, write path, read path, data ownership, consistency choices, and operational failure handling for Notification Platform. Keep low-value extras out of scope until the core design is correct.</p>
     <div class="two-col">
       <div class="panel"><h3>Functional requirements</h3><ul><li>Users can perform the primary product action with clear success/failure state.</li><li>Users can read current state quickly without overloading the source of truth.</li><li>The system records durable state transitions and exposes history where needed.</li><li>Admins or internal systems can monitor, retry, reconcile, and correct failed work.</li><li>The product supports idempotent retries from clients and background workers.</li></ul></div>
       <div class="panel"><h3>Non-functional requirements</h3><ul><li>Low p95/p99 latency for the primary read path.</li><li>Strong consistency for final user-visible commitments.</li><li>High availability for browsing and graceful degradation for non-critical features.</li><li>Backpressure during traffic spikes instead of unlimited retries.</li><li>Durable auditability for important state changes.</li><li>Security controls around authentication, authorization, abuse, and sensitive data.</li><li>Observability across API latency, queue lag, error rate, saturation, and correctness drift.</li></ul></div>
@@ -160,12 +158,12 @@
       <div class="panel"><h3>Core entities and data model</h3><ul><li>User(id, profile, auth metadata, status)</li><li>PrimaryResource(id, ownerId, state, version, createdAt, updatedAt)</li><li>Operation(id, userId, resourceId, idempotencyKey, status, attemptCount, timestamps)</li><li>Event(id, resourceId, type, payload, createdAt) for async propagation and replay.</li><li>Indexes should match the top access patterns; partition keys should avoid hot partitions.</li></ul></div>
       <div class="panel"><h3>API design</h3><ul><li>GET /resources?cursor=... returns paginated, cached read results.</li><li>POST /resources/{id}/operations with an idempotency key starts a state transition.</li><li>GET /operations/{operationId} returns pending, succeeded, failed, or retryable state.</li><li>POST /internal/reconcile scans stuck operations and repairs derived state.</li></ul></div>
     </div>
-    <h3>High-level architecture</h3><p>For Google Photos, use an API gateway, a product service for request validation, a strongly consistent primary database for final state, a cache or read model for high-volume reads, a queue/event log for asynchronous side effects, workers for fanout/retries, and an observability layer for tracing state transitions.</p>
+    <h3>High-level architecture</h3><p>For Notification Platform, use an API gateway, a product service for request validation, a strongly consistent primary database for final state, a cache or read model for high-volume reads, a queue/event log for asynchronous side effects, workers for fanout/retries, and an observability layer for tracing state transitions.</p>
     <h3>Mock architecture diagram</h3>
     <div class="diagram-frame"><div class="html-diagram">
     <div class="diagram-node">
       <span>01</span>
-      <b>Design Google Photos in Google Photos</b>
+      <b>Design Notification Platform in Notification Platform</b>
     </div><div class="diagram-node">
       <span>02</span>
       <b>Client</b>
@@ -177,7 +175,7 @@
       <b>auth, limits</b>
     </div><div class="diagram-node">
       <span>05</span>
-      <b>Design Google Phot</b>
+      <b>Design Notificatio</b>
     </div><div class="diagram-node">
       <span>06</span>
       <b>decision point</b>
@@ -207,9 +205,9 @@
       <div class="panel"><h3>Trade-offs</h3><ul><li>Strong consistency protects user trust but limits write scalability.</li><li>Caching improves reads but introduces staleness and invalidation work.</li><li>Queues smooth spikes but add delayed completion and replay complexity.</li><li>Partitioning improves capacity but makes cross-partition queries harder.</li></ul></div>
     </div>
     <div class="panel"><h3>Follow-up questions</h3><ul><li>What is the source of truth?</li><li>Which APIs need idempotency keys?</li><li>What can be eventually consistent?</li><li>What happens at 10x peak traffic?</li><li>How do you choose partition keys?</li><li>How do you prevent cache stampede?</li><li>How do you retry failed async work?</li><li>What metrics would you page on?</li><li>How would this change in multi-region?</li><li>How do you recover after a partial write failure?</li></ul></div>
-    <div class="panel"><h3>Five-minute answer</h3><p>I would design Google Photos around the primary user journey first, then split reads, writes, and async side effects. The API layer handles auth and rate limits. The product service validates requests and writes final state to a strongly consistent primary store. High-volume reads come from cache or read models that can be rebuilt from the source of truth. Expensive side effects go through a queue with idempotent workers and dead-letter handling. For scale, I would estimate peak QPS, identify hot entities, partition by the dominant access pattern, and add backpressure before the database saturates. For reliability, I would trace every state transition, monitor p99 latency and queue lag, and run reconciliation for stuck operations.</p></div>
+    <div class="panel"><h3>Five-minute answer</h3><p>I would design Notification Platform around the primary user journey first, then split reads, writes, and async side effects. The API layer handles auth and rate limits. The product service validates requests and writes final state to a strongly consistent primary store. High-volume reads come from cache or read models that can be rebuilt from the source of truth. Expensive side effects go through a queue with idempotent workers and dead-letter handling. For scale, I would estimate peak QPS, identify hot entities, partition by the dominant access pattern, and add backpressure before the database saturates. For reliability, I would trace every state transition, monitor p99 latency and queue lag, and run reconciliation for stuck operations.</p></div>
   </section>
-    <section class="block war-panel">
+    <section class="block memo">
     <div class="label">03 / Node.js Runtime Concept</div>
     <h2>Worker Threads for CPU-Bound Node.js Work</h2>
     <h3>Why it matters</h3><p>Node handles I/O concurrency well, but CPU-heavy JavaScript blocks the event loop and makes every request slower. Worker threads let you isolate CPU work without freezing the main server.</p>
@@ -239,62 +237,58 @@ export function runCpuJob(payload) {
 }</code></pre>
     <div class="panel"><h3>Node.js interview questions</h3><ul><li>Why does CPU-bound work hurt a Node.js server more than slow I/O?</li><li>When would you use worker threads instead of a queue and separate worker service?</li><li>What metrics prove that worker threads helped rather than just moved the bottleneck?</li></ul></div>
   </section>
-    <section class="block war-panel">
+    <section class="block memo">
     <div class="label">04 / JavaScript Interview Drill</div>
-    <h2>Promise scheduling, microtasks, and concurrency control</h2>
+    <h2>Closures, this-binding, and hidden state</h2>
     <div class="panel">
-      <h3>Q1. What runs first: a resolved Promise callback, setTimeout(..., 0), or synchronous code?</h3>
-      <p>Synchronous code runs first. Promise callbacks run next in the microtask queue after the current call stack finishes. setTimeout callbacks run later in the macrotask/timer phase.</p>
-      <pre><code>console.log(&quot;A&quot;);
-setTimeout(() =&gt; console.log(&quot;B&quot;), 0);
-Promise.resolve().then(() =&gt; console.log(&quot;C&quot;));
-console.log(&quot;D&quot;);
-// A, D, C, B</code></pre>
-      <p><strong>Follow-up:</strong> Explain why too many microtasks can starve timers and I/O callbacks.</p>
-    </div><div class="panel">
-      <h3>Q2. Why is Promise.all dangerous for unbounded work?</h3>
-      <p>Promise.all starts all promises immediately if you create them first. For thousands of network calls, that can overload your service, the remote service, sockets, memory, and rate limits.</p>
-      <pre><code>async function runWithLimit(items, limit, task) {
-  const results = [];
-  let next = 0;
-  async function worker() {
-    while (next &lt; items.length) {
-      const i = next++;
-      results[i] = await task(items[i]);
-    }
-  }
-  await Promise.all(Array.from({ length: limit }, worker));
-  return results;
-}</code></pre>
-      <p><strong>Follow-up:</strong> How would you add retries without breaking ordering?</p>
-    </div><div class="panel">
-      <h3>Q3. What is the difference between Promise.all and Promise.allSettled?</h3>
-      <p>Promise.all fails fast when any input rejects. Promise.allSettled waits for every input and returns fulfilled/rejected results, which is better for partial success workflows.</p>
+      <h3>Q1. What does a closure actually retain?</h3>
+      <p>A closure retains references to variables in its lexical environment, not a frozen copy of their values. That is why mutations after function creation can still be observed.</p>
+      <pre><code>function counter() {
+  let n = 0;
+  return () =&gt; ++n;
+}
+const next = counter();
+next(); // 1
+next(); // 2</code></pre>
       
-      <p><strong>Follow-up:</strong> Which would you use for sending 1,000 optional notifications?</p>
     </div><div class="panel">
-      <h3>Q4. How do you cancel async work in modern JavaScript?</h3>
-      <p>Use AbortController and pass its signal into APIs that support cancellation, such as fetch. Cancellation is cooperative; your code must observe the signal and stop work.</p>
+      <h3>Q2. Why does this change when a method is passed as a callback?</h3>
+      <p>this is usually determined by the call site, not where the function was defined. Passing obj.method loses the obj.method() call-site binding unless you bind it or wrap it.</p>
+      <pre><code>const user = {
+  name: &quot;Harshit&quot;,
+  print() { return this.name; }
+};
+const fn = user.print;
+fn(); // undefined in strict mode</code></pre>
+      <p><strong>Follow-up:</strong> How would arrow functions change this?</p>
+    </div><div class="panel">
+      <h3>Q3. Why can closures cause memory leaks?</h3>
+      <p>If a long-lived callback closes over a large object, that object cannot be garbage-collected while the callback remains reachable.</p>
+      
+      <p><strong>Follow-up:</strong> Where does this show up in frontend apps and Node servers?</p>
+    </div><div class="panel">
+      <h3>Q4. What is the practical difference between call, apply, and bind?</h3>
+      <p>call invokes immediately with positional arguments, apply invokes immediately with an argument array, and bind returns a new function with this and optional arguments preset.</p>
       
       
     </div>
   </section>
-    <section class="block war-panel">
+    <section class="block memo">
     <div class="label">05 / DSA Pattern in Java</div>
-    <h2>Graph Modeling and Traversal</h2>
-    <p class="lede">Study Course Schedule II as the representative problem for Graph Modeling and Traversal. The goal is to learn the reusable invariant, not memorize one implementation.</p>
-    <div class="challenge"><h3>Invariant</h3><ul><li>At every step, the maintained state contains exactly the information needed to answer future decisions for Graph Modeling and Traversal; anything not in the state is either irrelevant or already folded into the answer.</li></ul></div>
-    <div class="panel"><h3>Examples</h3><ul><li>Representative problem: Course Schedule II.</li><li>Related variants: Course Schedule II, Evaluate Division, Shortest Bridge.</li><li>For each variant, identify what state must be carried forward and what condition makes a decision final.</li></ul></div>
+    <h2>Shortest Path Variants</h2>
+    <p class="lede">Study Cheapest Flights Within K Stops as the representative problem for Shortest Path Variants. The goal is to learn the reusable invariant, not memorize one implementation.</p>
+    <div class="challenge"><h3>Invariant</h3><ul><li>At every step, the maintained state contains exactly the information needed to answer future decisions for Shortest Path Variants; anything not in the state is either irrelevant or already folded into the answer.</li></ul></div>
+    <div class="panel"><h3>Examples</h3><ul><li>Representative problem: Cheapest Flights Within K Stops.</li><li>Related variants: Cheapest Flights Within K Stops, Minimum Cost to Make at Least One Valid Path, Swim in Rising Water.</li><li>For each variant, identify what state must be carried forward and what condition makes a decision final.</li></ul></div>
     <div class="two-col">
       <div class="panel"><h3>Constraints</h3><ul><li>Assume interview-size constraints where O(n^2) usually times out unless n is small.</li><li>Handle duplicates, empty input, boundary values, and adversarial ordering.</li><li>Prefer a proof-oriented invariant over a code-first explanation.</li></ul></div>
-      <div class="panel"><h3>What to notice</h3><ul><li>Graph Modeling and Traversal usually has a repeated decision that can be made locally once the right state is maintained.</li><li>The hard part is choosing the state representation and proving when it is safe to update the answer.</li><li>Variants often change the stored state, not the entire strategy.</li></ul></div>
+      <div class="panel"><h3>What to notice</h3><ul><li>Shortest Path Variants usually has a repeated decision that can be made locally once the right state is maintained.</li><li>The hard part is choosing the state representation and proving when it is safe to update the answer.</li><li>Variants often change the stored state, not the entire strategy.</li></ul></div>
     </div>
     <h3>Brute force</h3><p>Generate every candidate state or subproblem and check it directly. This is useful to discover the invariant, but it repeats work that the optimized pattern should reuse.</p>
     <h3>Why it is insufficient</h3><p>The brute-force version usually revisits overlapping choices. In interviews, the expected jump is to compress repeated work into a maintained structure, monotonic condition, recurrence, or boundary invariant.</p>
-    <h3>Core intuition</h3><p>For Graph Modeling and Traversal, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?</p>
-    <h3>Optimal approach</h3><p>Solve Course Schedule II by naming the invariant first, then implementing the smallest state that preserves that invariant. Walk through one non-trivial example and explain why each update is safe.</p>
+    <h3>Core intuition</h3><p>For Shortest Path Variants, ask: what information from the past is still relevant, what can be safely discarded, and what condition lets me commit to an answer?</p>
+    <h3>Optimal approach</h3><p>Solve Cheapest Flights Within K Stops by naming the invariant first, then implementing the smallest state that preserves that invariant. Walk through one non-trivial example and explain why each update is safe.</p>
     <div class="panel"><h3>Step-by-step</h3><ol><li>Write the brute-force condition in plain English.</li><li>Underline the repeated work.</li><li>Define the invariant that would let one pass or one recurrence replace repeated scanning.</li><li>Choose the data structure that stores exactly that invariant.</li><li>Trace the update order carefully and test the edge case that breaks naive solutions.</li></ol></div>
-    <h3>Trace template for Course Schedule II</h3>
+    <h3>Trace template for Cheapest Flights Within K Stops</h3>
     <div class="array-row">
       <div class="cell hit"><span class="idx">i=0</span>base</div><div class="cell"><span class="idx">i=1</span>state</div><div class="cell hit"><span class="idx">i=2</span>answer</div>
     </div>
@@ -326,34 +320,34 @@ class Solution {
     <div class="mnemonic"><span class="badge">I.S.P.</span><div>Invariant, State, Proof. If those three are clear, the code is usually straightforward.</div></div>
     <h3>Variant walkthroughs</h3>
     <div class="panel">
-      <h3>Course Schedule II</h3>
-      <p>For Course Schedule II, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Graph Modeling and Traversal, but the state payload changes.</p>
+      <h3>Cheapest Flights Within K Stops</h3>
+      <p>For Cheapest Flights Within K Stops, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Shortest Path Variants, but the state payload changes.</p>
       <pre><code>/* Write the invariant first, then implement the state transition for this variant. */</code></pre>
       <p><strong>Complexity:</strong> Depends on the chosen state, but should beat the brute-force baseline.</p>
     </div><div class="panel">
-      <h3>Evaluate Division</h3>
-      <p>For Evaluate Division, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Graph Modeling and Traversal, but the state payload changes.</p>
+      <h3>Minimum Cost to Make at Least One Valid Path</h3>
+      <p>For Minimum Cost to Make at Least One Valid Path, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Shortest Path Variants, but the state payload changes.</p>
       <pre><code>/* Write the invariant first, then implement the state transition for this variant. */</code></pre>
       <p><strong>Complexity:</strong> Depends on the chosen state, but should beat the brute-force baseline.</p>
     </div><div class="panel">
-      <h3>Shortest Bridge</h3>
-      <p>For Shortest Bridge, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Graph Modeling and Traversal, but the state payload changes.</p>
+      <h3>Swim in Rising Water</h3>
+      <p>For Swim in Rising Water, identify whether the state stores counts, boundaries, ordering, or best sub-results. The pattern remains Shortest Path Variants, but the state payload changes.</p>
       <pre><code>/* Write the invariant first, then implement the state transition for this variant. */</code></pre>
       <p><strong>Complexity:</strong> Depends on the chosen state, but should beat the brute-force baseline.</p>
     </div>
     <div class="panel"><h3>Exactly what changes across variants</h3><ul><li>The invariant may stay the same while the stored value changes from existence to count, index, min/max, or parent pointer.</li><li>The traversal order may change when the problem moves from array order to sorted order, graph order, or dependency order.</li><li>The proof changes when duplicates, negative values, cycles, or online updates are introduced.</li></ul></div>
-    <h3>Transfer learning</h3><p>After Course Schedule II, transfer the idea by asking what remains invariant across Course Schedule II, Evaluate Division, Shortest Bridge. The surface story changes, but the reusable move is compressing repeated decisions into a state you can defend.</p>
+    <h3>Transfer learning</h3><p>After Cheapest Flights Within K Stops, transfer the idea by asking what remains invariant across Cheapest Flights Within K Stops, Minimum Cost to Make at Least One Valid Path, Swim in Rising Water. The surface story changes, but the reusable move is compressing repeated decisions into a state you can defend.</p>
   </section>
     <section class="block self-test">
     <div class="label">06 / Self Test</div>
     <h2>Close-the-tab test</h2>
     <p class="lede">Answer first, then expand. This is for active recall, not rereading.</p>
-    <details><summary>1. What problem does CAP Theorem solve in production?</summary><div class="answer">Reasoning about consistency and availability during network partitions.</div></details><details><summary>2. What is the source of truth in today&#039;s system design?</summary><div class="answer">The durable store or authority that final writes must agree with; derived caches, queues, and indexes must be repairable from it.</div></details><details><summary>3. What is the invariant behind Graph Modeling and Traversal?</summary><div class="answer">Maintain exactly the state future decisions need; discard or fold in everything else.</div></details><details><summary>4. What makes a JavaScript interview answer strong?</summary><div class="answer">It explains the runtime or language rule, shows a small example, and names the production consequence.</div></details>
+    <details><summary>1. What problem does Message Queues solve in production?</summary><div class="answer">Decoupling producers and consumers with durable asynchronous work.</div></details><details><summary>2. What is the source of truth in today&#039;s system design?</summary><div class="answer">The durable store or authority that final writes must agree with; derived caches, queues, and indexes must be repairable from it.</div></details><details><summary>3. What is the invariant behind Shortest Path Variants?</summary><div class="answer">Maintain exactly the state future decisions need; discard or fold in everything else.</div></details><details><summary>4. What makes a JavaScript interview answer strong?</summary><div class="answer">It explains the runtime or language rule, shows a small example, and names the production consequence.</div></details>
   </section>
     <section class="review">
     <div class="review-head">Review schedule</div>
     <div class="review-body">
-      <div class="review-cell"><span>+1 day</span><b>Sat, Sep 5</b></div><div class="review-cell"><span>+3 days</span><b>Mon, Sep 7</b></div><div class="review-cell"><span>+7 days</span><b>Fri, Sep 11</b></div><div class="review-cell"><span>+16 days</span><b>Sun, Sep 20</b></div>
+      <div class="review-cell"><span>+1 day</span><b>Sun, Sep 6</b></div><div class="review-cell"><span>+3 days</span><b>Tue, Sep 8</b></div><div class="review-cell"><span>+7 days</span><b>Sat, Sep 12</b></div><div class="review-cell"><span>+16 days</span><b>Mon, Sep 21</b></div>
     </div>
   </section>
   </main>

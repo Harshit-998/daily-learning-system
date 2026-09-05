@@ -7,7 +7,7 @@
     "dsa"
   ],
   "timezone": "Asia/Kolkata",
-  "lastRunDate": "2026-09-04",
+  "lastRunDate": "2026-09-05",
   "systemDesign": {
     "completedTopicIds": [
       "latency-throughput-availability",
@@ -20,9 +20,10 @@
       "replication",
       "sharding-partitioning",
       "consistency-models",
-      "cap-theorem"
+      "cap-theorem",
+      "message-queues"
     ],
-    "currentIndex": 11
+    "currentIndex": 12
   },
   "dsa": {
     "completedPatternIds": [
@@ -36,36 +37,13 @@
       "trees-dfs-bfs",
       "heaps-priority-queue",
       "backtracking",
-      "graphs-traversal"
+      "graphs-traversal",
+      "shortest-path"
     ],
-    "currentPatternIndex": 11,
+    "currentPatternIndex": 12,
     "currentDifficulty": "hard",
     "reviewQueue": [
       {
-        "id": "replication",
-        "type": "system-design",
-        "dueDate": "2026-09-04",
-        "strength": 0
-      },
-      {
-        "id": "trees-dfs-bfs",
-        "type": "dsa",
-        "dueDate": "2026-09-04",
-        "strength": 0
-      },
-      {
-        "id": "consistency-models",
-        "type": "system-design",
-        "dueDate": "2026-09-04",
-        "strength": 0
-      },
-      {
-        "id": "backtracking",
-        "type": "dsa",
-        "dueDate": "2026-09-04",
-        "strength": 0
-      },
-      {
         "id": "sharding-partitioning",
         "type": "system-design",
         "dueDate": "2026-09-05",
@@ -150,6 +128,18 @@
         "strength": 0
       },
       {
+        "id": "message-queues",
+        "type": "system-design",
+        "dueDate": "2026-09-06",
+        "strength": 0
+      },
+      {
+        "id": "shortest-path",
+        "type": "dsa",
+        "dueDate": "2026-09-06",
+        "strength": 0
+      },
+      {
         "id": "rate-limiting",
         "type": "system-design",
         "dueDate": "2026-09-07",
@@ -210,6 +200,18 @@
         "strength": 0
       },
       {
+        "id": "message-queues",
+        "type": "system-design",
+        "dueDate": "2026-09-08",
+        "strength": 0
+      },
+      {
+        "id": "shortest-path",
+        "type": "dsa",
+        "dueDate": "2026-09-08",
+        "strength": 0
+      },
+      {
         "id": "sharding-partitioning",
         "type": "system-design",
         "dueDate": "2026-09-09",
@@ -243,6 +245,18 @@
         "id": "graphs-traversal",
         "type": "dsa",
         "dueDate": "2026-09-11",
+        "strength": 0
+      },
+      {
+        "id": "message-queues",
+        "type": "system-design",
+        "dueDate": "2026-09-12",
+        "strength": 0
+      },
+      {
+        "id": "shortest-path",
+        "type": "dsa",
+        "dueDate": "2026-09-12",
         "strength": 0
       },
       {
@@ -375,11 +389,30 @@
         "id": "graphs-traversal",
         "type": "dsa",
         "dueDate": "2026-09-20",
+        "strength": 0
+      },
+      {
+        "id": "message-queues",
+        "type": "system-design",
+        "dueDate": "2026-09-21",
+        "strength": 0
+      },
+      {
+        "id": "shortest-path",
+        "type": "dsa",
+        "dueDate": "2026-09-21",
         "strength": 0
       }
     ]
   },
   "history": [
+    {
+      "date": "2026-09-05",
+      "mode": "daily",
+      "systemDesignTopicId": "message-queues",
+      "dsaPatternId": "shortest-path",
+      "title": "Message Queues + Shortest Path Variants"
+    },
     {
       "date": "2026-09-04",
       "mode": "daily",
